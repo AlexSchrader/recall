@@ -20,4 +20,5 @@ db.pragma('foreign_keys = ON');
 const schema = readFileSync(join(__dirname, 'schema.sql'), 'utf8');
 db.exec(schema);
 
+export { DB_PATH };
 export default db;

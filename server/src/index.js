@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { DB_PATH } from './db/index.js';
 import documentsRouter from './routes/documents.js';
 import quizzesRouter from './routes/quizzes.js';
 
@@ -35,4 +36,5 @@ if (isProd) {
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT} [${isProd ? 'production' : 'development'}]`);
+  console.log(`DB: ${DB_PATH}`);
 });
