@@ -4,8 +4,11 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = join(__dirname, '../../data');
-const DB_PATH = join(DATA_DIR, 'recall.db');
+
+// DATABASE_PATH lets Railway (or any host) point to a persistent volume.
+// Falls back to the local dev path when not set.
+const DB_PATH = process.env.DATABASE_PATH || join(__dirname, '../../data/recall.db');
+const DATA_DIR = dirname(DB_PATH);
 
 mkdirSync(DATA_DIR, { recursive: true });
 

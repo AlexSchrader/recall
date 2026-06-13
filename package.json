@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "concurrently -n server,client -c green,cyan \"npm run dev -w server\" \"npm run dev -w client\"",
     "build": "npm run build -w client",
+    "start": "NODE_ENV=production node server/src/index.js",
     "test": "vitest run",
     "lint": "eslint . --ext .js,.jsx",
     "seed": "npm run seed -w server"
