@@ -1,0 +1,9 @@
+{
+  "users": [
+    {
+      "display_name": "Alex",
+      "passphrase": "changeme",
+      "tier": "pro"
+    }
+  ]
+}
