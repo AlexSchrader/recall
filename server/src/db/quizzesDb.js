@@ -23,6 +23,9 @@ const stmts = {
      SET status = 'completed', score = @score, completed_at = @completed_at
      WHERE id = @id`
   ),
+  countToday: db.prepare(
+    `SELECT COUNT(*) AS count FROM quizzes WHERE user_id = ? AND created_at >= ?`
+  ),
 };
 
 export function createQuiz(data) {
@@ -47,4 +50,9 @@ export function updateQuizStatus(id, status) {
 
 export function completeQuiz(id, { score, completed_at }) {
   return stmts.complete.run({ id, score, completed_at });
+}
+
+export function countTodayByUser(userId) {
+  const todayUtc = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
+  return stmts.countToday.get(userId, todayUtc).count;
 }

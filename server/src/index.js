@@ -3,6 +3,7 @@ import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import documentsRouter from './routes/documents.js';
+import quizzesRouter from './routes/quizzes.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -18,6 +19,7 @@ app.get('/api/health', (_req, res) => {
 });
 
 app.use('/api', documentsRouter);
+app.use('/api', quizzesRouter);
 
 // ── Production static serving ─────────────────────────────────────────────────
 // In dev, Vite serves the client and proxies /api to this server.
