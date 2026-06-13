@@ -8,6 +8,11 @@ const stmts = {
     `SELECT id, unit_id, filename, mime_type, kind, parse_status, token_estimate, created_at
      FROM documents WHERE unit_id = ? ORDER BY created_at`
   ),
+  // Full rows for parsed documents — used by buildSourceContext
+  listFullByUnit: db.prepare(
+    `SELECT id, unit_id, filename, mime_type, kind, extracted_text, image_data, token_estimate
+     FROM documents WHERE unit_id = ? AND parse_status = 'parsed' ORDER BY created_at`
+  ),
   insert: db.prepare(
     `INSERT INTO documents (id, unit_id, filename, mime_type, kind, parse_status, created_at)
      VALUES (@id, @unit_id, @filename, @mime_type, @kind, @parse_status, @created_at)`
@@ -34,6 +39,10 @@ export function getDocumentById(id) {
 
 export function listDocumentsByUnit(unitId) {
   return stmts.listByUnit.all(unitId);
+}
+
+export function listFullDocumentsByUnit(unitId) {
+  return stmts.listFullByUnit.all(unitId);
 }
 
 export function markParsed(id, { extracted_text, token_estimate }) {

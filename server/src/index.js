@@ -2,6 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import documentsRouter from './routes/documents.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -15,6 +16,8 @@ app.use(express.json());
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
 });
+
+app.use('/api', documentsRouter);
 
 // ── Production static serving ─────────────────────────────────────────────────
 // In dev, Vite serves the client and proxies /api to this server.
