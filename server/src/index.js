@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
+import { existsSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { DB_PATH } from './db/index.js';
@@ -52,19 +53,35 @@ app.use('/api', documentsRouter);
 app.use('/api', quizzesRouter);
 app.use('/api', preferencesRouter);
 
-// ── Production static serving ─────────────────────────────────────────────────
-// In dev, Vite serves the client and proxies /api to this server.
-// In production, this server serves the built client/dist from the same origin.
-if (isProd) {
-  const CLIENT_DIST = join(__dirname, '../../client/dist');
+// ── Static / SPA fallback ─────────────────────────────────────────────────────
+// Serve the built React client whenever client/dist/index.html exists.
+// Checking the filesystem (not NODE_ENV) so it works even if the env var is
+// absent, and stays a no-op in dev where Vite owns the client origin.
+const CLIENT_DIST = join(__dirname, '../../client/dist');
+const clientIndexExists = existsSync(join(CLIENT_DIST, 'index.html'));
+
+if (clientIndexExists) {
   app.use(express.static(CLIENT_DIST));
-  // SPA catch-all: serve index.html for every non-API path so React Router works
+  // SPA catch-all: anything that isn't /api gets index.html so React Router works
   app.get(/^(?!\/api)/, (_req, res) => {
     res.sendFile(join(CLIENT_DIST, 'index.html'));
   });
 }
 
+function countFilesRecursive(dir) {
+  let n = 0;
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    n += entry.isDirectory() ? countFilesRecursive(join(dir, entry.name)) : 1;
+  }
+  return n;
+}
+
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT} [${isProd ? 'production' : 'development'}]`);
   console.log(`DB: ${DB_PATH}`);
+  if (clientIndexExists) {
+    console.log(`Client dist: ${CLIENT_DIST} (${countFilesRecursive(CLIENT_DIST)} files) — serving`);
+  } else {
+    console.log(`Client dist: NOT FOUND at ${CLIENT_DIST} — SPA fallback disabled`);
+  }
 });
