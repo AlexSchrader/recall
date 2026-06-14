@@ -2,9 +2,20 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
+// Strip any <meta http-equiv="Content-Security-Policy"> that VitePWA injects.
+// Our Express server sets CSP via HTTP header; a meta tag would add a second
+// policy and browsers apply both — the more restrictive one wins per-directive.
+const stripCspMeta = {
+  name: 'strip-csp-meta',
+  transformIndexHtml(html) {
+    return html.replace(/<meta[^>]+http-equiv=["']Content-Security-Policy["'][^>]*\/?>/gi, '');
+  },
+};
+
 export default defineConfig({
   plugins: [
     react(),
+    stripCspMeta,
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
