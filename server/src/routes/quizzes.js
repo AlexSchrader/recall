@@ -1,28 +1,34 @@
 import { Router } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import { getUserById } from '../db/usersDb.js';
 import { getPreferences } from '../db/preferencesDb.js';
-import { getQuizById, listQuizzesByUser, countTodayByUser } from '../db/quizzesDb.js';
-import { listQuestionsByQuiz } from '../db/questionsDb.js';
-import { getGenerationConfig } from '../services/claude.js';
-import { ClaudeError } from '../services/claude.js';
+import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz } from '../db/quizzesDb.js';
+import { listQuestionsByQuiz, getQuestionById } from '../db/questionsDb.js';
+import { bulkCreateAttempts } from '../db/attemptsDb.js';
+import { upsertMastery } from '../db/topicMasteryDb.js';
+import { getGenerationConfig, ClaudeError } from '../services/claude.js';
 import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
+import { gradeAuto, gradeShort } from '../services/grader.js';
+import { sm2Next } from '../services/sm2.js';
+import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
 
 // POST /api/quizzes/generate
-router.post('/quizzes/generate', async (req, res) => {
-  const { userId, courseId, unitIds, title, questionCount, reviewMix, types, difficulty } = req.body ?? {};
+router.post('/quizzes/generate', requireAuth, async (req, res) => {
+  const userId = req.session.userId;
+  const { courseId, unitIds, title, questionCount, reviewMix, types, difficulty } = req.body ?? {};
 
-  if (!userId || !Array.isArray(unitIds) || unitIds.length === 0 || !title ||
+  if (!Array.isArray(unitIds) || unitIds.length === 0 || !title ||
       !questionCount || !Array.isArray(types) || types.length === 0 || !difficulty) {
-    return res.status(400).json({ error: 'Missing required fields: userId, unitIds, title, questionCount, types, difficulty.' });
+    return res.status(400).json({ error: 'Missing required fields: unitIds, title, questionCount, types, difficulty.' });
   }
 
   const user = getUserById(userId);
   if (!user) return res.status(404).json({ error: 'User not found.' });
 
-  const { model, dailyCap, sourceTokenBudget } = getGenerationConfig(user.tier);
+  const { dailyCap, sourceTokenBudget } = getGenerationConfig(user.tier);
 
   // Enforce daily cap BEFORE any model call — failures must not consume quota.
   const usedToday = countTodayByUser(userId);
@@ -55,18 +61,92 @@ router.post('/quizzes/generate', async (req, res) => {
   }
 });
 
-// GET /api/quizzes/:id  (quiz + its questions)
-router.get('/quizzes/:id', (req, res) => {
+// POST /api/quizzes/:id/submit  — grade all answers, update mastery, complete quiz
+router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
   const quiz = getQuizById(req.params.id);
   if (!quiz) return res.status(404).json({ error: 'Quiz not found.' });
+  if (quiz.user_id !== req.session.userId) return res.status(403).json({ error: 'Forbidden.' });
+  if (quiz.status === 'completed') return res.status(409).json({ error: 'Quiz already submitted.' });
+
+  const { answers = [] } = req.body ?? {};
+  const questions = listQuestionsByQuiz(quiz.id);
+  const now = new Date().toISOString();
+  const results = [];
+
+  for (const q of questions) {
+    const given = (answers.find(a => a.questionId === q.id)?.answer ?? '').trim();
+    const isCorrect = q.type === 'short'
+      ? await gradeShort(q, given)
+      : gradeAuto(q, given);
+    results.push({ question: q, given, isCorrect });
+  }
+
+  // Persist attempts
+  const courseId = JSON.parse(quiz.config_json ?? '{}').courseId ?? null;
+  bulkCreateAttempts(results.map(({ question: q, given, isCorrect }) => ({
+    id: uuidv4(),
+    question_id: q.id,
+    user_id: req.session.userId,
+    given_answer: given || null,
+    is_correct: isCorrect ? 1 : 0,
+    answered_at: now,
+  })));
+
+  // Update topic mastery (SM-2) per topic
+  if (courseId) {
+    const byTopic = {};
+    for (const { question: q, isCorrect } of results) {
+      if (!byTopic[q.topic]) byTopic[q.topic] = { correct: 0, total: 0 };
+      byTopic[q.topic].total += 1;
+      if (isCorrect) byTopic[q.topic].correct += 1;
+    }
+
+    const { listDueForReview: _, getMastery } = await import('../db/topicMasteryDb.js');
+    for (const [topic, { correct, total }] of Object.entries(byTopic)) {
+      const existing = getMastery(req.session.userId, courseId, topic) ?? {
+        id: uuidv4(), user_id: req.session.userId, course_id: courseId, topic,
+        ease: 2.5, interval_days: 1, repetitions: 0, mastery: 0.0,
+        due_at: now, last_seen_at: null,
+      };
+      const quality = correct / total >= 0.5 ? 4 : 1;
+      const next = sm2Next(existing, quality);
+      upsertMastery({ ...existing, ...next, last_seen_at: now });
+    }
+  }
+
+  // Compute score and complete quiz
+  const correctCount = results.filter(r => r.isCorrect).length;
+  const score = questions.length > 0 ? correctCount / questions.length : 0;
+  completeQuiz(quiz.id, { score, completed_at: now });
+
+  res.json({
+    score,
+    correct: correctCount,
+    total: questions.length,
+    results: results.map(({ question: q, given, isCorrect }) => ({
+      questionId: q.id,
+      topic: q.topic,
+      isCorrect,
+      givenAnswer: given,
+      correctAnswer: q.correct_answer,
+      explanation: q.explanation,
+    })),
+  });
+});
+
+// GET /api/quizzes/:id  (quiz + its questions)
+router.get('/quizzes/:id', requireAuth, (req, res) => {
+  const quiz = getQuizById(req.params.id);
+  if (!quiz || quiz.user_id !== req.session.userId) return res.status(404).json({ error: 'Quiz not found.' });
   const questions = listQuestionsByQuiz(quiz.id);
   res.json({ ...quiz, questions });
 });
 
 // GET /api/users/:id/quizzes  (history list)
-router.get('/users/:id/quizzes', (req, res) => {
+router.get('/users/:id/quizzes', requireAuth, (req, res) => {
+  if (req.params.id !== req.session.userId) return res.status(403).json({ error: 'Forbidden.' });
   const { limit = 20, offset = 0 } = req.query;
-  res.json(listQuizzesByUser(req.params.id, { limit: Number(limit), offset: Number(offset) }));
+  res.json(listQuizzesByUser(req.session.userId, { limit: Number(limit), offset: Number(offset) }));
 });
 
 export default router;

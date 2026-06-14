@@ -20,6 +20,10 @@ const stmts = {
   ),
 };
 
+export const bulkCreateAttempts = db.transaction((attempts) => {
+  for (const a of attempts) stmts.insert.run(a);
+});
+
 export function createAttempt(data) {
   return stmts.insert.run(data);
 }
