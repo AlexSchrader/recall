@@ -1,3 +1,43 @@
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext.jsx';
+import Layout from './components/Layout.jsx';
+import ProtectedRoute from './components/ProtectedRoute.jsx';
+import LoginPage from './pages/LoginPage.jsx';
+import RegisterPage from './pages/RegisterPage.jsx';
+import HomePage from './pages/HomePage.jsx';
+import CoursePage from './pages/CoursePage.jsx';
+import UnitPage from './pages/UnitPage.jsx';
+import QuizPage from './pages/QuizPage.jsx';
+import QuizResultPage from './pages/QuizResultPage.jsx';
+
+function AppRoutes() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+
+  return (
+    <Routes>
+      <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/register" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/courses/:courseId" element={<CoursePage />} />
+          <Route path="/units/:unitId" element={<UnitPage />} />
+          <Route path="/quizzes/:quizId" element={<QuizPage />} />
+          <Route path="/quizzes/:quizId/results" element={<QuizResultPage />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
 export default function App() {
-  return <div>Recall</div>;
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
