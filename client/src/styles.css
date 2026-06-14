@@ -72,6 +72,7 @@ main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 
 /* ── Auth pages ── */
 .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.auth-lockup { display: block; height: 48px; width: auto; margin: 0 auto 1.5rem; }
 .auth-card { width: 100%; max-width: 380px; padding: 2rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); }
 .auth-card h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
 

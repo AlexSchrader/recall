@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
+import lockup from '../assets/brand/recall-lockup.svg';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   return (
     <div className="auth-wrap">
       <div className="auth-card">
+        <img src={lockup} alt="Recall" className="auth-lockup" />
         <h1>Create account</h1>
         <form onSubmit={submit}>
           <div className="form-group">
