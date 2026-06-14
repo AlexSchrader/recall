@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
-import { existsSync, readdirSync } from 'fs';
-import { join, dirname } from 'path';
+import { readdirSync } from 'fs';
+import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { DB_PATH } from './db/index.js';
 import authRouter from './routes/auth.js';
@@ -54,34 +54,31 @@ app.use('/api', quizzesRouter);
 app.use('/api', preferencesRouter);
 
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
-// Serve the built React client whenever client/dist/index.html exists.
-// Checking the filesystem (not NODE_ENV) so it works even if the env var is
-// absent, and stays a no-op in dev where Vite owns the client origin.
-const CLIENT_DIST = join(__dirname, '../../client/dist');
-const clientIndexExists = existsSync(join(CLIENT_DIST, 'index.html'));
-
-if (clientIndexExists) {
-  app.use(express.static(CLIENT_DIST));
-  // SPA catch-all: anything that isn't /api gets index.html so React Router works
-  app.get(/^(?!\/api)/, (_req, res) => {
-    res.sendFile(join(CLIENT_DIST, 'index.html'));
+if (process.env.NODE_ENV === 'production') {
+  const clientDist = resolve(__dirname, '../../client/dist');
+  app.use(express.static(clientDist));
+  app.get(/^\/(?!api).*/, (_req, res) => {
+    res.sendFile(join(clientDist, 'index.html'));
   });
+  console.log('[startup] serving client from', clientDist);
 }
 
 function countFilesRecursive(dir) {
   let n = 0;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    n += entry.isDirectory() ? countFilesRecursive(join(dir, entry.name)) : 1;
-  }
+  try {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      n += entry.isDirectory() ? countFilesRecursive(join(dir, entry.name)) : 1;
+    }
+  } catch { /* dir doesn't exist */ }
   return n;
 }
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT} [${isProd ? 'production' : 'development'}]`);
   console.log(`DB: ${DB_PATH}`);
-  if (clientIndexExists) {
-    console.log(`Client dist: ${CLIENT_DIST} (${countFilesRecursive(CLIENT_DIST)} files) — serving`);
-  } else {
-    console.log(`Client dist: NOT FOUND at ${CLIENT_DIST} — SPA fallback disabled`);
+  if (isProd) {
+    const clientDist = resolve(__dirname, '../../client/dist');
+    const n = countFilesRecursive(clientDist);
+    console.log(`Client dist: ${clientDist} — ${n > 0 ? `${n} files` : 'EMPTY or NOT FOUND'}`);
   }
 });
