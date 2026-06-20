@@ -19,6 +19,7 @@ router.post('/auth/register', async (req, res) => {
   const hash = await bcrypt.hash(passphrase, SALT_ROUNDS);
   createUser({ id, display_name: displayName.trim(), passphrase_hash: hash, tier, created_at: new Date().toISOString() });
   req.session.userId = id;
+  console.log(`[auth/register] NODE_ENV=${process.env.NODE_ENV} secure=${req.secure} proto=${req.protocol} sessionID=${req.sessionID}`);
   const { passphrase_hash: _, ...user } = getUserById(id);
   res.status(201).json(user);
 });
@@ -34,6 +35,7 @@ router.post('/auth/login', async (req, res) => {
   const ok = await bcrypt.compare(passphrase, user.passphrase_hash);
   if (!ok) return res.status(401).json({ error: 'Invalid credentials.' });
   req.session.userId = user.id;
+  console.log(`[auth/login] NODE_ENV=${process.env.NODE_ENV} secure=${req.secure} proto=${req.protocol} sessionID=${req.sessionID}`);
   const { passphrase_hash: _, ...safe } = user;
   res.json(safe);
 });

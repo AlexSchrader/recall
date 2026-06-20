@@ -18,6 +18,7 @@ const PORT = process.env.PORT || 4000;
 const isProd = process.env.NODE_ENV === 'production';
 
 app.disable('x-powered-by');
+app.set('trust proxy', 1); // Railway terminates TLS at the edge; trust X-Forwarded-Proto
 
 // Session store backed by the existing better-sqlite3 connection.
 const Store = session.Store;
