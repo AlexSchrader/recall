@@ -13,14 +13,14 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('auth:expired', onExpired);
   }, []);
 
-  const login = async (displayName, passphrase) => {
-    const u = await api.post('/auth/login', { displayName, passphrase });
+  const login = async (email, passphrase) => {
+    const u = await api.post('/auth/login', { email, passphrase });
     setUser(u);
     return u;
   };
 
-  const register = async (displayName, passphrase) => {
-    const u = await api.post('/auth/register', { displayName, passphrase });
+  const register = async (displayName, email, passphrase) => {
+    const u = await api.post('/auth/register', { displayName, email, passphrase });
     setUser(u);
     return u;
   };
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, setUser, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

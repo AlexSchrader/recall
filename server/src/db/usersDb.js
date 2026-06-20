@@ -3,16 +3,29 @@ import db from './index.js';
 const stmts = {
   findById: db.prepare('SELECT * FROM users WHERE id = ?'),
   findByName: db.prepare('SELECT * FROM users WHERE display_name = ?'),
+  findByEmail: db.prepare('SELECT * FROM users WHERE lower(email) = lower(?)'),
   listAll: db.prepare(
-    'SELECT id, display_name, tier, created_at FROM users ORDER BY created_at'
+    'SELECT id, display_name, email, tier, created_at FROM users ORDER BY created_at'
   ),
   insert: db.prepare(
-    `INSERT INTO users (id, display_name, passphrase_hash, tier, created_at)
-     VALUES (@id, @display_name, @passphrase_hash, @tier, @created_at)`
+    `INSERT INTO users (id, display_name, email, passphrase_hash, tier, created_at)
+     VALUES (@id, @display_name, @email, @passphrase_hash, @tier, @created_at)`
   ),
   updateName: db.prepare('UPDATE users SET display_name = ? WHERE id = ?'),
   updateHash: db.prepare('UPDATE users SET passphrase_hash = ? WHERE id = ?'),
   delete: db.prepare('DELETE FROM users WHERE id = ?'),
+  insertResetToken: db.prepare(
+    `INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)`
+  ),
+  getResetToken: db.prepare(
+    `SELECT * FROM password_reset_tokens WHERE token = ? AND used = 0 AND expires_at > ?`
+  ),
+  markTokenUsed: db.prepare(
+    `UPDATE password_reset_tokens SET used = 1 WHERE token = ?`
+  ),
+  expireOldTokens: db.prepare(
+    `UPDATE password_reset_tokens SET used = 1 WHERE user_id = ? AND used = 0`
+  ),
 };
 
 export function createUser(data) {
@@ -25,6 +38,10 @@ export function getUserById(id) {
 
 export function getUserByName(name) {
   return stmts.findByName.get(name);
+}
+
+export function getUserByEmail(email) {
+  return stmts.findByEmail.get(email);
 }
 
 export function listUsers() {
@@ -41,4 +58,17 @@ export function updatePassphraseHash(id, hash) {
 
 export function deleteUser(id) {
   return stmts.delete.run(id);
+}
+
+export function createResetToken(token, userId, expiresAt) {
+  stmts.expireOldTokens.run(userId);
+  stmts.insertResetToken.run(token, userId, expiresAt);
+}
+
+export function getResetToken(token) {
+  return stmts.getResetToken.get(token, new Date().toISOString()) ?? null;
+}
+
+export function markTokenUsed(token) {
+  stmts.markTokenUsed.run(token);
 }
