@@ -1,10 +1,14 @@
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
+import { createRequire } from 'module';
 import { readdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { DB_PATH } from './db/index.js';
+
+const require = createRequire(import.meta.url);
+const ConnectSQLite = require('connect-sqlite3');
 import authRouter from './routes/auth.js';
 import coursesRouter from './routes/courses.js';
 import documentsRouter from './routes/documents.js';
@@ -35,10 +39,12 @@ app.use((_req, res, next) => {
 });
 
 app.use(express.json());
+const SQLiteStore = ConnectSQLite(session);
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-in-prod',
   resave: false,
   saveUninitialized: false,
+  store: new SQLiteStore({ db: 'sessions.db', dir: dirname(DB_PATH) }),
   cookie: { httpOnly: true, secure: isProd, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
 
