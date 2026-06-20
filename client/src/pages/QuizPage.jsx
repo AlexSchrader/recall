@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
 
-function McqOptions({ options, value, onChange }) {
+function McqOptions({ questionId, options, value, onChange }) {
   return (
     <div className="option-list">
       {(options ?? []).map(opt => (
         <label key={opt}>
-          <input type="radio" name="mcq" value={opt[0]} checked={value === opt[0]} onChange={() => onChange(opt[0])} />
+          <input type="radio" name={`mcq-${questionId}`} value={opt[0]} checked={value === opt[0]} onChange={() => onChange(opt[0])} />
           {opt}
         </label>
       ))}
@@ -15,12 +15,12 @@ function McqOptions({ options, value, onChange }) {
   );
 }
 
-function TrueFalseOptions({ value, onChange }) {
+function TrueFalseOptions({ questionId, value, onChange }) {
   return (
     <div className="option-list">
       {['True', 'False'].map(v => (
         <label key={v}>
-          <input type="radio" name="tf" value={v} checked={value === v} onChange={() => onChange(v)} />
+          <input type="radio" name={`tf-${questionId}`} value={v} checked={value === v} onChange={() => onChange(v)} />
           {v}
         </label>
       ))}
@@ -94,10 +94,10 @@ export default function QuizPage() {
             <p className="q-prompt">{q.prompt}</p>
 
             {q.type === 'mcq' && (
-              <McqOptions options={parsedOptions(q.options_json)} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
+              <McqOptions questionId={q.id} options={parsedOptions(q.options_json)} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
             )}
             {q.type === 'true_false' && (
-              <TrueFalseOptions value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
+              <TrueFalseOptions questionId={q.id} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
             )}
             {q.type === 'short' && (
               <textarea
