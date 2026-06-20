@@ -69,6 +69,11 @@ main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .item-row:hover { border-color: var(--primary); }
 .item-row .label { flex: 1; font-weight: 500; }
 .item-row .meta  { font-size: .8rem; color: var(--muted); }
+.item-row--editing { cursor: default; }
+.item-row--editing:hover { border-color: var(--border); }
+.edit-btn { opacity: 0; transition: opacity .15s; background: none; border: none; cursor: pointer; padding: .1rem .3rem; font-size: .9rem; line-height: 1; }
+.item-row:hover .edit-btn { opacity: 1; }
+.edit-inline-input { flex: 1; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .95rem; }
 
 /* ── Auth pages ── */
 .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }

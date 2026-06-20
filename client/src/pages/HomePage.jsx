@@ -27,6 +27,11 @@ export default function HomePage() {
   const [bookResults, setBookResults] = useState([]);
   const [bookSearching, setBookSearching] = useState(false);
   const bookTimer = useRef(null);
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editColor, setEditColor] = useState('#4f46e5');
+  const [editBusy, setEditBusy] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     api.get('/courses').then(setCourses).catch(console.error);
@@ -50,6 +55,48 @@ export default function HomePage() {
     setNewName(book.title);
     setBookQuery('');
     setBookResults([]);
+  };
+
+  const startEdit = (e, course) => {
+    e.stopPropagation();
+    setEditingId(course.id);
+    setEditName(course.name);
+    setEditColor(course.color ?? '#4f46e5');
+    setConfirmDeleteId(null);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setConfirmDeleteId(null);
+  };
+
+  const saveCourse = async (e, id) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    setEditBusy(true);
+    try {
+      const updated = await api.put(`/courses/${id}`, { name: editName.trim(), color: editColor });
+      setCourses(prev => prev.map(c => c.id === id ? updated : c));
+      setEditingId(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditBusy(false);
+    }
+  };
+
+  const deleteCourse = async (id) => {
+    setEditBusy(true);
+    try {
+      await api.delete(`/courses/${id}`);
+      setCourses(prev => prev.filter(c => c.id !== id));
+      setEditingId(null);
+      setConfirmDeleteId(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditBusy(false);
+    }
   };
 
   const createCourse = async (e) => {
@@ -147,10 +194,44 @@ export default function HomePage() {
 
       {courses.length > 0 && (
         <ul className="item-list">
-          {courses.map(c => (
+          {courses.map(c => editingId === c.id ? (
+            <li key={c.id} className="item-row item-row--editing">
+              <form onSubmit={e => saveCourse(e, c.id)} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flex: 1 }}>
+                <input
+                  type="color"
+                  value={editColor}
+                  onChange={e => setEditColor(e.target.value)}
+                  style={{ width: '2rem', height: '2rem', padding: '2px', flexShrink: 0, cursor: 'pointer' }}
+                />
+                <input
+                  className="edit-inline-input"
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  autoFocus
+                  required
+                />
+                <button className="btn btn-primary btn-sm" type="submit" disabled={editBusy}>Save</button>
+                <button className="btn btn-sm" type="button" onClick={cancelEdit} disabled={editBusy}>Cancel</button>
+                {confirmDeleteId === c.id ? (
+                  <>
+                    <span className="muted" style={{ fontSize: '0.85rem' }}>Delete?</span>
+                    <button className="btn btn-danger btn-sm" type="button" onClick={() => deleteCourse(c.id)} disabled={editBusy}>Yes</button>
+                    <button className="btn btn-sm" type="button" onClick={() => setConfirmDeleteId(null)} disabled={editBusy}>No</button>
+                  </>
+                ) : (
+                  <button className="btn btn-danger btn-sm" type="button" onClick={() => setConfirmDeleteId(c.id)} disabled={editBusy}>Delete</button>
+                )}
+              </form>
+            </li>
+          ) : (
             <li key={c.id} className="item-row" onClick={() => navigate(`/courses/${c.id}`)}>
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: c.color ?? '#4f46e5', flexShrink: 0 }} />
               <span className="label">{c.name}</span>
+              <button
+                className="btn-icon edit-btn"
+                title="Edit course"
+                onClick={e => startEdit(e, c)}
+              >✏️</button>
             </li>
           ))}
         </ul>
