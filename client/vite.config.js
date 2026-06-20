@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     stripCspMeta,
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt',
       manifest: {
         name: 'Recall',
         short_name: 'Recall',
@@ -35,13 +35,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,ico}'],
-        runtimeCaching: [
-          {
-            urlPattern: /^\/api\//,
-            handler: 'NetworkFirst',
-            options: { cacheName: 'api-cache', networkTimeoutSeconds: 5 },
-          },
-        ],
       },
     }),
   ],
