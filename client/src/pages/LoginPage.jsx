@@ -32,15 +32,15 @@ export default function LoginPage() {
         <h1>Sign in</h1>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label>Display name</label>
-            <input value={displayName} onChange={e => setDisplayName(e.target.value)} autoFocus required />
+            <label htmlFor="login-name">Display name</label>
+            <input id="login-name" name="displayName" autoComplete="username" value={displayName} onChange={e => setDisplayName(e.target.value)} autoFocus required />
           </div>
           <div className="form-group">
-            <label>Passphrase</label>
-            <input type="password" value={passphrase} onChange={e => setPassphrase(e.target.value)} required />
+            <label htmlFor="login-pass">Passphrase</label>
+            <input id="login-pass" name="passphrase" type="password" autoComplete="current-password" value={passphrase} onChange={e => setPassphrase(e.target.value)} required />
           </div>
           {error && <p className="error-msg">{error}</p>}
-          <button className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }} disabled={busy}>
+          <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '.5rem' }} disabled={busy}>
             {busy ? 'Signing in…' : 'Sign in'}
           </button>
         </form>
