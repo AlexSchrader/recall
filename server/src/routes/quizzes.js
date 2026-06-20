@@ -5,7 +5,7 @@ import { getPreferences } from '../db/preferencesDb.js';
 import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz } from '../db/quizzesDb.js';
 import { listQuestionsByQuiz, getQuestionById } from '../db/questionsDb.js';
 import { bulkCreateAttempts } from '../db/attemptsDb.js';
-import { upsertMastery } from '../db/topicMasteryDb.js';
+import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
 import { getGenerationConfig, ClaudeError } from '../services/claude.js';
 import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
@@ -101,7 +101,6 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
       if (isCorrect) byTopic[q.topic].correct += 1;
     }
 
-    const { listDueForReview: _, getMastery } = await import('../db/topicMasteryDb.js');
     for (const [topic, { correct, total }] of Object.entries(byTopic)) {
       const existing = getMastery(req.session.userId, courseId, topic) ?? {
         id: uuidv4(), user_id: req.session.userId, course_id: courseId, topic,
