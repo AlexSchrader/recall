@@ -9,6 +9,8 @@ import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
 import { getGenerationConfig, ClaudeError } from '../services/claude.js';
 import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
+import { getUnitById } from '../db/unitsDb.js';
+import { fetchWikiSummary } from '../services/wikipedia.js';
 import { gradeAuto, gradeShort } from '../services/grader.js';
 import { sm2Next } from '../services/sm2.js';
 import { requireAuth } from '../middleware/auth.js';
@@ -40,6 +42,13 @@ router.post('/quizzes/generate', requireAuth, async (req, res) => {
   }
 
   const sourceContext = buildSourceContext(unitIds, sourceTokenBudget);
+
+  // Fetch Wikipedia summaries for each unit name and append as supplementary context.
+  const unitNames = unitIds.map(id => getUnitById(id)?.name).filter(Boolean);
+  const wikiSummaries = await Promise.all(unitNames.map(fetchWikiSummary));
+  const wikiText = wikiSummaries.filter(Boolean).join('\n\n');
+  if (wikiText) sourceContext.text = `${sourceContext.text}\n\n--- Wikipedia context ---\n${wikiText}`;
+
   const prefRow = getPreferences(userId);
   const preferences = prefRow?.prefs ?? {};
 

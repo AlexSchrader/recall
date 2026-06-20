@@ -1,7 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+
+async function searchBooks(q) {
+  if (!q.trim()) return [];
+  const res = await fetch(
+    `https://openlibrary.org/search.json?q=${encodeURIComponent(q)}&fields=key,title,author_name,first_publish_year&limit=5`
+  ).catch(() => null);
+  if (!res?.ok) return [];
+  const data = await res.json();
+  return data.docs ?? [];
+}
 
 export default function HomePage() {
   const { user } = useAuth();
@@ -13,11 +23,34 @@ export default function HomePage() {
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [bookQuery, setBookQuery] = useState('');
+  const [bookResults, setBookResults] = useState([]);
+  const [bookSearching, setBookSearching] = useState(false);
+  const bookTimer = useRef(null);
 
   useEffect(() => {
     api.get('/courses').then(setCourses).catch(console.error);
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
   }, [user.id]);
+
+  const onBookQuery = (val) => {
+    setBookQuery(val);
+    setBookResults([]);
+    clearTimeout(bookTimer.current);
+    if (!val.trim()) return;
+    setBookSearching(true);
+    bookTimer.current = setTimeout(async () => {
+      const results = await searchBooks(val);
+      setBookResults(results);
+      setBookSearching(false);
+    }, 400);
+  };
+
+  const pickBook = (book) => {
+    setNewName(book.title);
+    setBookQuery('');
+    setBookResults([]);
+  };
 
   const createCourse = async (e) => {
     e.preventDefault();
@@ -48,6 +81,25 @@ export default function HomePage() {
       {adding && (
         <div className="card" style={{ marginBottom: '1rem' }}>
           <form onSubmit={createCourse}>
+            <div className="form-group">
+              <label>Search textbook <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span></label>
+              <input
+                value={bookQuery}
+                onChange={e => onBookQuery(e.target.value)}
+                placeholder="e.g. Campbell Biology"
+              />
+              {(bookResults.length > 0 || bookSearching) && (
+                <ul className="book-results">
+                  {bookSearching && <li className="book-result-item muted">Searching…</li>}
+                  {bookResults.map(b => (
+                    <li key={b.key} className="book-result-item" onClick={() => pickBook(b)}>
+                      <strong>{b.title}</strong>
+                      {b.author_name?.[0] && <span className="muted"> — {b.author_name[0]}{b.first_publish_year ? ` (${b.first_publish_year})` : ''}</span>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <div className="row">
               <div className="form-group" style={{ flex: 3 }}>
                 <label>Course name</label>

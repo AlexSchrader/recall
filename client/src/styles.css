@@ -114,6 +114,14 @@ main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .onboarding-step p { font-size: .8rem; color: var(--muted); }
 .onboarding-cta { padding: .65rem 1.75rem; font-size: 1rem; }
 
+/* ── Book search ── */
+.book-results { list-style: none; border: 1px solid var(--border); border-radius: var(--radius); margin-top: .25rem; background: var(--surface); box-shadow: var(--shadow); max-height: 220px; overflow-y: auto; }
+.book-result-item { padding: .6rem .75rem; font-size: .875rem; cursor: pointer; border-bottom: 1px solid var(--border); }
+.book-result-item:last-child { border-bottom: none; }
+.book-result-item:hover { background: #f1f5f9; }
+.book-result-item.muted { color: var(--muted); cursor: default; }
+.muted { color: var(--muted); }
+
 /* ── Misc ── */
 .error-msg { color: var(--danger); font-size: .875rem; margin-top: .5rem; }
 .empty { color: var(--muted); text-align: center; padding: 2rem 0; }
