@@ -27,17 +27,23 @@ class BetterSQLiteStore extends Store {
     setInterval(() => db.prepare('DELETE FROM sessions WHERE expired_at < ?').run(Date.now()), 60_000);
   }
   get(sid, cb) {
-    const row = db.prepare('SELECT sess FROM sessions WHERE sid = ? AND expired_at > ?').get(sid, Date.now());
-    cb(null, row ? JSON.parse(row.sess) : null);
+    try {
+      const row = db.prepare('SELECT sess FROM sessions WHERE sid = ? AND expired_at > ?').get(sid, Date.now());
+      cb(null, row ? JSON.parse(row.sess) : null);
+    } catch (err) { console.error('[session.get]', err); cb(err); }
   }
   set(sid, sess, cb) {
-    const ttl = sess.cookie?.maxAge ?? 7 * 24 * 60 * 60 * 1000;
-    db.prepare('INSERT OR REPLACE INTO sessions (sid, sess, expired_at) VALUES (?, ?, ?)').run(sid, JSON.stringify(sess), Date.now() + ttl);
-    cb(null);
+    try {
+      const ttl = sess.cookie?.maxAge ?? 7 * 24 * 60 * 60 * 1000;
+      db.prepare('INSERT OR REPLACE INTO sessions (sid, sess, expired_at) VALUES (?, ?, ?)').run(sid, JSON.stringify(sess), Date.now() + ttl);
+      cb(null);
+    } catch (err) { console.error('[session.set]', err); cb(err); }
   }
   destroy(sid, cb) {
-    db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid);
-    cb(null);
+    try {
+      db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid);
+      cb(null);
+    } catch (err) { console.error('[session.destroy]', err); cb(err); }
   }
 }
 
