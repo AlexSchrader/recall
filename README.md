@@ -59,8 +59,10 @@ npm run dev
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `ANTHROPIC_API_KEY` | Yes | Claude API key for quiz generation |
+| `ANTHROPIC_API_KEY` | Yes | Claude API key for quiz generation and Rappel chat |
 | `SESSION_SECRET` | Yes | Secret used to sign session cookies |
+| `ELEVENLABS_API_KEY` | R5 only | ElevenLabs key for Rappel's TTS and STT voice features |
+| `VOICE_PIN` | R5 only | 7-character PIN (format `R######`) that gates voice access |
 | `PORT` | No | HTTP port (default: 4000) |
 | `DATABASE_PATH` | No | Absolute path to SQLite file. Set this on Railway to point at the persistent volume (e.g. `/data/recall.db`). Defaults to `server/data/recall.db`. |
 
