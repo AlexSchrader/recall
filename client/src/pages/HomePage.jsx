@@ -59,7 +59,7 @@ export default function HomePage() {
               </div>
             </div>
             {error && <p className="error-msg">{error}</p>}
-            <button className="btn btn-primary" disabled={busy}>
+            <button className="btn btn-primary" style={{ marginTop: '0.75rem' }} disabled={busy}>
               {busy ? 'Creating…' : 'Create'}
             </button>
           </form>
