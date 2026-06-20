@@ -100,6 +100,26 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_expired ON sessions(expired_at);
 
+CREATE TABLE IF NOT EXISTS chat_threads (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title      TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id               TEXT PRIMARY KEY,
+  thread_id        TEXT NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+  role             TEXT NOT NULL,
+  content          TEXT NOT NULL,
+  attachments_json TEXT,
+  created_at       TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_chat_threads_user    ON chat_threads(user_id, updated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_thread ON chat_messages(thread_id, created_at);
+
 -- Query-path indexes
 CREATE INDEX IF NOT EXISTS idx_courses_user      ON courses(user_id);
 CREATE INDEX IF NOT EXISTS idx_units_course      ON units(course_id);
