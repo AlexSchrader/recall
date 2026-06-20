@@ -21,13 +21,15 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const isProd = process.env.NODE_ENV === 'production';
 
+app.disable('x-powered-by');
+
 app.use((_req, res, next) => {
   res.setHeader(
     'Content-Security-Policy',
     [
       "default-src 'self'",
       "img-src 'self' data: blob:",
-      "script-src 'self'",
+      "script-src 'self' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
       "connect-src 'self'",
       "font-src 'self' data:",
@@ -35,6 +37,7 @@ app.use((_req, res, next) => {
       "worker-src 'self'",
     ].join('; ')
   );
+  res.setHeader('X-Content-Type-Options', 'nosniff');
   next();
 });
 
@@ -62,8 +65,17 @@ app.use('/api', preferencesRouter);
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
   const clientDist = resolve(__dirname, '../../client/dist');
-  app.use(express.static(clientDist));
+  app.use(express.static(clientDist, {
+    setHeaders(res, filePath) {
+      if (filePath.includes('/assets/')) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      } else {
+        res.setHeader('Cache-Control', 'no-cache');
+      }
+    },
+  }));
   app.get(/^\/(?!api).*/, (_req, res) => {
+    res.setHeader('Cache-Control', 'no-cache');
     res.sendFile(join(clientDist, 'index.html'));
   });
   console.log('[startup] serving client from', clientDist);
