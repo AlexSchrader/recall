@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     stripCspMeta,
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       manifest: {
         name: 'Recall',
         short_name: 'Recall',
