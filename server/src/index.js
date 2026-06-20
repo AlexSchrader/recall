@@ -10,6 +10,7 @@ import coursesRouter from './routes/courses.js';
 import documentsRouter from './routes/documents.js';
 import quizzesRouter from './routes/quizzes.js';
 import preferencesRouter from './routes/preferences.js';
+import chatRouter from './routes/chat.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -85,6 +86,7 @@ app.use('/api', coursesRouter);
 app.use('/api', documentsRouter);
 app.use('/api', quizzesRouter);
 app.use('/api', preferencesRouter);
+app.use('/api', chatRouter);
 
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
