@@ -56,7 +56,7 @@ app.use((_req, res, next) => {
       "img-src 'self' data: blob:",
       "script-src 'self' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
-      "connect-src 'self'",
+      "connect-src 'self' https://openlibrary.org",
       "font-src 'self' data:",
       "manifest-src 'self'",
       "worker-src 'self'",
