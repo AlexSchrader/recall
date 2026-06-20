@@ -103,6 +103,17 @@ main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .status-parsed  { background: #dcfce7; color: var(--success); }
 .status-failed  { background: #fee2e2; color: var(--danger); }
 
+/* ── Onboarding ── */
+.onboarding { text-align: center; padding: 2.5rem 1rem; }
+.onboarding-title { font-size: 1.6rem; font-weight: 700; margin-bottom: .5rem; }
+.onboarding-sub { color: var(--muted); margin-bottom: 2rem; max-width: 480px; margin-left: auto; margin-right: auto; }
+.onboarding-steps { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem; }
+.onboarding-step { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1rem; width: 180px; text-align: left; box-shadow: var(--shadow); }
+.onboarding-step-num { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; background: var(--primary); color: #fff; border-radius: 50%; font-size: .8rem; font-weight: 700; margin-bottom: .6rem; }
+.onboarding-step strong { display: block; margin-bottom: .3rem; font-size: .9rem; }
+.onboarding-step p { font-size: .8rem; color: var(--muted); }
+.onboarding-cta { padding: .65rem 1.75rem; font-size: 1rem; }
+
 /* ── Misc ── */
 .error-msg { color: var(--danger); font-size: .875rem; margin-top: .5rem; }
 .empty { color: var(--muted); text-align: center; padding: 2rem 0; }

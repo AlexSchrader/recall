@@ -66,19 +66,43 @@ export default function HomePage() {
         </div>
       )}
 
-      {courses.length === 0
-        ? <p className="empty">No courses yet. Create one above to get started.</p>
-        : (
-          <ul className="item-list">
-            {courses.map(c => (
-              <li key={c.id} className="item-row" onClick={() => navigate(`/courses/${c.id}`)}>
-                <span style={{ width: 12, height: 12, borderRadius: '50%', background: c.color ?? '#4f46e5', flexShrink: 0 }} />
-                <span className="label">{c.name}</span>
-              </li>
-            ))}
-          </ul>
-        )
-      }
+      {courses.length === 0 && !adding && (
+        <div className="onboarding">
+          <h2 className="onboarding-title">Study smarter, not harder.</h2>
+          <p className="onboarding-sub">Upload your notes, get a quiz, and Recall will automatically bring back the topics you keep missing.</p>
+          <div className="onboarding-steps">
+            <div className="onboarding-step">
+              <span className="onboarding-step-num">1</span>
+              <strong>Create a course</strong>
+              <p>Organise by class or subject. Add units inside.</p>
+            </div>
+            <div className="onboarding-step">
+              <span className="onboarding-step-num">2</span>
+              <strong>Upload your notes</strong>
+              <p>PDF, Word, plain text, Markdown, or images.</p>
+            </div>
+            <div className="onboarding-step">
+              <span className="onboarding-step-num">3</span>
+              <strong>Generate &amp; take a quiz</strong>
+              <p>Claude reads your notes and writes the questions. Weak topics come back automatically.</p>
+            </div>
+          </div>
+          <button className="btn btn-primary onboarding-cta" onClick={() => setAdding(true)}>
+            Create your first course
+          </button>
+        </div>
+      )}
+
+      {courses.length > 0 && (
+        <ul className="item-list">
+          {courses.map(c => (
+            <li key={c.id} className="item-row" onClick={() => navigate(`/courses/${c.id}`)}>
+              <span style={{ width: 12, height: 12, borderRadius: '50%', background: c.color ?? '#4f46e5', flexShrink: 0 }} />
+              <span className="label">{c.name}</span>
+            </li>
+          ))}
+        </ul>
+      )}
 
       {recentQuizzes.length > 0 && (
         <>
