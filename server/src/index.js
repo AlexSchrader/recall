@@ -1,14 +1,10 @@
 import 'dotenv/config';
 import express from 'express';
 import session from 'express-session';
-import { createRequire } from 'module';
 import { readdirSync } from 'fs';
 import { join, resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { DB_PATH } from './db/index.js';
-
-const require = createRequire(import.meta.url);
-const ConnectSQLite = require('connect-sqlite3');
+import db, { DB_PATH } from './db/index.js';
 import authRouter from './routes/auth.js';
 import coursesRouter from './routes/courses.js';
 import documentsRouter from './routes/documents.js';
@@ -22,6 +18,28 @@ const PORT = process.env.PORT || 4000;
 const isProd = process.env.NODE_ENV === 'production';
 
 app.disable('x-powered-by');
+
+// Session store backed by the existing better-sqlite3 connection.
+const Store = session.Store;
+class BetterSQLiteStore extends Store {
+  constructor() {
+    super();
+    setInterval(() => db.prepare('DELETE FROM sessions WHERE expired_at < ?').run(Date.now()), 60_000);
+  }
+  get(sid, cb) {
+    const row = db.prepare('SELECT sess FROM sessions WHERE sid = ? AND expired_at > ?').get(sid, Date.now());
+    cb(null, row ? JSON.parse(row.sess) : null);
+  }
+  set(sid, sess, cb) {
+    const ttl = sess.cookie?.maxAge ?? 7 * 24 * 60 * 60 * 1000;
+    db.prepare('INSERT OR REPLACE INTO sessions (sid, sess, expired_at) VALUES (?, ?, ?)').run(sid, JSON.stringify(sess), Date.now() + ttl);
+    cb(null);
+  }
+  destroy(sid, cb) {
+    db.prepare('DELETE FROM sessions WHERE sid = ?').run(sid);
+    cb(null);
+  }
+}
 
 app.use((_req, res, next) => {
   res.setHeader(
@@ -42,12 +60,11 @@ app.use((_req, res, next) => {
 });
 
 app.use(express.json());
-const SQLiteStore = ConnectSQLite(session);
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret-change-in-prod',
   resave: false,
   saveUninitialized: false,
-  store: new SQLiteStore({ db: 'sessions.db', dir: dirname(DB_PATH) }),
+  store: new BetterSQLiteStore(),
   cookie: { httpOnly: true, secure: isProd, sameSite: 'lax', maxAge: 7 * 24 * 60 * 60 * 1000 },
 }));
 

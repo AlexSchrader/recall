@@ -93,6 +93,13 @@ CREATE TABLE IF NOT EXISTS preferences (
   updated_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS sessions (
+  sid        TEXT PRIMARY KEY,
+  sess       TEXT NOT NULL,
+  expired_at INTEGER NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sessions_expired ON sessions(expired_at);
+
 -- Query-path indexes
 CREATE INDEX IF NOT EXISTS idx_courses_user      ON courses(user_id);
 CREATE INDEX IF NOT EXISTS idx_units_course      ON units(course_id);
