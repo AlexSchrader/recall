@@ -180,9 +180,9 @@ export default function UnitPage() {
             </div>
             <div className="form-group">
               <label>Question types</label>
-              <div style={{ display: 'flex', gap: '1rem', marginTop: '.35rem' }}>
+              <div className="type-checks">
                 {TYPE_OPTIONS.map(t => (
-                  <label key={t.value} style={{ display: 'flex', alignItems: 'center', gap: '.35rem', cursor: 'pointer', fontSize: '.875rem' }}>
+                  <label key={t.value} className="type-check-label">
                     <input type="checkbox" checked={types.includes(t.value)} onChange={() => toggleType(t.value)} />
                     {t.label}
                   </label>
