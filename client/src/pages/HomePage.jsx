@@ -263,6 +263,20 @@ export default function HomePage() {
           </ul>
         </>
       )}
+
+      {recentQuizzes.some(q => q.status === 'completed') && (
+        <>
+          <hr />
+          <p className="section-title">Quick study</p>
+          <p style={{ fontSize: '.875rem', color: 'var(--muted)', marginBottom: '.75rem' }}>
+            Practice with your existing quiz questions — no generation needed.
+          </p>
+          <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
+            <Link to="/games/speed-round" className="btn btn-ghost">🏃 Speed Round</Link>
+            <Link to="/games/streak" className="btn btn-ghost">🔥 Streak Challenge</Link>
+          </div>
+        </>
+      )}
     </>
   );
 }
