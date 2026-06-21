@@ -4,3 +4,11 @@ export function requireAuth(req, res, next) {
   }
   next();
 }
+
+export function requireAdmin(req, res, next) {
+  const adminIds = (process.env.ADMIN_USER_IDS ?? '').split(',').map(s => s.trim()).filter(Boolean);
+  if (!adminIds.includes(req.session?.userId)) {
+    return res.status(403).json({ error: 'Forbidden.' });
+  }
+  next();
+}

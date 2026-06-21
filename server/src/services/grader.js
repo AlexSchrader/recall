@@ -6,7 +6,7 @@ export function gradeAuto(question, answer) {
   return correct === given ? 1 : 0;
 }
 
-export async function gradeShort(question, answer) {
+export async function gradeShort(question, answer, userId = null) {
   if (!answer?.trim()) return 0;
 
   const system = `You are a lenient, fair grader for a student quiz.
@@ -27,6 +27,7 @@ Student answer: ${answer}`;
       system,
       messages: [{ role: 'user', content: userText }],
       maxTokens: 8,
+      _meta: { userId, feature: 'grading' },
     });
     const verdict = (response.content[0]?.text ?? '').trim().toLowerCase();
     if (verdict.startsWith('correct')) return 1;

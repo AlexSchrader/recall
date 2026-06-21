@@ -82,6 +82,7 @@ export async function generateStudyGuide({ userId, unitId }) {
     system: 'You write structured study guides in markdown for a learning app.',
     messages: [{ role: 'user', content: buildPrompt(sourceContext.text, unit.name) }],
     maxTokens: 4096,
+    _meta: { userId, feature: 'study_guide_gen' },
   });
 
   const content = response.content[0]?.text?.trim() ?? '';

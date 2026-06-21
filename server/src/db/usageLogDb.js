@@ -14,15 +14,36 @@ export function logUsage({ userId = null, feature, model, inputTokens = 0, outpu
   }
 }
 
+// Per-day, per-user, per-feature summary with display names
 export function getUsageSummary() {
   return db.prepare(
-    `SELECT user_id, feature, model,
-            SUM(input_tokens) AS input_tokens,
-            SUM(output_tokens) AS output_tokens,
-            COUNT(*) AS calls,
-            DATE(created_at) AS day
-     FROM usage_log
-     GROUP BY user_id, feature, model, day
-     ORDER BY day DESC, calls DESC`
+    `SELECT ul.user_id,
+            COALESCE(u.display_name, ul.user_id) AS display_name,
+            ul.feature,
+            ul.model,
+            SUM(ul.input_tokens)  AS input_tokens,
+            SUM(ul.output_tokens) AS output_tokens,
+            COUNT(*)              AS calls,
+            DATE(ul.created_at)   AS day
+     FROM usage_log ul
+     LEFT JOIN users u ON u.id = ul.user_id
+     GROUP BY ul.user_id, ul.feature, ul.model, day
+     ORDER BY day DESC, output_tokens DESC`
   ).all();
+}
+
+// Aggregate totals per user for a given month (YYYY-MM)
+export function getMonthlyByUser(month) {
+  return db.prepare(
+    `SELECT ul.user_id,
+            COALESCE(u.display_name, ul.user_id) AS display_name,
+            SUM(ul.input_tokens)  AS input_tokens,
+            SUM(ul.output_tokens) AS output_tokens,
+            COUNT(*)              AS calls
+     FROM usage_log ul
+     LEFT JOIN users u ON u.id = ul.user_id
+     WHERE strftime('%Y-%m', ul.created_at) = ?
+     GROUP BY ul.user_id
+     ORDER BY output_tokens DESC`
+  ).all(month);
 }

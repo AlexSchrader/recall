@@ -20,6 +20,7 @@ import StudyGuidePage from './pages/StudyGuidePage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
 import ProgressPage from './pages/ProgressPage.jsx';
 import FeedbackPage from './pages/FeedbackPage.jsx';
+import AdminPage from './pages/AdminPage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -47,6 +48,7 @@ function AppRoutes() {
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/progress" element={<div className="page"><ProgressPage /></div>} />
           <Route path="/feedback" element={<div className="page"><FeedbackPage /></div>} />
+          <Route path="/admin" element={<div className="page"><AdminPage /></div>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

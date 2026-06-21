@@ -62,11 +62,13 @@ export async function generateDeck({ userId, unitId, count = 20 }) {
   const systemPrompt = 'You generate flashcard JSON for a study app. Return only valid JSON — no other text.';
   const userPrompt = buildPrompt(sourceContext.text, count, unit.name);
 
+  const meta = { userId, feature: 'flashcard_gen' };
   const response = await generate({
     model: generationModel,
     system: systemPrompt,
     messages: [{ role: 'user', content: userPrompt }],
     maxTokens: 4096,
+    _meta: meta,
   });
 
   let cards;
@@ -83,6 +85,7 @@ export async function generateDeck({ userId, unitId, count = 20 }) {
         { role: 'user', content: 'Your response was not valid JSON. Return ONLY the JSON array, nothing else.' },
       ],
       maxTokens: 4096,
+      _meta: meta,
     });
     cards = parseCards(repair.content[0]?.text ?? '');
   }
