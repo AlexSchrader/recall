@@ -21,6 +21,7 @@ export default function HomePage() {
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#4f46e5');
   const [adding, setAdding] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [bookQuery, setBookQuery] = useState('');
@@ -34,7 +35,7 @@ export default function HomePage() {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
-    api.get('/courses').then(setCourses).catch(console.error);
+    api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
   }, [user.id]);
 
@@ -165,7 +166,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {courses.length === 0 && !adding && (
+      {!loading && courses.length === 0 && !adding && (
         <div className="onboarding">
           <h2 className="onboarding-title">Study smarter, not harder.</h2>
           <p className="onboarding-sub">Upload your notes, get a quiz, and Recall will automatically bring back the topics you keep missing.</p>

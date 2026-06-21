@@ -13,6 +13,7 @@
   --muted: #64748b;
   --radius: 8px;
   --shadow: 0 1px 3px rgba(0,0,0,.1), 0 1px 2px rgba(0,0,0,.06);
+  --nav-h: 57px;
 }
 
 body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
@@ -24,12 +25,13 @@ a:hover { text-decoration: underline; }
 nav.topnav {
   background: var(--surface); border-bottom: 1px solid var(--border);
   padding: .75rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+  position: sticky; top: 0; z-index: 50;
 }
 nav.topnav .brand { font-weight: 700; font-size: 1.1rem; color: var(--primary); flex: 1; }
 nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 
 /* ── Layout ── */
-main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 
 /* ── Card ── */
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); }
@@ -128,7 +130,14 @@ main.page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .muted { color: var(--muted); }
 
 /* ── Chat ── */
-.chat-wrap { display: flex; flex-direction: column; height: calc(100vh - 57px); max-width: 860px; margin: 0 auto; padding: 0 1rem; }
+.chat-wrap {
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0; bottom: 0;
+  display: flex; flex-direction: column;
+  padding: 0 max(1rem, calc((100vw - 860px) / 2));
+  background: var(--bg);
+}
 .chat-header { display: flex; align-items: center; gap: 1rem; padding: .75rem 0; border-bottom: 1px solid var(--border); flex-shrink: 0; }
 .chat-back { font-size: .875rem; color: var(--primary); white-space: nowrap; }
 .chat-title { font-weight: 600; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
