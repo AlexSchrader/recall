@@ -364,6 +364,45 @@ export default function SettingsPage() {
         )}
       </section>
 
+      {/* ── Studying ── */}
+      <section className="settings-section">
+        <h2>Studying</h2>
+        <div className="settings-row">
+          <div>
+            <strong>Rappel voice auto-play</strong>
+            <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginTop: '.1rem' }}>
+              When enabled, Rappel speaks each reply automatically. You can also toggle this per-session using the 🔊 button in chat.
+            </p>
+          </div>
+          <label className="toggle-switch">
+            <input
+              type="checkbox"
+              checked={!!prefs.voiceAutoPlay}
+              onChange={() => {
+                const next = !prefs.voiceAutoPlay;
+                setPrefs(p => ({ ...p, voiceAutoPlay: next }));
+                api.put('/preferences', { ...prefs, voiceAutoPlay: next }).catch(() => {});
+              }}
+            />
+            <span className="toggle-slider" />
+          </label>
+        </div>
+
+        <div style={{ marginTop: '1.25rem' }}>
+          <strong>Export your data</strong>
+          <p style={{ fontSize: '.8rem', color: 'var(--muted)', margin: '.25rem 0 .6rem' }}>
+            Download a JSON file of all your quiz history, topic mastery, and flashcard review data.
+          </p>
+          <a
+            href="/api/me/export"
+            className="btn btn-ghost btn-sm"
+            download="recall-export.json"
+          >
+            Download export
+          </a>
+        </div>
+      </section>
+
       {/* ── Support ── */}
       <section className="settings-section">
         <h2>Support</h2>

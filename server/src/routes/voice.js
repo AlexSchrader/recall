@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { Readable } from 'stream';
 import { requireAuth } from '../middleware/auth.js';
 import { VOICE_ID, MODEL_ID } from '../config/rappel.js';
+import { logUsage } from '../db/usageLogDb.js';
 
 const router = Router();
 
@@ -60,6 +61,15 @@ router.post('/voice/tts', requireAuth, requireVoice, async (req, res) => {
       console.error('[voice/tts] ElevenLabs error:', msg);
       return res.status(502).json({ error: 'TTS unavailable.' });
     }
+
+    // Log character count as output_tokens (ElevenLabs billing unit = characters)
+    logUsage({
+      userId: req.session.userId,
+      feature: 'tts',
+      model: MODEL_ID,
+      inputTokens: 0,
+      outputTokens: text.trim().length,
+    });
 
     res.setHeader('Content-Type', 'audio/mpeg');
     Readable.fromWeb(upstream.body).pipe(res);

@@ -75,6 +75,10 @@ export default function ChatThreadPage() {
       .then(data => { setThread(data); setMessages(data.messages ?? []); })
       .catch(() => navigate('/chat'));
     api.get('/voice/status').then(d => setVoiceUnlocked(d.unlocked)).catch(() => {});
+    // Restore voice auto-play preference
+    api.get('/preferences').then(p => {
+      if (p?.voiceAutoPlay !== undefined) setVoiceEnabled(!!p.voiceAutoPlay);
+    }).catch(() => {});
   }, [threadId]);
 
   useEffect(() => {
@@ -119,7 +123,12 @@ export default function ChatThreadPage() {
   const toggleVoice = () => {
     if (!voiceUnlocked) { setShowPin(true); return; }
     if (voiceEnabled) stopAudio();
-    setVoiceEnabled(v => !v);
+    const next = !voiceEnabled;
+    setVoiceEnabled(next);
+    // Persist so the preference survives across sessions
+    api.get('/preferences').then(prefs => {
+      api.put('/preferences', { ...prefs, voiceAutoPlay: next }).catch(() => {});
+    }).catch(() => {});
   };
 
   const onPinUnlocked = () => {
