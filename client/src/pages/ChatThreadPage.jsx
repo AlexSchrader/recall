@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
 import { api } from '../api.js';
 
 function PinModal({ onUnlock, onClose }) {
@@ -230,12 +231,15 @@ export default function ChatThreadPage() {
         <div className="chat-messages">
           {messages.map(m => (
             <div key={m.id} className={`chat-bubble chat-bubble--${m.role}`}>
-              {m.content}
+              {m.role === 'assistant'
+                ? <ReactMarkdown className="chat-md">{m.content}</ReactMarkdown>
+                : m.content}
             </div>
           ))}
           {streaming && streamingText && (
             <div className="chat-bubble chat-bubble--assistant">
-              {streamingText}<span className="chat-cursor">▋</span>
+              <ReactMarkdown className="chat-md">{streamingText}</ReactMarkdown>
+              <span className="chat-cursor">▋</span>
             </div>
           )}
           {streaming && !streamingText && (

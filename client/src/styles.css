@@ -142,9 +142,24 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 .chat-back { font-size: .875rem; color: var(--primary); white-space: nowrap; }
 .chat-title { font-weight: 600; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .chat-messages { flex: 1; overflow-y: auto; padding: 1.25rem 0; display: flex; flex-direction: column; gap: .75rem; }
-.chat-bubble { max-width: 75%; padding: .65rem .9rem; border-radius: 14px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; font-size: .95rem; }
-.chat-bubble--user { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
+.chat-bubble { max-width: 75%; padding: .65rem .9rem; border-radius: 14px; line-height: 1.55; word-break: break-word; font-size: .95rem; }
+.chat-bubble--user { background: var(--primary); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; white-space: pre-wrap; }
 .chat-bubble--assistant { background: var(--surface); border: 1px solid var(--border); align-self: flex-start; border-bottom-left-radius: 4px; }
+
+/* ── Markdown inside assistant chat bubbles ── */
+.chat-md p { margin-bottom: .4rem; }
+.chat-md p:last-child { margin-bottom: 0; }
+.chat-md ul, .chat-md ol { padding-left: 1.25rem; margin-bottom: .4rem; }
+.chat-md li { margin-bottom: .15rem; }
+.chat-md strong { font-weight: 700; }
+.chat-md em { font-style: italic; }
+.chat-md code { background: rgba(0,0,0,.07); padding: .1rem .3rem; border-radius: 3px; font-size: .85em; font-family: ui-monospace, monospace; }
+.chat-md pre { background: rgba(0,0,0,.07); padding: .6rem .8rem; border-radius: 6px; overflow-x: auto; margin-bottom: .4rem; }
+.chat-md pre code { background: none; padding: 0; }
+.chat-md h1, .chat-md h2, .chat-md h3 { font-weight: 700; margin-top: .6rem; margin-bottom: .3rem; }
+.chat-md h1 { font-size: 1.05rem; }
+.chat-md h2, .chat-md h3 { font-size: .95rem; }
+.chat-md blockquote { border-left: 3px solid var(--border); padding-left: .75rem; color: var(--muted); margin: .4rem 0; }
 .chat-bubble--thinking { padding: .65rem 1.1rem; }
 .chat-cursor { display: inline-block; animation: blink .7s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }

@@ -30,7 +30,7 @@ When a task finishes, you MUST:
 
 - **Current phase:** Phase 3 — Flashcards
 - **In flight:** Nothing open right now
-- **Next action:** Run **S4** — Study Guide
+- **Next action:** Phase 4 — G1 (Lenient grading) or Phase 5 Rappel hardening
 - **Last updated:** 2026-06-21
 
 ---
@@ -78,7 +78,7 @@ Source doc: `docs/Recall_Study_Modes.md`
 - [x] **S1** — Flashcard decks + cards DB tables (`flashcardsDb.js`, user-scoped queries) — DONE 2026-06-21, commit fc8600e
 - [x] **S2** — Flashcard generation + SM-2 review services (`flashcardGenerator.js`, `flashcardReview.js`) — DONE 2026-06-21
 - [x] **S3** — Flashcard API + UI (endpoints, FlashcardsScreen, DeckScreen, ReviewSessionScreen) — DONE 2026-06-21, commit c9ca8ce
-- [ ] **S4** — Study Guide (DB + service + API + screen, "Read the study guide" recovery prompt from low quiz scores)
+- [x] **S4** — Study Guide (DB + service + API + screen, recovery prompt on low quiz scores) — DONE 2026-06-21, commit 054b8f1
 
 ## Phase 4 — Lenient grading
 
