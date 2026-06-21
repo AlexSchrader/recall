@@ -18,6 +18,11 @@ export default function Layout() {
           <NavLink to="/" end>Courses</NavLink>
           <NavLink to="/chat">Rappel</NavLink>
         </div>
+        {user?.streak > 0 && (
+          <span className="streak-badge" title={`${user.streak}-day study streak!`}>
+            🔥 {user.streak}
+          </span>
+        )}
         <span className="user">{user?.display_name}</span>
         <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Log out</button>
       </nav>

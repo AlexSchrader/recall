@@ -13,6 +13,7 @@ const stmts = {
   ),
   updateName: db.prepare('UPDATE users SET display_name = ? WHERE id = ?'),
   updateHash: db.prepare('UPDATE users SET passphrase_hash = ? WHERE id = ?'),
+  updateStreak: db.prepare('UPDATE users SET streak = ?, streak_updated_at = ? WHERE id = ?'),
   delete: db.prepare('DELETE FROM users WHERE id = ?'),
   insertResetToken: db.prepare(
     `INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)`
@@ -71,4 +72,23 @@ export function getResetToken(token) {
 
 export function markTokenUsed(token) {
   stmts.markTokenUsed.run(token);
+}
+
+export function updateStreak(userId) {
+  const user = stmts.findById.get(userId);
+  if (!user) return 0;
+
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+  const lastStr = user.streak_updated_at?.slice(0, 10);
+
+  if (lastStr === todayStr) return user.streak; // already counted today
+
+  const yesterday = new Date(now);
+  yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+  const yesterdayStr = yesterday.toISOString().slice(0, 10);
+
+  const newStreak = lastStr === yesterdayStr ? (user.streak || 0) + 1 : 1;
+  stmts.updateStreak.run(newStreak, now.toISOString(), userId);
+  return newStreak;
 }

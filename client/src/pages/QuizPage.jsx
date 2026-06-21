@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 function McqOptions({ questionId, options, value, onChange }) {
   return (
@@ -31,6 +32,7 @@ function TrueFalseOptions({ questionId, value, onChange }) {
 export default function QuizPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
   const [submitting, setSubmitting] = useState(false);
@@ -60,6 +62,7 @@ export default function QuizPage() {
     try {
       const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
       const results = await api.post(`/quizzes/${quizId}/submit`, { answers: payload });
+      refreshUser().catch(() => {});
       navigate(`/quizzes/${quizId}/results`, { state: { results } });
     } catch (err) {
       setError(err.message);

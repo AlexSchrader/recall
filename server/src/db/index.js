@@ -26,6 +26,10 @@ if (!userCols.includes('email')) {
   db.exec('ALTER TABLE users ADD COLUMN email TEXT');
   db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email ON users(email) WHERE email IS NOT NULL');
 }
+if (!userCols.includes('streak')) {
+  db.exec('ALTER TABLE users ADD COLUMN streak INTEGER NOT NULL DEFAULT 0');
+  db.exec('ALTER TABLE users ADD COLUMN streak_updated_at TEXT');
+}
 
 export { DB_PATH };
 export default db;

@@ -156,6 +156,7 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 .chat-input-row { display: flex; gap: .5rem; padding: .75rem 0 1rem; flex-shrink: 0; border-top: 1px solid var(--border); }
 .chat-input { flex: 1; padding: .6rem .9rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: .95rem; outline: none; }
 .chat-input:focus { border-color: var(--primary); }
+.streak-badge { font-size: .875rem; font-weight: 700; color: #ea580c; background: #fff7ed; border: 1px solid #fed7aa; border-radius: 99px; padding: .2rem .65rem; line-height: 1.4; white-space: nowrap; }
 nav.topnav .nav-links { display: flex; gap: .5rem; }
 nav.topnav .nav-links a { font-size: .875rem; color: var(--muted); padding: .3rem .6rem; border-radius: var(--radius); }
 nav.topnav .nav-links a:hover,

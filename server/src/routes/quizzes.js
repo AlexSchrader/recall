@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { getUserById } from '../db/usersDb.js';
+import { getUserById, updateStreak } from '../db/usersDb.js';
 import { getPreferences } from '../db/preferencesDb.js';
 import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz } from '../db/quizzesDb.js';
 import { listQuestionsByQuiz, getQuestionById } from '../db/questionsDb.js';
@@ -126,8 +126,10 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
   const correctCount = results.filter(r => r.isCorrect).length;
   const score = questions.length > 0 ? correctCount / questions.length : 0;
   completeQuiz(quiz.id, { score, completed_at: now });
+  const streak = updateStreak(req.session.userId);
 
   res.json({
+    streak,
     score,
     correct: correctCount,
     total: questions.length,

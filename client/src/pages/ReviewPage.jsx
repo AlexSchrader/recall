@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 const CONFETTI_COLORS = ['#4f46e5', '#16a34a', '#d97706', '#dc2626', '#0ea5e9', '#ec4899', '#8b5cf6'];
 
@@ -79,6 +80,7 @@ export default function ReviewPage() {
   const { deckId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -129,6 +131,7 @@ export default function ReviewPage() {
     const next = currentIdx + 1;
     if (next >= cards.length) {
       setSessionComplete(true);
+      refreshUser().catch(() => {});
     } else {
       setCurrentIdx(next);
       setFlipped(false);

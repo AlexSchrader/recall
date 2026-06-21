@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { requireAuth } from '../middleware/auth.js';
+import { updateStreak } from '../db/usersDb.js';
 import { getUnitById } from '../db/unitsDb.js';
 import { getCourseById } from '../db/coursesDb.js';
 import { generateDeck } from '../services/flashcardGenerator.js';
@@ -75,7 +76,8 @@ router.get('/flashcards/decks/:deckId/due', requireAuth, (req, res) => {
 router.post('/flashcards/cards/:cardId/review', requireAuth, async (req, res) => {
   try {
     const updated = await reviewCard({ userId: req.session.userId, cardId: req.params.cardId, rating: req.body?.rating });
-    res.json(updated);
+    const streak = updateStreak(req.session.userId);
+    res.json({ ...updated, streak });
   } catch (err) {
     res.status(err.status ?? 400).json({ error: err.message });
   }
