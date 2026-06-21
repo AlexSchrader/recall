@@ -1,7 +1,6 @@
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { api } from '../api.js';
-import { useAuth } from '../context/AuthContext.jsx';
 
 export default function QuizResultPage() {
   const { quizId } = useParams();
@@ -9,6 +8,7 @@ export default function QuizResultPage() {
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
   const [results, setResults] = useState(state?.results ?? null);
+  const [creatingThread, setCreatingThread] = useState(false);
 
   useEffect(() => {
     api.get(`/quizzes/${quizId}`).then(setQuiz).catch(() => navigate('/'));
@@ -22,6 +22,24 @@ export default function QuizResultPage() {
 
   const unitIds = (() => { try { return JSON.parse(quiz.source_unit_ids); } catch { return []; } })();
   const firstUnitId = unitIds[0] ?? null;
+
+  const missedTopics = results?.results
+    ? [...new Set(results.results.filter(r => !r.isCorrect).map(r => r.topic))].slice(0, 5)
+    : [];
+
+  const startRappelPlan = async () => {
+    setCreatingThread(true);
+    try {
+      const topicList = missedTopics.length
+        ? missedTopics.map(t => `• ${t}`).join('\n')
+        : '• (see quiz above)';
+      const initMsg = `I just finished the "${quiz.title}" quiz and scored ${pct}%. I struggled with these topics:\n${topicList}\n\nCan you make me a short study plan to review what I missed? Prioritise the hardest concepts first.`;
+      const thread = await api.post('/chat/threads', { title: `Study plan: ${quiz.title}` });
+      navigate(`/chat/${thread.id}?init=${encodeURIComponent(initMsg)}`);
+    } catch {
+      setCreatingThread(false);
+    }
+  };
 
   return (
     <>
@@ -41,12 +59,23 @@ export default function QuizResultPage() {
         )}
       </div>
 
-      {pct < 60 && firstUnitId && (
+      {pct < 60 && (
         <div className="recovery-banner">
-          <span>Tricky material! Reading the study guide can help things click.</span>
+          <span>Tricky material — let Rappel walk you through what to study next.</span>
           <div style={{ display: 'flex', gap: '.5rem', marginTop: '.6rem', flexWrap: 'wrap' }}>
-            <Link to={`/units/${firstUnitId}/study-guide`} className="btn btn-primary btn-sm">Read study guide →</Link>
-            <Link to={`/units/${firstUnitId}/flashcards`} className="btn btn-ghost btn-sm">Practice flashcards →</Link>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={startRappelPlan}
+              disabled={creatingThread}
+            >
+              {creatingThread ? 'Opening Rappel…' : 'Get a study plan →'}
+            </button>
+            {firstUnitId && (
+              <>
+                <Link to={`/units/${firstUnitId}/study-guide`} className="btn btn-ghost btn-sm">Study guide</Link>
+                <Link to={`/units/${firstUnitId}/flashcards`} className="btn btn-ghost btn-sm">Flashcards</Link>
+              </>
+            )}
           </div>
         </div>
       )}

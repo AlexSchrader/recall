@@ -93,7 +93,11 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 .item-row--editing:hover { border-color: var(--border); }
 .edit-btn { opacity: 0; transition: opacity .15s; background: none; border: none; cursor: pointer; padding: .1rem .3rem; font-size: .9rem; line-height: 1; }
 .item-row:hover .edit-btn { opacity: 1; }
-.edit-inline-input { flex: 1; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .95rem; }
+.edit-inline-input { flex: 1; min-width: 60px; padding: .35rem .5rem; border: 1px solid var(--border); border-radius: 6px; font-size: .95rem; }
+.item-row--editing form { flex-wrap: wrap; }
+@media (max-width: 480px) {
+  .item-row--editing form .btn { flex-shrink: 0; padding: .3rem .55rem; font-size: .8rem; }
+}
 
 /* ── Auth pages ── */
 .auth-wrap { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
@@ -222,8 +226,13 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
 .study-guide-md code { background: #f1f5f9; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
 .study-guide-md blockquote { border-left: 3px solid var(--primary); padding-left: 1rem; color: var(--muted); margin: .75rem 0; }
 
+/* ── Streak nudge ── */
+.streak-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; color: #92400e; }
+[data-theme="dark"] .streak-nudge { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
+
 /* ── Low-score recovery banner ── */
 .recovery-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .9rem; color: #92400e; }
+[data-theme="dark"] .recovery-banner { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
 
 /* ── Flashcard review ── */
 .fc-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem; }
@@ -346,8 +355,9 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .progress-page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .progress-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
 .mastery-list { display: flex; flex-direction: column; gap: .6rem; }
-.mastery-row { display: flex; align-items: center; gap: .75rem; }
+.mastery-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
 .mastery-info { flex: 1; display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.mastery-actions { display: flex; gap: .35rem; flex-shrink: 0; }
 .mastery-topic { font-size: .875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 120px; max-width: 200px; }
 .mastery-bar-wrap { flex: 1; display: flex; align-items: center; gap: .5rem; }
 .mastery-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }

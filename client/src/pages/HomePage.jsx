@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, NavLink } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -117,8 +117,17 @@ export default function HomePage() {
     }
   };
 
+  const streakDue = user?.streak > 0 &&
+    user?.streak_updated_at?.slice(0, 10) !== new Date().toISOString().slice(0, 10);
+
   return (
     <>
+      {streakDue && (
+        <div className="streak-nudge">
+          <span>Your <strong>{user.streak}-day streak</strong> is on the line — study something today to keep it going!</span>
+          <Link to="/progress" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Study now</Link>
+        </div>
+      )}
       <div className="page-header">
         <h1>My Courses</h1>
         <button className="btn btn-primary" onClick={() => setAdding(v => !v)}>

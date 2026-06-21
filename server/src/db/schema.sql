@@ -175,6 +175,18 @@ CREATE TABLE IF NOT EXISTS feedback (
   created_at     TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS usage_log (
+  id            TEXT PRIMARY KEY,
+  user_id       TEXT,
+  feature       TEXT NOT NULL,
+  model         TEXT NOT NULL,
+  input_tokens  INTEGER NOT NULL DEFAULT 0,
+  output_tokens INTEGER NOT NULL DEFAULT 0,
+  created_at    TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_usage_user ON usage_log(user_id, created_at DESC);
+
 CREATE INDEX IF NOT EXISTS idx_courses_user      ON courses(user_id);
 CREATE INDEX IF NOT EXISTS idx_units_course      ON units(course_id);
 CREATE INDEX IF NOT EXISTS idx_docs_unit         ON documents(unit_id);
