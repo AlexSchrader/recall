@@ -64,6 +64,7 @@ app.use((_req, res, next) => {
       "style-src 'self' 'unsafe-inline'",
       "connect-src 'self' https://openlibrary.org https://api.elevenlabs.io",
       "font-src 'self' data:",
+      "media-src 'self' blob:",
       "manifest-src 'self'",
       "worker-src 'self'",
     ].join('; ')
