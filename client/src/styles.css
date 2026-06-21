@@ -356,14 +356,23 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .progress-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
 .focus-picker { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .65rem .75rem; margin-bottom: .6rem; }
 .mastery-list { display: flex; flex-direction: column; gap: .6rem; }
-.mastery-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.mastery-row { display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; }
 .mastery-info { flex: 1; display: flex; align-items: center; gap: .75rem; min-width: 0; }
 .mastery-actions { display: flex; gap: .35rem; flex-shrink: 0; }
 .mastery-topic { font-size: .875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 120px; max-width: 200px; }
-.mastery-bar-wrap { flex: 1; display: flex; align-items: center; gap: .5rem; }
-.mastery-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.mastery-bar-wrap { flex: 1; display: flex; align-items: center; gap: .5rem; min-width: 80px; }
+.mastery-bar-bg { flex: 1; min-width: 48px; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
 .mastery-bar-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
-.mastery-bar-pct { font-size: .75rem; font-weight: 600; min-width: 32px; text-align: right; }
+.mastery-bar-pct { font-size: .75rem; font-weight: 600; min-width: 36px; text-align: right; flex-shrink: 0; }
+
+/* On narrow screens, let the action buttons drop to their own line so the
+   mastery bar keeps full width and the % never collides with the buttons. */
+@media (max-width: 560px) {
+  .mastery-row { align-items: stretch; }
+  .mastery-info { flex-basis: 100%; }
+  .mastery-topic { max-width: none; }
+  .mastery-actions { width: 100%; justify-content: flex-end; }
+}
 .weak-q-list { display: flex; flex-direction: column; gap: .6rem; }
 .weak-q-row { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius); }
 .weak-q-body { flex: 1; }
