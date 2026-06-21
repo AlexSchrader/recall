@@ -30,8 +30,8 @@ When a task finishes, you MUST:
 
 - **Current phase:** Phase 6 — Cost guardrails & observability
 - **In flight:** Nothing open right now
-- **Next action:** Phase 5 open items (voice quality review, auto-play toggle) or Phase 7 pre-publish
-- **Last updated:** 2026-06-21 (post-ship: admin usage page, focus quiz picker, daily cap audit pass, usage logging across all generators)
+- **Next action:** Phase 7 pre-publish prep, or Phase 8 features (mock exam, weekly digest, export)
+- **Last updated:** 2026-06-21 (post-ship: ElevenLabs logging, voice auto-play pref, export data, Studying section in Settings)
 
 ---
 
@@ -106,7 +106,7 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] "Explain it" / Feynman mode from ProgressPage — per-topic button starts Rappel thread running Feynman technique (you explain, Rappel fills gaps) — DONE 2026-06-21, commit ccee55b
 - [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — needs actual transcripts to calibrate
 - [ ] Voice quality review — compare `eleven_turbo_v2_5` vs flash; tune stability/similarity settings after listening to real replies
-- [ ] Decide whether voice replies auto-play or require tap (Settings → Studying toggle — confirm it's wired)
+- [x] Voice auto-play preference — persisted to `preferences` JSON blob; toggled in Settings → Studying and per-session via 🔊 button; loaded on ChatThreadPage mount — DONE 2026-06-21
 
 ## Phase 6 — Settings, progress & cost guardrails *(in progress)*
 
@@ -119,7 +119,7 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Focus quiz shortcut — "Focus Quiz ▾" per course on ProgressPage; fetches units inline; fires 10-question quiz with reviewMix=1 on selected unit — DONE 2026-06-21, commit 6a57016
 - [x] Per-user daily generation cap verified across all gen types — quiz + flashcard deck + study guide share one bucket (confirmed); chat intentionally excluded — DONE 2026-06-21, commit 6a57016
 - [x] Owner-only `/admin/usage` page — daily detail + monthly-by-user + all-users tabs; estimated cost per row from Claude pricing table; protected by `ADMIN_USER_IDS` env var — DONE 2026-06-21, commit 6a57016
-- [ ] ElevenLabs character usage logged alongside Claude tokens (extend `usage_log` or separate table)
+- [x] ElevenLabs character usage logged — TTS route logs `feature: 'tts'`, `outputTokens = text.length` (characters) to `usage_log`; visible in admin detail tab — DONE 2026-06-21
 - [ ] Anthropic billing alert configured in Anthropic dashboard (outside app — verify it exists)
 - [ ] ElevenLabs character-quota alert configured (verify)
 
@@ -141,7 +141,7 @@ These don't need to happen for private use — they unlock public/paid launch.
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [ ] Bulk unit import (multiple files, auto-unit detection)
 - [ ] Shareable quiz (export as static link for friends)
-- [ ] Export data: download all quiz history + flashcard results as JSON
+- [x] Export data — `GET /api/me/export` returns full JSON dump (quizzes, mastery, flashcard reviews, courses); download button in Settings → Studying — DONE 2026-06-21
 - [ ] Weekly digest email: "Here are your 3 weakest topics this week" (Resend scheduled send)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI)

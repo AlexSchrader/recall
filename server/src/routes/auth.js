@@ -209,4 +209,49 @@ router.get('/me/progress', requireAuth, (req, res) => {
   res.json({ progress, weakQuestions });
 });
 
+// GET /api/me/export — full data dump as JSON
+router.get('/me/export', requireAuth, (req, res) => {
+  const uid = req.session.userId;
+  const user = getUserById(uid);
+  const courses = listCoursesByUser(uid);
+  const mastery = listMasteryByUser(uid);
+  const weakQuestions = listWeakQuestions(uid, 50);
+
+  const quizzes = db.prepare(
+    `SELECT q.id, q.title, q.score, q.status, q.created_at, q.completed_at,
+            json_group_array(json_object(
+              'prompt', qn.prompt,
+              'type',   qn.type,
+              'topic',  qn.topic,
+              'correct_answer', qn.correct_answer
+            )) AS questions
+     FROM quizzes q
+     LEFT JOIN questions qn ON qn.quiz_id = q.id
+     WHERE q.user_id = ?
+     GROUP BY q.id
+     ORDER BY q.created_at DESC`
+  ).all(uid);
+
+  const flashcardReviews = db.prepare(
+    `SELECT f.front, f.back, f.topic, f.mastery, f.repetitions, f.due_at, f.last_reviewed_at,
+            fd.name AS deck
+     FROM flashcards f
+     JOIN flashcard_decks fd ON fd.id = f.deck_id
+     WHERE f.user_id = ?
+     ORDER BY f.last_reviewed_at DESC NULLS LAST`
+  ).all(uid);
+
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', 'attachment; filename="recall-export.json"');
+  res.json({
+    exportedAt: new Date().toISOString(),
+    user: { displayName: user.display_name, tier: user.tier, createdAt: user.created_at },
+    courses,
+    topicMastery: mastery,
+    weakQuestions,
+    quizzes: quizzes.map(q => ({ ...q, questions: JSON.parse(q.questions ?? '[]') })),
+    flashcardReviews,
+  });
+});
+
 export default router;
