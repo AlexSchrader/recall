@@ -13,6 +13,9 @@ import QuizPage from './pages/QuizPage.jsx';
 import QuizResultPage from './pages/QuizResultPage.jsx';
 import ChatListPage from './pages/ChatListPage.jsx';
 import ChatThreadPage from './pages/ChatThreadPage.jsx';
+import FlashcardsPage from './pages/FlashcardsPage.jsx';
+import DeckPage from './pages/DeckPage.jsx';
+import ReviewPage from './pages/ReviewPage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -33,6 +36,9 @@ function AppRoutes() {
           <Route path="/quizzes/:quizId/results" element={<div className="page"><QuizResultPage /></div>} />
           <Route path="/chat" element={<div className="page"><ChatListPage /></div>} />
           <Route path="/chat/:threadId" element={<ChatThreadPage />} />
+          <Route path="/units/:unitId/flashcards" element={<div className="page"><FlashcardsPage /></div>} />
+          <Route path="/flashcards/decks/:deckId" element={<div className="page"><DeckPage /></div>} />
+          <Route path="/flashcards/decks/:deckId/review" element={<div className="page"><ReviewPage /></div>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

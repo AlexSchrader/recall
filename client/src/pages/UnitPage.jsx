@@ -134,6 +134,17 @@ export default function UnitPage() {
 
       <hr />
 
+      {/* Flashcards */}
+      <p className="section-title">Flashcards</p>
+      <p style={{ fontSize: '.875rem', color: 'var(--muted)', marginBottom: '.75rem' }}>
+        Generate a flashcard deck from your documents and review with spaced repetition.
+      </p>
+      <Link to={`/units/${unitId}/flashcards`} className="btn btn-ghost" style={{ marginBottom: '1.5rem', display: 'inline-flex' }}>
+        Go to Flashcards →
+      </Link>
+
+      <hr />
+
       {/* Generate quiz */}
       <p className="section-title">Generate quiz</p>
       {parsedDocs.length === 0

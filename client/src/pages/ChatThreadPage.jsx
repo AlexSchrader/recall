@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
 
 function PinModal({ onUnlock, onClose }) {
@@ -51,7 +51,9 @@ function PinModal({ onUnlock, onClose }) {
 
 export default function ChatThreadPage() {
   const { threadId } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const initSentRef = useRef(false);
   const [thread, setThread] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -73,6 +75,14 @@ export default function ChatThreadPage() {
       .catch(() => navigate('/chat'));
     api.get('/voice/status').then(d => setVoiceUnlocked(d.unlocked)).catch(() => {});
   }, [threadId]);
+
+  useEffect(() => {
+    const init = searchParams.get('init');
+    if (init && thread && messages.length === 0 && !initSentRef.current) {
+      initSentRef.current = true;
+      sendMessage(null, init);
+    }
+  }, [thread?.id, messages.length]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -141,14 +151,14 @@ export default function ChatThreadPage() {
     setListening(false);
   };
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    const content = input.trim();
+  const sendMessage = async (e, overrideContent = null) => {
+    if (e) e.preventDefault();
+    const content = (overrideContent ?? input).trim();
     if (!content || streaming) return;
 
     const optimisticUser = { id: `tmp-${Date.now()}`, role: 'user', content, created_at: new Date().toISOString() };
     setMessages(prev => [...prev, optimisticUser]);
-    setInput('');
+    if (!overrideContent) setInput('');
     setStreaming(true);
     setStreamingText('');
     stopAudio();
