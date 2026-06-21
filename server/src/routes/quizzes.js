@@ -84,61 +84,68 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
 
   for (const q of questions) {
     const given = (answers.find(a => a.questionId === q.id)?.answer ?? '').trim();
-    const isCorrect = q.type === 'short'
+    const score = q.type === 'short'
       ? await gradeShort(q, given)
       : gradeAuto(q, given);
-    results.push({ question: q, given, isCorrect });
+    results.push({ question: q, given, score });
   }
 
-  // Persist attempts
+  // Persist attempts (binary: partial counts as incorrect in history)
   const courseId = JSON.parse(quiz.config_json ?? '{}').courseId ?? null;
-  bulkCreateAttempts(results.map(({ question: q, given, isCorrect }) => ({
+  bulkCreateAttempts(results.map(({ question: q, given, score }) => ({
     id: uuidv4(),
     question_id: q.id,
     user_id: req.session.userId,
     given_answer: given || null,
-    is_correct: isCorrect ? 1 : 0,
+    is_correct: score === 1 ? 1 : 0,
     answered_at: now,
   })));
 
-  // Update topic mastery (SM-2) per topic
+  // Update topic mastery (SM-2) per topic using float score
   if (courseId) {
     const byTopic = {};
-    for (const { question: q, isCorrect } of results) {
-      if (!byTopic[q.topic]) byTopic[q.topic] = { correct: 0, total: 0 };
+    for (const { question: q, score } of results) {
+      if (!byTopic[q.topic]) byTopic[q.topic] = { scoreSum: 0, total: 0 };
       byTopic[q.topic].total += 1;
-      if (isCorrect) byTopic[q.topic].correct += 1;
+      byTopic[q.topic].scoreSum += score;
     }
 
-    for (const [topic, { correct, total }] of Object.entries(byTopic)) {
+    for (const [topic, { scoreSum, total }] of Object.entries(byTopic)) {
       const existing = getMastery(req.session.userId, courseId, topic) ?? {
         id: uuidv4(), user_id: req.session.userId, course_id: courseId, topic,
         ease: 2.5, interval_days: 1, repetitions: 0, mastery: 0.0,
         due_at: now, last_seen_at: null,
       };
-      const quality = correct / total >= 0.5 ? 4 : 1;
+      const avg = scoreSum / total;
+      const quality = avg >= 0.9 ? 5 : avg >= 0.7 ? 4 : avg >= 0.4 ? 3 : avg > 0 ? 2 : 1;
       const next = sm2Next(existing, quality);
       upsertMastery({ ...existing, ...next, last_seen_at: now });
     }
   }
 
   // Compute score and complete quiz
-  const correctCount = results.filter(r => r.isCorrect).length;
-  const score = questions.length > 0 ? correctCount / questions.length : 0;
+  const scoreSum = results.reduce((s, r) => s + r.score, 0);
+  const fullCount = results.filter(r => r.score === 1).length;
+  const partialCount = results.filter(r => r.score === 0.5).length;
+  const score = questions.length > 0 ? scoreSum / questions.length : 0;
   completeQuiz(quiz.id, { score, completed_at: now });
   const streak = updateStreak(req.session.userId);
 
   res.json({
     streak,
     score,
-    correct: correctCount,
+    correct: fullCount,
+    partial: partialCount,
     total: questions.length,
-    results: results.map(({ question: q, given, isCorrect }) => ({
+    results: results.map(({ question: q, given, score: qScore }) => ({
       questionId: q.id,
+      type: q.type,
       topic: q.topic,
-      isCorrect,
+      score: qScore,
+      isCorrect: qScore === 1,
+      isPartial: qScore === 0.5,
       givenAnswer: given,
-      correctAnswer: q.correct_answer,
+      modelAnswer: q.correct_answer,
       explanation: q.explanation,
     })),
   });

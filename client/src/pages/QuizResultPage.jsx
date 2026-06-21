@@ -32,7 +32,13 @@ export default function QuizResultPage() {
       <div className="card score-banner" style={{ marginBottom: '1.5rem' }}>
         <p style={{ color: 'var(--muted)', marginBottom: '.25rem' }}>Your score</p>
         <p className="score-pct" style={{ color: scoreColor }}>{pct}%</p>
-        {results && <p style={{ color: 'var(--muted)', marginTop: '.25rem' }}>{results.correct} / {results.total} correct</p>}
+        {results && (
+          <p style={{ color: 'var(--muted)', marginTop: '.25rem' }}>
+            {results.correct} correct
+            {results.partial > 0 && ` · ${results.partial} partial`}
+            {' · '}{results.total} total
+          </p>
+        )}
       </div>
 
       {pct < 60 && firstUnitId && (
@@ -52,14 +58,16 @@ export default function QuizResultPage() {
             <div key={r.questionId} className="card question-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
                 <p className="q-meta">Q{i + 1} · {r.topic}</p>
-                <span className={`badge ${r.isCorrect ? 'badge-ok' : 'badge-bad'}`}>
-                  {r.isCorrect ? '✓ Correct' : '✗ Incorrect'}
+                <span className={`badge ${r.isCorrect ? 'badge-ok' : r.isPartial ? 'badge-partial' : 'badge-bad'}`}>
+                  {r.isCorrect ? '✓ Correct' : r.isPartial ? '~ Partial' : '✗ Incorrect'}
                 </span>
               </div>
               {!r.isCorrect && (
                 <div style={{ fontSize: '.875rem', marginTop: '.5rem', color: 'var(--muted)' }}>
                   <p>Your answer: <strong>{r.givenAnswer || '(blank)'}</strong></p>
-                  <p>Correct: <strong>{r.correctAnswer}</strong></p>
+                  <p style={{ marginTop: '.25rem' }}>
+                    Model answer: <strong style={{ color: 'var(--text)' }}>{r.modelAnswer ?? r.correctAnswer}</strong>
+                  </p>
                 </div>
               )}
               {r.explanation && (

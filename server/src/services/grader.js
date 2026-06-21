@@ -1,18 +1,25 @@
 import { generate, GRADING_MODEL } from './claude.js';
 
-// Grade MCQ / true-false locally; grade short answers via Claude (haiku).
-
 export function gradeAuto(question, answer) {
   const correct = (question.correct_answer ?? '').trim().toLowerCase();
   const given = (answer ?? '').trim().toLowerCase();
-  return correct === given;
+  return correct === given ? 1 : 0;
 }
 
 export async function gradeShort(question, answer) {
-  if (!answer?.trim()) return false;
+  if (!answer?.trim()) return 0;
 
-  const system = 'You are a grader. Assess whether the student answer is correct given the question and rubric. Reply with exactly one word: correct or incorrect.';
-  const userText = `Question: ${question.prompt}\nRubric: ${question.rubric ?? 'Match the correct answer closely.'}\nCorrect answer: ${question.correct_answer}\nStudent answer: ${answer}`;
+  const system = `You are a lenient, fair grader for a student quiz.
+Reply with ONLY one of three words: correct, partial, or incorrect.
+- correct: student clearly understands the concept, even if phrasing or wording differs from the model answer
+- partial: student shows some understanding but misses key details, is too vague, or gets part of a multi-part answer
+- incorrect: fundamentally wrong, unrelated, or blank
+Be generous — reward understanding, not memorized wording.`;
+
+  const userText = `Question: ${question.prompt}
+Rubric: ${question.rubric ?? 'Credit the core concept. Accept paraphrasing and minor inaccuracies.'}
+Model answer: ${question.correct_answer}
+Student answer: ${answer}`;
 
   try {
     const response = await generate({
@@ -22,9 +29,10 @@ export async function gradeShort(question, answer) {
       maxTokens: 8,
     });
     const verdict = (response.content[0]?.text ?? '').trim().toLowerCase();
-    return verdict.startsWith('correct');
+    if (verdict.startsWith('correct')) return 1;
+    if (verdict.startsWith('partial')) return 0.5;
+    return 0;
   } catch {
-    // On grading failure, fall back to exact-match
     return gradeAuto(question, answer);
   }
 }

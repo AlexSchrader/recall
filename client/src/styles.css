@@ -97,8 +97,9 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 
 /* ── Result badge ── */
 .badge { display: inline-block; padding: .15rem .5rem; border-radius: 99px; font-size: .75rem; font-weight: 600; }
-.badge-ok  { background: #dcfce7; color: var(--success); }
-.badge-bad { background: #fee2e2; color: var(--danger); }
+.badge-ok      { background: #dcfce7; color: var(--success); }
+.badge-partial { background: #fef3c7; color: var(--warning); }
+.badge-bad     { background: #fee2e2; color: var(--danger); }
 
 /* ── Score banner ── */
 .score-banner { text-align: center; padding: 2rem; }
