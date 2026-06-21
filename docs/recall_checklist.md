@@ -30,7 +30,7 @@ When a task finishes, you MUST:
 
 - **Current phase:** Phase 6 — Cost guardrails & observability
 - **In flight:** Nothing open right now
-- **Next action:** Phase 7 pre-publish prep, or Phase 8 features (mock exam, weekly digest, export)
+- **Next action:** Phase 8 features (mock exam, weekly digest) or continue Phase 4.5 polish
 - **Last updated:** 2026-06-21 (post-ship: ElevenLabs logging, voice auto-play pref, export data, Studying section in Settings)
 
 ---
@@ -96,6 +96,11 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Display name in nav links to Settings — clicking your name opens Settings — DONE 2026-06-21
 - [x] Edit-row mobile overflow — color wheel + name input + Save/Cancel/Delete wrap via `flex-wrap`; input has `min-width: 60px` so Delete never falls off edge — DONE 2026-06-21, commit ccee55b
 - [x] Streak nudge banner on HomePage — amber banner when you have an active streak but haven't studied today; links to /progress; disappears once streak updates — DONE 2026-06-21, commit ccee55b
+- [x] Loading skeletons — Progress and Settings pages pulse-animate stat cards + content rows while fetching; no more blank flash on load — DONE 2026-06-21
+- [x] Progress page empty state — actionable "Nothing tracked yet" card with CTA to courses when user has no mastery data — DONE 2026-06-21
+- [x] `.env.example` updated — added RESEND_API_KEY, VOICE_PIN, ADMIN_USER_IDS with inline instructions for finding user ID — DONE 2026-06-21
+- [x] Rappel thread auto-title — already wired in chat route (fires on first message via generateThreadTitle); programmatic entries ("Study plan", "Explain it") get Claude-generated titles automatically — confirmed 2026-06-21
+- [ ] Quiz result "retake" button — clone same config, fire new generation, navigate straight to the new quiz
 
 ## Phase 5 — Rappel hardening *(mostly complete)*
 

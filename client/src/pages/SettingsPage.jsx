@@ -179,6 +179,16 @@ export default function SettingsPage() {
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Settings</h1>
 
       {/* ── Stats ── */}
+      {!stats && (
+        <div className="skeleton-grid" style={{ marginTop: '1rem' }}>
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton-stat">
+              <div className="skeleton" style={{ width: 44, height: 26 }} />
+              <div className="skeleton" style={{ width: 72, height: 11 }} />
+            </div>
+          ))}
+        </div>
+      )}
       {stats && (
         <div className="stat-grid">
           <div className="stat-card">
