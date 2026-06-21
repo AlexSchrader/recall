@@ -28,9 +28,9 @@ When a task finishes, you MUST:
 
 ## Status at a glance
 
-- **Current phase:** Phase 4 — Lenient grading ✓ / Phase 5 — Rappel hardening
+- **Current phase:** Phase 5 — Rappel hardening / Phase 6 — Polish & cost
 - **In flight:** Nothing open right now
-- **Next action:** Phase 6 — Cost guardrails & observability
+- **Next action:** Phase 6 — Cost guardrails & observability; or deeper AI features (focus quiz, proactive Rappel nudges)
 - **Last updated:** 2026-06-21
 
 ---
@@ -56,6 +56,7 @@ When a task finishes, you MUST:
 
 ## Phase 1 — Auth & Sessions *(complete)*
 
+- [x] Email + display name register; login by display name OR email — DONE 2026-06-21, commit 2e14c1d
 - [x] Email + password register/login — DONE (pre-tracker)
 - [x] Password reset via Resend email — DONE (pre-tracker)
 - [x] Persistent SQLite session store (survives Railway redeploys) — DONE (pre-tracker)
@@ -91,18 +92,24 @@ Source doc: `docs/Recall_Grading_Fix.md`
 R1–R5 are merged; this phase covers iteration based on real use.
 
 - [x] Markdown rendering in Rappel chat (bold, italic, lists, inline code, blockquote) — DONE 2026-06-21, commit 10d1d4c
-- [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — based on actual transcripts
-- [ ] Voice quality review — pick model (`eleven_turbo_v2_5` vs flash) and stability/similarity settings after listening to real replies
-- [ ] Add "Ask Rappel about this" entry points from UnitScreen and QuizResultScreen if not already present
-- [ ] Decide whether voice replies auto-play or require tap (Settings — Studying toggle is in spec — confirm it's wired)
+- [x] Rappel context upgrade: mastery % per weak topic + top commonly missed questions — DONE 2026-06-21, commit ec27220
+- [x] "Ask Rappel" entry points from flashcard review, study guide, quiz result, and progress page — DONE 2026-06-21
+- [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back)
+- [ ] Voice quality review — pick model (`eleven_turbo_v2_5` vs flash) and stability/similarity settings
+- [ ] Decide whether voice replies auto-play or require tap (Settings toggle)
 
-## Phase 6 — Cost guardrails & observability
+## Phase 6 — Settings, progress & cost guardrails *(in progress)*
 
-- [ ] Per-user daily generation cap shared across quizzes, flashcards, study guides, and chat (one bucket) — verify enforced everywhere
-- [ ] Token logging per LLM call (model, input tokens, output tokens, user, feature) — written to `usage_log` table
-- [ ] Simple admin/owner-only `/admin/usage` page showing per-user daily/monthly spend
-- [ ] Anthropic billing alert configured outside the app (verify)
-- [ ] ElevenLabs character-quota alert configured (verify)
+- [x] Settings page: dark/light mode, change display name, email, passphrase, delete quizzes, delete account — DONE 2026-06-21, commit 85157c1
+- [x] Study preferences (default quiz length/difficulty/types) saved per user, pre-fill quiz form — DONE 2026-06-21, commit ec27220
+- [x] Stats card: quizzes completed, questions answered, cards reviewed, streak, best streak — DONE 2026-06-21, commit ec27220
+- [x] Progress page: mastery bars per course/topic, commonly missed questions, Ask Rappel shortcuts — DONE 2026-06-21, commit ec27220
+- [ ] Focus quiz: one-click quiz from weak topics only (100% review mix) — wired on Progress page
+- [ ] Per-user daily generation cap verified across all generation types (quiz, deck, study guide)
+- [ ] Token logging per LLM call → `usage_log` table
+- [ ] Admin-only `/admin/usage` page (per-user daily/monthly spend)
+- [ ] Anthropic billing alert (configure in Anthropic dashboard — outside app)
+- [ ] ElevenLabs character-quota alert (configure in ElevenLabs dashboard)
 
 ## Phase 7 — Pre-publish polish *(deferred)*
 
@@ -116,14 +123,18 @@ R1–R5 are merged; this phase covers iteration based on real use.
 
 ## Phase 8 — Future ideas *(deferred / optional)*
 
+- [ ] Focus quiz button on Progress page (pre-set 100% review mix, navigate straight to quiz) — data is ready, just need UX wire-up
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [ ] Bulk unit import (multiple files, auto-unit detection)
 - [ ] Shareable quiz (export as static link)
-- [ ] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback)
+- [ ] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback) — great for neurodivergent learners
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
 - [ ] Postgres migration (if user count outgrows SQLite)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI)
+- [ ] Proactive Rappel nudge: after a quiz below 60%, Rappel auto-starts a thread with a study plan
+- [ ] Export data: download all quiz history + flashcard results as JSON
+- [ ] Weekly digest email: "Here are your 3 weakest topics this week" (Resend scheduled send)
 
 ---
 
