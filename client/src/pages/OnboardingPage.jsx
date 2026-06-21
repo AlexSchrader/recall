@@ -107,11 +107,14 @@ export default function OnboardingPage() {
             <p className="ob-sub">Your AI tutor — patient, encouraging, and always there to help you study. Choose a voice:</p>
             <div className="ob-voices">
               {VOICES.map(v => (
-                <button
+                <div
                   key={v.value}
-                  type="button"
+                  role="radio"
+                  aria-checked={voice === v.value}
+                  tabIndex={0}
                   className={`ob-voice-card${voice === v.value ? ' ob-voice-card--active' : ''}`}
                   onClick={() => setVoice(v.value)}
+                  onKeyDown={e => e.key === 'Enter' && setVoice(v.value)}
                 >
                   <span className={`ob-voice-avatar${v.avatarClass ? ` ${v.avatarClass}` : ''}`}>
                     {v.label[0]}
@@ -126,7 +129,7 @@ export default function OnboardingPage() {
                   >
                     {playing === v.value ? '■' : '▶'}
                   </button>
-                </button>
+                </div>
               ))}
             </div>
             <p className="ob-note">You can change this anytime in Settings → Studying.</p>
