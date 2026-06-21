@@ -152,6 +152,24 @@ export default function UnitPage() {
 
       <hr />
 
+      {/* Mini-games */}
+      <p className="section-title">Quick games</p>
+      <p style={{ fontSize: '.875rem', color: 'var(--muted)', marginBottom: '.75rem' }}>
+        Practice with questions from your existing quizzes.
+      </p>
+      <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <Link
+          to={`/games/speed-round?unitId=${unitId}&unitName=${encodeURIComponent(unit?.name ?? '')}`}
+          className="btn btn-ghost"
+        >🏃 Speed Round</Link>
+        <Link
+          to={`/games/streak?unitId=${unitId}`}
+          className="btn btn-ghost"
+        >🔥 Streak Challenge</Link>
+      </div>
+
+      <hr />
+
       {/* Generate quiz */}
       <p className="section-title">Generate quiz</p>
       {parsedDocs.length === 0

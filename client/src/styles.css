@@ -414,6 +414,56 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .weak-q-meta { font-size: .75rem; color: var(--muted); margin-bottom: .2rem; }
 .weak-q-answer { font-size: .78rem; color: var(--success); }
 
+/* ── Mini-games ── */
+.game-page { max-width: 640px; margin: 0 auto; padding-bottom: 3rem; }
+.game-page--centered { display: flex; align-items: center; justify-content: center; min-height: 60vh; }
+
+/* Countdown */
+.game-countdown { text-align: center; }
+.game-countdown-num { font-size: 6rem; font-weight: 800; color: var(--primary); display: block; line-height: 1; }
+.game-countdown-sub { color: var(--muted); margin-top: .75rem; font-size: .9rem; }
+
+/* HUD */
+.game-hud { display: flex; align-items: center; gap: .75rem; margin-bottom: 1.25rem; }
+.game-hud-counter { font-size: .85rem; color: var(--muted); white-space: nowrap; }
+.game-timer-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.game-timer-fill { height: 100%; border-radius: 3px; transition: width .9s linear, background .3s; }
+.game-hud-time { font-size: .85rem; font-weight: 600; white-space: nowrap; min-width: 28px; text-align: right; }
+
+/* Question */
+.game-topic { font-size: .78rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); margin-bottom: .5rem; }
+.game-prompt { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin: 0 0 1.5rem; }
+.game-options { display: flex; flex-direction: column; gap: .6rem; }
+.game-option { display: flex; align-items: center; gap: .75rem; padding: .9rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; font-size: .95rem; transition: border-color .12s, background .12s; }
+.game-option:hover:not(:disabled) { border-color: var(--primary); background: color-mix(in srgb, var(--primary) 6%, var(--surface)); }
+.game-option--correct { border-color: var(--success) !important; background: color-mix(in srgb, var(--success) 10%, var(--surface)) !important; }
+.game-option--wrong { border-color: #ef4444 !important; background: color-mix(in srgb, #ef4444 10%, var(--surface)) !important; }
+.game-option:disabled { cursor: default; }
+.game-option-letter { width: 24px; height: 24px; border-radius: 50%; background: var(--border); font-size: .75rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+
+/* Speed Round results */
+.game-result-header { text-align: center; margin-bottom: 2rem; }
+.game-result-score { font-size: 4rem; font-weight: 800; color: var(--primary); margin: 0; line-height: 1; }
+.game-result-score span { font-size: 2rem; color: var(--muted); }
+.game-result-msg { color: var(--muted); margin: .5rem 0 0; font-size: 1rem; }
+.game-answer-list { display: flex; flex-direction: column; gap: .5rem; }
+.game-answer-row { display: flex; gap: .75rem; align-items: flex-start; padding: .75rem; border-radius: var(--radius); border: 1px solid var(--border); }
+.game-answer-row--correct { border-color: var(--success); background: color-mix(in srgb, var(--success) 6%, var(--surface)); }
+.game-answer-row--wrong { border-color: #ef4444; background: color-mix(in srgb, #ef4444 6%, var(--surface)); }
+.game-answer-icon { font-weight: 700; flex-shrink: 0; }
+.game-answer-prompt { margin: 0; font-size: .875rem; line-height: 1.4; }
+.game-answer-hint { margin: .25rem 0 0; font-size: .8rem; color: var(--success); }
+
+/* Streak Challenge */
+.streak-badge-large { font-size: 1.5rem; font-weight: 800; color: var(--primary); flex: 1; text-align: center; }
+.streak-hint { text-align: center; font-size: .8rem; color: var(--muted); margin-top: 1.25rem; }
+.streak-result { text-align: center; }
+.streak-result-icon { font-size: 3.5rem; line-height: 1; }
+.streak-result-num { font-size: 5rem; font-weight: 800; color: var(--primary); margin: .25rem 0 0; line-height: 1; }
+.streak-result-label { color: var(--muted); font-size: .9rem; margin: .25rem 0 .75rem; }
+.streak-result-msg { font-size: 1.05rem; font-weight: 600; margin: 0; }
+.streak-result-total { font-size: .8rem; color: var(--muted); margin-top: .35rem; }
+
 /* ── Admin page ── */
 .admin-page { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
 .admin-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem; }
