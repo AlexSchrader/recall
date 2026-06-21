@@ -331,10 +331,13 @@ export default function SettingsPage() {
           <label>Default question types</label>
           <div className="type-checks">
             {TYPE_OPTIONS.map(t => (
-              <label key={t.value} className="type-check-label">
-                <input type="checkbox" checked={prefs.types?.includes(t.value) ?? false} onChange={() => togglePrefType(t.value)} />
-                {t.label}
-              </label>
+              <div key={t.value} className="type-check-row">
+                <span>{t.label}</span>
+                <label className="toggle-switch">
+                  <input type="checkbox" checked={prefs.types?.includes(t.value) ?? false} onChange={() => togglePrefType(t.value)} />
+                  <span className="toggle-slider" />
+                </label>
+              </div>
             ))}
           </div>
         </div>

@@ -182,10 +182,13 @@ export default function UnitPage() {
               <label>Question types</label>
               <div className="type-checks">
                 {TYPE_OPTIONS.map(t => (
-                  <label key={t.value} className="type-check-label">
-                    <input type="checkbox" checked={types.includes(t.value)} onChange={() => toggleType(t.value)} />
-                    {t.label}
-                  </label>
+                  <div key={t.value} className="type-check-row">
+                    <span>{t.label}</span>
+                    <label className="toggle-switch">
+                      <input type="checkbox" checked={types.includes(t.value)} onChange={() => toggleType(t.value)} />
+                      <span className="toggle-slider" />
+                    </label>
+                  </div>
                 ))}
               </div>
             </div>
