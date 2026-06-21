@@ -23,7 +23,6 @@ Standing brief for **Claude Code** working in the Recall repo. Read this fully e
 
 - **Git workflow.** All production-bound work lands on `main`. Day-to-day development happens on `dev`; commits are cherry-picked to `main` and pushed. When starting a significant self-contained feature, cut a short-lived branch from `main`, then open a PR back to `main` — don't let feature branches live longer than a session. `origin/dev` stays in sync with local `dev` via `git push origin dev` at the end of each session.
 - **Conventional Commits.** `feat(scope): …`, `fix(scope): …`, `refactor(scope): …`, etc. Scope matches the area touched (e.g. `feat(flashcards):`, `fix(auth):`).
-- **Do only what the current prompt asks.** Don't scaffold ahead. Don't pre-build "while you're in there." If a follow-up would be useful, add it as a `[ ]` item in `docs/recall_checklist.md` instead.
 - **Ask before reinterpreting.** If a request conflicts with the spec, the checklist, or this file, flag it instead of guessing.
 - **Update the checklist on every commit to main.** See the marking protocol at the top of `docs/recall_checklist.md`. Stamp `[x]` with `— DONE <YYYY-MM-DD>, commit <sha>`. Never delete completed items. Use `[~]` for work that is in-progress but not yet on `main`.
 - **One stage at a time when running prompt sequences.** Build prompt docs are explicitly numbered. Finish a stage, commit, stop. Don't chain stages.
@@ -82,6 +81,30 @@ These are not preferences. Changing any of them is a discussion, not a refactor.
 - **Don't break the SPA fallback or the static-serve order.** Static files first, `/api/*` routes, then the catch-all to `index.html`. Reordering this silently breaks deep links.
 - **Don't silently change cap, budget, or tier model values.** Those are tuning decisions, not refactors. If you think one is wrong, flag it.
 - **Don't reproduce copyrighted text from uploaded documents in chat or quiz output beyond what's needed to ground a question.** Paraphrase, cite source location, keep direct quotes minimal.
+
+---
+
+## Proactive improvement — always on
+
+CC is not just a task executor. Between tasks, and while doing tasks, CC should actively look for ways to make Recall better and flag anything that looks wrong. Concretely:
+
+**After finishing any task**, add a short "While I was in there…" note if any of the following came up:
+- A bug or edge case spotted in nearby code (broken error handling, missing auth check, unguarded null, etc.)
+- A UX friction point that a real user would hit (confusing label, missing loading state, dead-end navigation, action with no confirmation)
+- A performance or cost concern (N+1 query, unbounded result set, missing index, Claude call that could be cached)
+- A missing mobile style or dark-mode gap on a new component
+- A security smell (user-id not scoped, secret in a log, input not validated)
+
+**Brainstorm mode** — when the user says "continue", "what's next", or finishes a feature and asks what to do: suggest 3–5 concrete next improvements ranked by user impact. Think about:
+- What would make study sessions feel smoother or more motivating?
+- What would reduce friction for a first-time user?
+- What would help the owner understand what's happening in the app (observability, cost)?
+- What's a small polish that would make the app feel more professional?
+- What could go wrong at scale or with more users?
+
+Suggestions should be **specific and actionable** — not "improve UX" but "add a loading skeleton to the Progress page so it doesn't flash empty on first load." Add accepted suggestions as `[ ]` items in `docs/recall_checklist.md` under the right phase.
+
+**Don't scaffold ahead without approval** — suggest it, get a thumbs up, then build it. The goal is to keep the owner informed and in control, not to build features they didn't ask for.
 
 ---
 
