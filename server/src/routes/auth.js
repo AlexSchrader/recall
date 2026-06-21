@@ -27,7 +27,7 @@ router.post('/auth/register', async (req, res) => {
   createUser({
     id,
     display_name: displayName.trim(),
-    email: email.trim().toLowerCase(),
+    email: email?.trim().toLowerCase() || null,
     passphrase_hash: hash,
     tier,
     created_at: new Date().toISOString(),
