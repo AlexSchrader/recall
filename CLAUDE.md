@@ -21,11 +21,11 @@ Standing brief for **Claude Code** working in the Recall repo. Read this fully e
 
 ## Working agreement
 
-- **Branches + PRs always.** Branch from `main`, PR back to `main`. No direct pushes to `main`.
+- **Git workflow.** All production-bound work lands on `main`. Day-to-day development happens on `dev`; commits are cherry-picked to `main` and pushed. When starting a significant self-contained feature, cut a short-lived branch from `main`, then open a PR back to `main` — don't let feature branches live longer than a session. `origin/dev` stays in sync with local `dev` via `git push origin dev` at the end of each session.
 - **Conventional Commits.** `feat(scope): …`, `fix(scope): …`, `refactor(scope): …`, etc. Scope matches the area touched (e.g. `feat(flashcards):`, `fix(auth):`).
 - **Do only what the current prompt asks.** Don't scaffold ahead. Don't pre-build "while you're in there." If a follow-up would be useful, add it as a `[ ]` item in `docs/recall_checklist.md` instead.
 - **Ask before reinterpreting.** If a request conflicts with the spec, the checklist, or this file, flag it instead of guessing.
-- **Update the checklist on every merge.** See the marking protocol at the top of `docs/recall_checklist.md`. Stamp `[x]` with `— DONE <YYYY-MM-DD HH:MM>, PR #<n>`. Never delete completed items. Use `[~]` for branches that are open but not merged.
+- **Update the checklist on every commit to main.** See the marking protocol at the top of `docs/recall_checklist.md`. Stamp `[x]` with `— DONE <YYYY-MM-DD>, commit <sha>`. Never delete completed items. Use `[~]` for work that is in-progress but not yet on `main`.
 - **One stage at a time when running prompt sequences.** Build prompt docs are explicitly numbered. Finish a stage, commit, stop. Don't chain stages.
 
 ---
@@ -43,7 +43,7 @@ These are not preferences. Changing any of them is a discussion, not a refactor.
 - **Tiers drive model + caps + budgets.** Free → Haiku 4.5, Plus → Sonnet 4.6, Pro → Opus 4.8. Grading is always Haiku across all tiers. Caps and source-token budgets come from `tiers.js`. Never hardcode model strings in feature code.
 - **One shared daily cap** for quiz gen + flashcard gen + study guide gen. **Chat is intentionally excluded** — no cap on talking to Rappel. Don't "tidy this up" by folding chat into the cap.
 - **All DB queries scope by `user_id`.** Never trust an id from a route without confirming the caller owns it. Mirror the pattern in `coursesDb.js` / `chatDb.js`.
-- **Mastery is per-topic, shared across modes.** Quizzes, flashcards, and (future) other study modes all feed the same `topic_mastery` row for a `(user, course, topic)`. SM-2 scheduling lives in `server/src/services/mastery.js`. Don't fork mastery logic per feature.
+- **Mastery is per-topic, shared across modes.** Quizzes, flashcards, and (future) other study modes all feed the same `topic_mastery` row for a `(user, course, topic)`. SM-2 scheduling lives in `server/src/services/sm2.js`. Don't fork mastery logic per feature.
 
 ---
 
@@ -55,7 +55,7 @@ These are not preferences. Changing any of them is a discussion, not a refactor.
 - **Components come from `client/src/components/shared/`** unless there's a specific reason to one-off. No re-implementations of `Button`, `TextField`, `Modal`, etc.
 - **Theme tokens, not hex.** Colors come from the theme context. No inline hex except in the brand kit and theme definitions themselves.
 - **Markdown rendering uses `react-markdown`** (already installed). Allowed elements: bold, italic, lists, inline code, code blocks, headings, links. No raw HTML.
-- **API wrappers in `client/src/api/`** with `credentials: 'include'`. UI never calls `fetch` directly to `/api`.
+- **API wrapper at `client/src/api.js`** with `credentials: 'include'`. UI never calls `fetch` directly to `/api`.
 - **Errors return `{ error: string }`** with a correct HTTP status. The centralized error middleware is the single place that shapes error responses.
 - **`usage_log` writes happen inside `claude.js`** so every Claude call logs automatically. Don't bypass it. ElevenLabs usage logging extends this pattern.
 - **Tests use Vitest + supertest, with `claude.js` mocked.** The test suite must be deterministic and must not hit the real Anthropic or ElevenLabs API.
