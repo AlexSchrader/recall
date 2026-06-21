@@ -28,9 +28,9 @@ When a task finishes, you MUST:
 
 ## Status at a glance
 
-- **Current phase:** Phase 5 — Rappel hardening
+- **Current phase:** Phase 4 — Lenient grading ✓ / Phase 5 — Rappel hardening
 - **In flight:** Nothing open right now
-- **Next action:** Phase 4 — G1 (Lenient short-answer grading with partial credit)
+- **Next action:** Phase 6 — Cost guardrails & observability
 - **Last updated:** 2026-06-21
 
 ---
@@ -84,7 +84,7 @@ Source doc: `docs/Recall_Study_Modes.md`
 
 Source doc: `docs/Recall_Grading_Fix.md`
 
-- [ ] **G1** — Lenient short-answer grading with partial credit (0 / 0.5 / 1 scoring, lenient grading rubric, modelAnswer surfaced on result screen, mastery treats 0.5 as partial)
+- [x] **G1** — Lenient short-answer grading with partial credit (0 / 0.5 / 1 scoring, lenient rubric, modelAnswer on result screen, mastery uses float avg) — DONE 2026-06-21, commit 8c36d10
 
 ## Phase 5 — Rappel hardening
 
