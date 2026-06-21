@@ -6,7 +6,7 @@ import lockup from '../assets/brand/recall-lockup.svg';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [displayName, setDisplayName] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError('');
     setBusy(true);
     try {
-      await login(displayName.trim(), passphrase);
+      await login(identifier.trim(), passphrase);
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -32,8 +32,8 @@ export default function LoginPage() {
         <h1>Sign in</h1>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label htmlFor="login-name">Display name</label>
-            <input id="login-name" name="displayName" autoComplete="username" value={displayName} onChange={e => setDisplayName(e.target.value)} autoFocus required />
+            <label htmlFor="login-id">Display name or email</label>
+            <input id="login-id" name="identifier" autoComplete="username" value={identifier} onChange={e => setIdentifier(e.target.value)} autoFocus required />
           </div>
           <div className="form-group">
             <label htmlFor="login-pass">Passphrase</label>
