@@ -1,11 +1,10 @@
-import Anthropic from '@anthropic-ai/sdk';
 import { SYSTEM_PROMPT } from '../config/rappel.js';
+import { client } from './claude.js';
 import { getUserById } from '../db/usersDb.js';
 import { listCoursesByUser } from '../db/coursesDb.js';
 import { listMasteryByUser } from '../db/topicMasteryDb.js';
 import { listWeakQuestions } from '../db/attemptsDb.js';
-
-const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import { logUsage } from '../db/usageLogDb.js';
 
 const CHAT_MODEL = 'claude-haiku-4-5-20251001';
 
@@ -81,7 +80,14 @@ export async function streamRappelChat({ history, userId, res }) {
     res.write(`data: ${JSON.stringify({ text: chunk })}\n\n`);
   });
 
-  await stream.finalMessage();
+  const final = await stream.finalMessage();
+  logUsage({
+    userId,
+    feature: 'chat',
+    model: CHAT_MODEL,
+    inputTokens:  final.usage?.input_tokens  ?? 0,
+    outputTokens: final.usage?.output_tokens ?? 0,
+  });
   res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
   res.end();
 
