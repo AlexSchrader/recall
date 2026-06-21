@@ -28,10 +28,10 @@ When a task finishes, you MUST:
 
 ## Status at a glance
 
-- **Current phase:** Phase 6 — Cost guardrails & observability
+- **Current phase:** Phase 4.5 / Phase 9 (mini-games)
 - **In flight:** Nothing open right now
-- **Next action:** Phase 8 features (mock exam, weekly digest) or continue Phase 4.5 polish
-- **Last updated:** 2026-06-21 (post-ship: ElevenLabs logging, voice auto-play pref, export data, Studying section in Settings)
+- **Next action:** Match It mini-game (own phase entry), retake button (Phase 4.5), or Phase 7 pre-publish prep
+- **Last updated:** 2026-06-21 (post-ship: onboarding flow, voice picker, Speed Round, Streak Challenge, toggle polish)
 
 ---
 
@@ -100,6 +100,9 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Progress page empty state — actionable "Nothing tracked yet" card with CTA to courses when user has no mastery data — DONE 2026-06-21
 - [x] `.env.example` updated — added RESEND_API_KEY, VOICE_PIN, ADMIN_USER_IDS with inline instructions for finding user ID — DONE 2026-06-21
 - [x] Rappel thread auto-title — already wired in chat route (fires on first message via generateThreadTitle); programmatic entries ("Study plan", "Explain it") get Claude-generated titles automatically — confirmed 2026-06-21
+- [x] Question count extended to 30 — UnitPage number input max raised to 30; Settings default-count picker now 5/10/15/20/25/30 in a 3-col grid — DONE 2026-06-21, commit d449f48
+- [x] Question type checkboxes → toggle switches — both UnitPage and Settings now use `.type-check-row` + `.toggle-switch` (same pill as dark mode toggle); label-left/toggle-right layout; eliminates mobile misalignment — DONE 2026-06-21, commit b213d99
+- [x] CSP: `media-src 'self' blob:` — browser was blocking blob audio URLs (Rappel TTS + game previews); added explicit media-src directive — DONE 2026-06-21, commit 108051e
 - [ ] Quiz result "retake" button — clone same config, fire new generation, navigate straight to the new quiz
 
 ## Phase 5 — Rappel hardening *(mostly complete)*
@@ -128,6 +131,16 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [ ] Anthropic billing alert configured in Anthropic dashboard (outside app — verify it exists)
 - [ ] ElevenLabs character-quota alert configured (verify)
 
+## Phase 9 — Onboarding & mini-games *(in progress)*
+
+- [x] First-run onboarding flow — 3-step page (welcome, how it works, voice picker); routes outside Layout; AppRoutes gates on `prefs.onboardingDone`; AuthContext now fetches prefs alongside user on mount — DONE 2026-06-21, commit 3b430f1
+- [x] Mathieu / Juliette voice picker — both voices play same Rappel persona; user picks on onboarding step 3 (▶ preview button plays a hardcoded intro via `/api/voice/preview`); changeable in Settings → Studying — DONE 2026-06-21, commit 51957d7
+- [x] Speed Round mini-game — 10 MCQ questions, 15-second timer per question (bar shifts green→amber→red); auto-advance on timeout; results screen with full answer review; accessible from "Quick games" section on every unit page — DONE 2026-06-21, commit b3aec82
+- [x] Streak Challenge mini-game — unlimited questions, one wrong answer ends the run; live streak counter; best streak + total tracked; seamlessly refetches when batch exhausted; accessible from unit page alongside Speed Round — DONE 2026-06-21, commit b3aec82
+- [x] `GET /api/games/questions` — shuffled MCQ questions from completed quizzes; supports `unitId`, `courseId`, or all-courses fallback — DONE 2026-06-21, commit b3aec82
+- [ ] Match It — drag-or-tap pairing game for flashcard front/back pairs; own build, own PR; park until Speed/Streak are battle-tested
+- [ ] Better fill-in-the-blank UI — fold into G1 (lenient grading phase) rather than a standalone mini-game
+
 ## Phase 7 — Pre-publish polish *(deferred)*
 
 These don't need to happen for private use — they unlock public/paid launch.
@@ -143,6 +156,7 @@ These don't need to happen for private use — they unlock public/paid launch.
 ## Phase 8 — Future ideas *(deferred / optional)*
 
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
+- [ ] Sorting Hat mini-game — binary topic-sort; only worth building for courses with clear parallel categories; skip unless a specific course case arises
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [ ] Bulk unit import (multiple files, auto-unit detection)
 - [ ] Shareable quiz (export as static link for friends)
