@@ -13,14 +13,14 @@ export function AuthProvider({ children }) {
     return () => window.removeEventListener('auth:expired', onExpired);
   }, []);
 
-  const login = async (email, passphrase) => {
-    const u = await api.post('/auth/login', { email, passphrase });
+  const login = async (displayName, passphrase) => {
+    const u = await api.post('/auth/login', { displayName, passphrase });
     setUser(u);
     return u;
   };
 
-  const register = async (displayName, email, passphrase) => {
-    const u = await api.post('/auth/register', { displayName, email, passphrase });
+  const register = async (displayName, passphrase, email) => {
+    const u = await api.post('/auth/register', { displayName, passphrase, email: email || undefined });
     setUser(u);
     return u;
   };
