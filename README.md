@@ -2,7 +2,7 @@
 
 Adaptive study companion — upload your course material, then learn through AI-generated quizzes, spaced-repetition flashcards, and structured study guides. Recall tracks which topics you struggle with and surfaces them again automatically.
 
-**Live:** https://server-production-f6d0.up.railway.app
+**Live:** https://recallstudyapp.up.railway.app
 
 ---
 
