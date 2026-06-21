@@ -7,6 +7,7 @@ export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [displayName, setDisplayName] = useState('');
+  const [email, setEmail] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -16,7 +17,7 @@ export default function RegisterPage() {
     setError('');
     setBusy(true);
     try {
-      await register(displayName.trim(), passphrase);
+      await register(displayName.trim(), email.trim(), passphrase);
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -34,6 +35,10 @@ export default function RegisterPage() {
           <div className="form-group">
             <label htmlFor="reg-name">Display name</label>
             <input id="reg-name" name="displayName" autoComplete="username" value={displayName} onChange={e => setDisplayName(e.target.value)} autoFocus required />
+          </div>
+          <div className="form-group">
+            <label htmlFor="reg-email">Email</label>
+            <input id="reg-email" name="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} required />
           </div>
           <div className="form-group">
             <label htmlFor="reg-pass">Passphrase</label>

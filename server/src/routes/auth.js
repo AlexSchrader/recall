@@ -13,13 +13,13 @@ const SALT_ROUNDS = 10;
 // POST /api/auth/register
 router.post('/auth/register', async (req, res) => {
   const { displayName, email, passphrase, tier = 'free' } = req.body ?? {};
-  if (!displayName?.trim() || !passphrase) {
-    return res.status(400).json({ error: 'Display name and passphrase are required.' });
+  if (!displayName?.trim() || !email?.trim() || !passphrase) {
+    return res.status(400).json({ error: 'Display name, email, and passphrase are required.' });
   }
   if (getUserByName(displayName.trim())) {
     return res.status(409).json({ error: 'That display name is already taken.' });
   }
-  if (email?.trim() && getUserByEmail(email.trim())) {
+  if (getUserByEmail(email.trim())) {
     return res.status(409).json({ error: 'An account with that email already exists.' });
   }
   const id = uuidv4();
@@ -27,7 +27,7 @@ router.post('/auth/register', async (req, res) => {
   createUser({
     id,
     display_name: displayName.trim(),
-    email: email?.trim().toLowerCase() || null,
+    email: email.trim().toLowerCase(),
     passphrase_hash: hash,
     tier,
     created_at: new Date().toISOString(),
@@ -39,11 +39,12 @@ router.post('/auth/register', async (req, res) => {
 
 // POST /api/auth/login
 router.post('/auth/login', async (req, res) => {
-  const { displayName, passphrase } = req.body ?? {};
-  if (!displayName || !passphrase) {
-    return res.status(400).json({ error: 'Display name and passphrase are required.' });
+  const { identifier, passphrase } = req.body ?? {};
+  if (!identifier || !passphrase) {
+    return res.status(400).json({ error: 'Display name (or email) and passphrase are required.' });
   }
-  const user = getUserByName(displayName.trim());
+  const id = identifier.trim();
+  const user = id.includes('@') ? getUserByEmail(id) : getUserByName(id);
   if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
   const ok = await bcrypt.compare(passphrase, user.passphrase_hash);
   if (!ok) return res.status(401).json({ error: 'Invalid credentials.' });
