@@ -127,6 +127,34 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 CREATE INDEX IF NOT EXISTS idx_chat_threads_user    ON chat_threads(user_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_chat_messages_thread ON chat_messages(thread_id, created_at);
 
+CREATE TABLE IF NOT EXISTS flashcard_decks (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  unit_id    TEXT NOT NULL REFERENCES units(id) ON DELETE CASCADE,
+  name       TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS flashcards (
+  id               TEXT PRIMARY KEY,
+  deck_id          TEXT NOT NULL REFERENCES flashcard_decks(id) ON DELETE CASCADE,
+  user_id          TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  front            TEXT NOT NULL,
+  back             TEXT NOT NULL,
+  topic            TEXT NOT NULL,
+  ease             REAL    NOT NULL DEFAULT 2.5,
+  interval_days    INTEGER NOT NULL DEFAULT 0,
+  repetitions      INTEGER NOT NULL DEFAULT 0,
+  due_at           TEXT NOT NULL,
+  last_reviewed_at TEXT,
+  created_at       TEXT NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS idx_decks_unit    ON flashcard_decks(unit_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_cards_deck    ON flashcards(deck_id);
+CREATE INDEX IF NOT EXISTS idx_cards_due     ON flashcards(user_id, due_at);
+
 -- Query-path indexes
 CREATE INDEX IF NOT EXISTS idx_courses_user      ON courses(user_id);
 CREATE INDEX IF NOT EXISTS idx_units_course      ON units(course_id);
