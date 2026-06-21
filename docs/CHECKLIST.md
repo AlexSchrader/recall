@@ -28,9 +28,9 @@ When a task finishes, you MUST:
 
 ## Status at a glance
 
-- **Current phase:** Phase 3 — Flashcards
+- **Current phase:** Phase 5 — Rappel hardening
 - **In flight:** Nothing open right now
-- **Next action:** Phase 4 — G1 (Lenient grading) or Phase 5 Rappel hardening
+- **Next action:** Phase 4 — G1 (Lenient short-answer grading with partial credit)
 - **Last updated:** 2026-06-21
 
 ---
@@ -90,6 +90,7 @@ Source doc: `docs/Recall_Grading_Fix.md`
 
 R1–R5 are merged; this phase covers iteration based on real use.
 
+- [x] Markdown rendering in Rappel chat (bold, italic, lists, inline code, blockquote) — DONE 2026-06-21, commit 10d1d4c
 - [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — based on actual transcripts
 - [ ] Voice quality review — pick model (`eleven_turbo_v2_5` vs flash) and stability/similarity settings after listening to real replies
 - [ ] Add "Ask Rappel about this" entry points from UnitScreen and QuizResultScreen if not already present
