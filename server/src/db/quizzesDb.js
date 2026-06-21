@@ -26,6 +26,7 @@ const stmts = {
   countToday: db.prepare(
     `SELECT COUNT(*) AS count FROM quizzes WHERE user_id = ? AND created_at >= ?`
   ),
+  delete: db.prepare('DELETE FROM quizzes WHERE id = ? AND user_id = ?'),
 };
 
 export function createQuiz(data) {
@@ -50,6 +51,10 @@ export function updateQuizStatus(id, status) {
 
 export function completeQuiz(id, { score, completed_at }) {
   return stmts.complete.run({ id, score, completed_at });
+}
+
+export function deleteQuiz(id, userId) {
+  return stmts.delete.run(id, userId);
 }
 
 export function countTodayByUser(userId) {

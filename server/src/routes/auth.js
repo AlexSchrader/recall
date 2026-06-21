@@ -2,9 +2,11 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import {
-  getUserByEmail, getUserByName, getUserById, createUser,
-  createResetToken, getResetToken, markTokenUsed, updatePassphraseHash,
+  getUserByEmail, getUserByName, getUserById, createUser, deleteUser,
+  createResetToken, getResetToken, markTokenUsed,
+  updatePassphraseHash, updateDisplayName, updateEmail,
 } from '../db/usersDb.js';
+import { requireAuth } from '../middleware/auth.js';
 import { sendPasswordReset } from '../services/email.js';
 
 const router = Router();
@@ -108,6 +110,62 @@ router.get('/me', (req, res) => {
   if (!user) return res.status(401).json({ error: 'User not found.' });
   const { passphrase_hash: _, ...safe } = user;
   res.json(safe);
+});
+
+// GET /api/me/check-name?displayName=foo
+router.get('/me/check-name', requireAuth, (req, res) => {
+  const name = (req.query.displayName ?? '').trim();
+  if (!name) return res.json({ available: false });
+  const existing = getUserByName(name);
+  res.json({ available: !existing || existing.id === req.session.userId });
+});
+
+// PATCH /api/me/display-name
+router.patch('/me/display-name', requireAuth, (req, res) => {
+  const { displayName } = req.body ?? {};
+  if (!displayName?.trim()) return res.status(400).json({ error: 'Display name is required.' });
+  const existing = getUserByName(displayName.trim());
+  if (existing && existing.id !== req.session.userId) {
+    return res.status(409).json({ error: 'That display name is already taken.' });
+  }
+  updateDisplayName(req.session.userId, displayName.trim());
+  const user = getUserById(req.session.userId);
+  const { passphrase_hash: _, ...safe } = user;
+  res.json(safe);
+});
+
+// PATCH /api/me/email
+router.patch('/me/email', requireAuth, (req, res) => {
+  const { email } = req.body ?? {};
+  if (!email?.trim()) return res.status(400).json({ error: 'Email is required.' });
+  const existing = getUserByEmail(email.trim());
+  if (existing && existing.id !== req.session.userId) {
+    return res.status(409).json({ error: 'That email is already in use.' });
+  }
+  updateEmail(req.session.userId, email.trim().toLowerCase());
+  const user = getUserById(req.session.userId);
+  const { passphrase_hash: _, ...safe } = user;
+  res.json(safe);
+});
+
+// DELETE /api/me  (delete account)
+router.delete('/me', requireAuth, (req, res) => {
+  deleteUser(req.session.userId);
+  req.session.destroy(() => res.status(204).end());
+});
+
+// PATCH /api/me/password
+router.patch('/me/password', requireAuth, async (req, res) => {
+  const { currentPassphrase, newPassphrase } = req.body ?? {};
+  if (!currentPassphrase || !newPassphrase) {
+    return res.status(400).json({ error: 'currentPassphrase and newPassphrase are required.' });
+  }
+  const user = getUserById(req.session.userId);
+  const ok = await bcrypt.compare(currentPassphrase, user.passphrase_hash);
+  if (!ok) return res.status(401).json({ error: 'Current passphrase is incorrect.' });
+  const hash = await bcrypt.hash(newPassphrase, SALT_ROUNDS);
+  updatePassphraseHash(req.session.userId, hash);
+  res.json({ ok: true });
 });
 
 export default router;

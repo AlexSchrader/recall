@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserById, updateStreak } from '../db/usersDb.js';
 import { getPreferences } from '../db/preferencesDb.js';
-import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz } from '../db/quizzesDb.js';
+import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz, deleteQuiz } from '../db/quizzesDb.js';
 import { listQuestionsByQuiz, getQuestionById } from '../db/questionsDb.js';
 import { bulkCreateAttempts } from '../db/attemptsDb.js';
 import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
@@ -162,8 +162,16 @@ router.get('/quizzes/:id', requireAuth, (req, res) => {
 // GET /api/users/:id/quizzes  (history list)
 router.get('/users/:id/quizzes', requireAuth, (req, res) => {
   if (req.params.id !== req.session.userId) return res.status(403).json({ error: 'Forbidden.' });
-  const { limit = 20, offset = 0 } = req.query;
+  const { limit = 100, offset = 0 } = req.query;
   res.json(listQuizzesByUser(req.session.userId, { limit: Number(limit), offset: Number(offset) }));
+});
+
+// DELETE /api/quizzes/:id
+router.delete('/quizzes/:id', requireAuth, (req, res) => {
+  const quiz = getQuizById(req.params.id);
+  if (!quiz || quiz.user_id !== req.session.userId) return res.status(404).json({ error: 'Not found.' });
+  deleteQuiz(req.params.id, req.session.userId);
+  res.status(204).end();
 });
 
 export default router;
