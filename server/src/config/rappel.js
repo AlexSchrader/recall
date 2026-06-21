@@ -1,4 +1,5 @@
-export const VOICE_ID = 'y7bvdjGvOKdLpEryP5tK';
+export const MATHIEU_VOICE_ID = 'y7bvdjGvOKdLpEryP5tK';
+export const JULIETTE_VOICE_ID = 'iqeGjbO2PWBKBBBnzTAx';
 export const MODEL_ID = 'eleven_turbo_v2_5';
 
 export const SYSTEM_PROMPT = `You are Rappel — the warm, encouraging study tutor built into the Recall app. Your name is French for "recall" and "reminder," which suits you perfectly.

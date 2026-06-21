@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext.jsx';
 import Layout from './components/Layout.jsx';
 import ProtectedRoute from './components/ProtectedRoute.jsx';
@@ -21,13 +21,23 @@ import SettingsPage from './pages/SettingsPage.jsx';
 import ProgressPage from './pages/ProgressPage.jsx';
 import FeedbackPage from './pages/FeedbackPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
+import OnboardingPage from './pages/OnboardingPage.jsx';
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
-  if (loading) return null;
+  const { user, prefs } = useAuth();
+  const location = useLocation();
+  const authLoading = user === undefined;
+  const prefsLoading = user && prefs === undefined;
+  if (authLoading || prefsLoading) return null;
+
+  // First-time users — redirect to onboarding unless already there
+  if (user && prefs && !prefs.onboardingDone && location.pathname !== '/onboarding') {
+    return <Navigate to="/onboarding" replace />;
+  }
 
   return (
     <Routes>
+      <Route path="/onboarding" element={user ? <OnboardingPage /> : <Navigate to="/login" replace />} />
       <Route path="/login" element={user ? <Navigate to="/" replace /> : <LoginPage />} />
       <Route path="/register" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
       <Route path="/forgot-password" element={user ? <Navigate to="/" replace /> : <ForgotPasswordPage />} />

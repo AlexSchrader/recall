@@ -402,6 +402,27 @@ export default function SettingsPage() {
         </div>
 
         <div style={{ marginTop: '1.25rem' }}>
+          <strong>Rappel voice</strong>
+          <p style={{ fontSize: '.8rem', color: 'var(--muted)', margin: '.25rem 0 .6rem' }}>
+            Choose whose voice you hear when Rappel speaks.
+          </p>
+          <div style={{ display: 'flex', gap: '.5rem' }}>
+            {[{ value: 'mathieu', label: 'Mathieu' }, { value: 'juliette', label: 'Juliette' }].map(v => (
+              <button
+                key={v.value}
+                type="button"
+                className={`btn btn-sm ${(prefs.rappelVoice ?? 'mathieu') === v.value ? 'btn-primary' : 'btn-ghost'}`}
+                onClick={() => {
+                  const next = { ...prefs, rappelVoice: v.value };
+                  setPrefs(next);
+                  api.put('/preferences', next).catch(() => {});
+                }}
+              >{v.label}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ marginTop: '1.25rem' }}>
           <strong>Export your data</strong>
           <p style={{ fontSize: '.8rem', color: 'var(--muted)', margin: '.25rem 0 .6rem' }}>
             Download a JSON file of all your quiz history, topic mastery, and flashcard review data.
