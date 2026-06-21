@@ -1,6 +1,7 @@
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { api } from '../api.js';
+import { useAuth } from '../context/AuthContext.jsx';
 
 export default function QuizResultPage() {
   const { quizId } = useParams();
@@ -19,6 +20,9 @@ export default function QuizResultPage() {
   const pct = Math.round(score * 100);
   const scoreColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--danger)';
 
+  const unitIds = (() => { try { return JSON.parse(quiz.source_unit_ids); } catch { return []; } })();
+  const firstUnitId = unitIds[0] ?? null;
+
   return (
     <>
       <div className="page-header">
@@ -30,6 +34,16 @@ export default function QuizResultPage() {
         <p className="score-pct" style={{ color: scoreColor }}>{pct}%</p>
         {results && <p style={{ color: 'var(--muted)', marginTop: '.25rem' }}>{results.correct} / {results.total} correct</p>}
       </div>
+
+      {pct < 60 && firstUnitId && (
+        <div className="recovery-banner">
+          <span>Tricky material! Reading the study guide can help things click.</span>
+          <div style={{ display: 'flex', gap: '.5rem', marginTop: '.6rem', flexWrap: 'wrap' }}>
+            <Link to={`/units/${firstUnitId}/study-guide`} className="btn btn-primary btn-sm">Read study guide →</Link>
+            <Link to={`/units/${firstUnitId}/flashcards`} className="btn btn-ghost btn-sm">Practice flashcards →</Link>
+          </div>
+        </div>
+      )}
 
       {results?.results && (
         <>

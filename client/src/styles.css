@@ -175,6 +175,22 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
 .pin-input { width: 100%; padding: .6rem .9rem; border: 1px solid var(--border); border-radius: var(--radius); font-size: 1.1rem; letter-spacing: .15em; text-align: center; margin-top: .5rem; outline: none; }
 .pin-input:focus { border-color: var(--primary); }
 
+/* ── Study guide markdown ── */
+.study-guide-md { line-height: 1.7; }
+.study-guide-md h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 1rem; padding-bottom: .5rem; border-bottom: 2px solid var(--primary); color: var(--primary); }
+.study-guide-md h2 { font-size: 1.1rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: .6rem; color: var(--text); }
+.study-guide-md h3 { font-size: 1rem; font-weight: 600; margin-top: 1rem; margin-bottom: .4rem; }
+.study-guide-md p { margin-bottom: .75rem; }
+.study-guide-md ul, .study-guide-md ol { padding-left: 1.5rem; margin-bottom: .75rem; }
+.study-guide-md li { margin-bottom: .35rem; }
+.study-guide-md strong { font-weight: 700; color: var(--text); }
+.study-guide-md em { font-style: italic; color: var(--muted); }
+.study-guide-md code { background: #f1f5f9; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
+.study-guide-md blockquote { border-left: 3px solid var(--primary); padding-left: 1rem; color: var(--muted); margin: .75rem 0; }
+
+/* ── Low-score recovery banner ── */
+.recovery-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .9rem; color: #92400e; }
+
 /* ── Flashcard review ── */
 .fc-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem; }
 .fc-progress-bar { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s ease; }

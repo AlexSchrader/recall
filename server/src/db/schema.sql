@@ -151,6 +151,16 @@ CREATE TABLE IF NOT EXISTS flashcards (
   created_at       TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS study_guides (
+  id         TEXT PRIMARY KEY,
+  user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  unit_id    TEXT NOT NULL REFERENCES units(id) ON DELETE CASCADE,
+  content    TEXT NOT NULL,
+  model      TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  UNIQUE(user_id, unit_id)
+);
+
 CREATE INDEX IF NOT EXISTS idx_decks_unit    ON flashcard_decks(unit_id, user_id);
 CREATE INDEX IF NOT EXISTS idx_cards_deck    ON flashcards(deck_id);
 CREATE INDEX IF NOT EXISTS idx_cards_due     ON flashcards(user_id, due_at);

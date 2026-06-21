@@ -139,9 +139,10 @@ export default function UnitPage() {
       <p style={{ fontSize: '.875rem', color: 'var(--muted)', marginBottom: '.75rem' }}>
         Generate a flashcard deck from your documents and review with spaced repetition.
       </p>
-      <Link to={`/units/${unitId}/flashcards`} className="btn btn-ghost" style={{ marginBottom: '1.5rem', display: 'inline-flex' }}>
-        Go to Flashcards →
-      </Link>
+      <div style={{ display: 'flex', gap: '.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <Link to={`/units/${unitId}/flashcards`} className="btn btn-ghost">Flashcards →</Link>
+        <Link to={`/units/${unitId}/study-guide`} className="btn btn-ghost">Study Guide →</Link>
+      </div>
 
       <hr />
 

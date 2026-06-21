@@ -16,6 +16,7 @@ import ChatThreadPage from './pages/ChatThreadPage.jsx';
 import FlashcardsPage from './pages/FlashcardsPage.jsx';
 import DeckPage from './pages/DeckPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
+import StudyGuidePage from './pages/StudyGuidePage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -39,6 +40,7 @@ function AppRoutes() {
           <Route path="/units/:unitId/flashcards" element={<div className="page"><FlashcardsPage /></div>} />
           <Route path="/flashcards/decks/:deckId" element={<div className="page"><DeckPage /></div>} />
           <Route path="/flashcards/decks/:deckId/review" element={<div className="page"><ReviewPage /></div>} />
+          <Route path="/units/:unitId/study-guide" element={<div className="page"><StudyGuidePage /></div>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
