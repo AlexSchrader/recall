@@ -9,6 +9,8 @@ export default function QuizResultPage() {
   const [quiz, setQuiz] = useState(null);
   const [results, setResults] = useState(state?.results ?? null);
   const [creatingThread, setCreatingThread] = useState(false);
+  const [retaking, setRetaking] = useState(false);
+  const [retakeErr, setRetakeErr] = useState('');
 
   useEffect(() => {
     api.get(`/quizzes/${quizId}`).then(setQuiz).catch(() => navigate('/'));
@@ -26,6 +28,27 @@ export default function QuizResultPage() {
   const missedTopics = results?.results
     ? [...new Set(results.results.filter(r => !r.isCorrect).map(r => r.topic))].slice(0, 5)
     : [];
+
+  const retake = async () => {
+    setRetaking(true);
+    setRetakeErr('');
+    try {
+      const cfg = JSON.parse(quiz.config_json ?? '{}');
+      const { quizId: newId } = await api.post('/quizzes/generate', {
+        courseId:      cfg.courseId,
+        unitIds:       cfg.unitIds,
+        title:         quiz.title,
+        questionCount: cfg.questionCount ?? 10,
+        reviewMix:     cfg.reviewMix ?? 0,
+        types:         cfg.types ?? ['mcq'],
+        difficulty:    cfg.difficulty ?? 'mixed',
+      });
+      navigate(`/quizzes/${newId}`);
+    } catch (err) {
+      setRetakeErr(err.message ?? 'Could not generate retake. Try again.');
+      setRetaking(false);
+    }
+  };
 
   const startRappelPlan = async () => {
     setCreatingThread(true);
@@ -109,8 +132,13 @@ export default function QuizResultPage() {
         </>
       )}
 
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <Link to="/" className="btn btn-primary">Back to home</Link>
+      {retakeErr && <p className="error-msg" style={{ marginTop: '1rem' }}>{retakeErr}</p>}
+      <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
+        <button className="btn btn-primary" onClick={retake} disabled={retaking}>
+          {retaking ? 'Generating…' : '↺ Retake'}
+        </button>
+        {firstUnitId && <Link to={`/units/${firstUnitId}`} className="btn btn-ghost">Back to unit</Link>}
+        <Link to="/" className="btn btn-ghost">Home</Link>
       </div>
     </>
   );
