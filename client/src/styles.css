@@ -263,6 +263,9 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
 .ob-voice-card strong { font-size: .95rem; }
 .ob-voice-desc { color: var(--muted); font-size: .8rem; }
 .ob-note { font-size: .78rem; color: var(--muted); margin: 0; }
+.ob-play-btn { margin-top: .25rem; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .78rem; cursor: pointer; transition: background .15s, border-color .15s; }
+.ob-play-btn:hover { border-color: var(--primary); color: var(--primary); }
+.ob-play-btn--active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .ob-back { background: none; border: none; color: var(--muted); font-size: .85rem; cursor: pointer; margin-top: 1rem; padding: 0; display: block; width: 100%; text-align: center; }
 .ob-back:hover { color: var(--text); }
 
