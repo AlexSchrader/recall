@@ -11,6 +11,7 @@ import documentsRouter from './routes/documents.js';
 import quizzesRouter from './routes/quizzes.js';
 import preferencesRouter from './routes/preferences.js';
 import chatRouter from './routes/chat.js';
+import voiceRouter from './routes/voice.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -57,7 +58,7 @@ app.use((_req, res, next) => {
       "img-src 'self' data: blob:",
       "script-src 'self' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
-      "connect-src 'self' https://openlibrary.org",
+      "connect-src 'self' https://openlibrary.org https://api.elevenlabs.io",
       "font-src 'self' data:",
       "manifest-src 'self'",
       "worker-src 'self'",
@@ -87,6 +88,7 @@ app.use('/api', documentsRouter);
 app.use('/api', quizzesRouter);
 app.use('/api', preferencesRouter);
 app.use('/api', chatRouter);
+app.use('/api', voiceRouter);
 
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {
