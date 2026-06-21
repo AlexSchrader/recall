@@ -370,10 +370,10 @@ export default function SettingsPage() {
           Found a bug or have a feature request? Send us an email.
         </p>
         <a
-          href="mailto:recallApp.support@gmail.com"
+          href="mailto:recallstudyapp.support@gmail.com"
           className="btn btn-ghost btn-sm"
         >
-          recallApp.support@gmail.com
+          recallstudyapp.support@gmail.com
         </a>
       </section>
 
