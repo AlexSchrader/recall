@@ -12,6 +12,7 @@ const stmts = {
      VALUES (@id, @display_name, @email, @passphrase_hash, @tier, @created_at)`
   ),
   updateName: db.prepare('UPDATE users SET display_name = ? WHERE id = ?'),
+  updateEmail: db.prepare('UPDATE users SET email = ? WHERE id = ?'),
   updateHash: db.prepare('UPDATE users SET passphrase_hash = ? WHERE id = ?'),
   updateStreak: db.prepare('UPDATE users SET streak = ?, streak_updated_at = ? WHERE id = ?'),
   delete: db.prepare('DELETE FROM users WHERE id = ?'),
@@ -51,6 +52,10 @@ export function listUsers() {
 
 export function updateDisplayName(id, name) {
   return stmts.updateName.run(name, id);
+}
+
+export function updateEmail(id, email) {
+  return stmts.updateEmail.run(email, id);
 }
 
 export function updatePassphraseHash(id, hash) {
