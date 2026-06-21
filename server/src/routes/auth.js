@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcryptjs';
 import {
-  getUserByEmail, getUserById, createUser,
+  getUserByEmail, getUserByName, getUserById, createUser,
   createResetToken, getResetToken, markTokenUsed, updatePassphraseHash,
 } from '../db/usersDb.js';
 import { sendPasswordReset } from '../services/email.js';
@@ -13,10 +13,13 @@ const SALT_ROUNDS = 10;
 // POST /api/auth/register
 router.post('/auth/register', async (req, res) => {
   const { displayName, email, passphrase, tier = 'free' } = req.body ?? {};
-  if (!displayName?.trim() || !email?.trim() || !passphrase) {
-    return res.status(400).json({ error: 'displayName, email, and passphrase are required.' });
+  if (!displayName?.trim() || !passphrase) {
+    return res.status(400).json({ error: 'Display name and passphrase are required.' });
   }
-  if (getUserByEmail(email.trim())) {
+  if (getUserByName(displayName.trim())) {
+    return res.status(409).json({ error: 'That display name is already taken.' });
+  }
+  if (email?.trim() && getUserByEmail(email.trim())) {
     return res.status(409).json({ error: 'An account with that email already exists.' });
   }
   const id = uuidv4();
@@ -36,11 +39,11 @@ router.post('/auth/register', async (req, res) => {
 
 // POST /api/auth/login
 router.post('/auth/login', async (req, res) => {
-  const { email, passphrase } = req.body ?? {};
-  if (!email || !passphrase) {
-    return res.status(400).json({ error: 'email and passphrase are required.' });
+  const { displayName, passphrase } = req.body ?? {};
+  if (!displayName || !passphrase) {
+    return res.status(400).json({ error: 'Display name and passphrase are required.' });
   }
-  const user = getUserByEmail(email.trim());
+  const user = getUserByName(displayName.trim());
   if (!user) return res.status(401).json({ error: 'Invalid credentials.' });
   const ok = await bcrypt.compare(passphrase, user.passphrase_hash);
   if (!ok) return res.status(401).json({ error: 'Invalid credentials.' });

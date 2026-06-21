@@ -6,7 +6,7 @@ import lockup from '../assets/brand/recall-lockup.svg';
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
+  const [displayName, setDisplayName] = useState('');
   const [passphrase, setPassphrase] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -16,7 +16,7 @@ export default function LoginPage() {
     setError('');
     setBusy(true);
     try {
-      await login(email.trim(), passphrase);
+      await login(displayName.trim(), passphrase);
       navigate('/');
     } catch (err) {
       setError(err.message);
@@ -32,11 +32,11 @@ export default function LoginPage() {
         <h1>Sign in</h1>
         <form onSubmit={submit}>
           <div className="form-group">
-            <label htmlFor="login-email">Email</label>
-            <input id="login-email" name="email" type="email" autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} autoFocus required />
+            <label htmlFor="login-name">Display name</label>
+            <input id="login-name" name="displayName" autoComplete="username" value={displayName} onChange={e => setDisplayName(e.target.value)} autoFocus required />
           </div>
           <div className="form-group">
-            <label htmlFor="login-pass">Password</label>
+            <label htmlFor="login-pass">Passphrase</label>
             <input id="login-pass" name="password" type="password" autoComplete="current-password" value={passphrase} onChange={e => setPassphrase(e.target.value)} required />
           </div>
           {error && <p className="error-msg">{error}</p>}

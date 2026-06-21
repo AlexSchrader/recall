@@ -2,7 +2,7 @@ import db from './index.js';
 
 const stmts = {
   findById: db.prepare('SELECT * FROM users WHERE id = ?'),
-  findByName: db.prepare('SELECT * FROM users WHERE display_name = ?'),
+  findByName: db.prepare('SELECT * FROM users WHERE lower(display_name) = lower(?)'),
   findByEmail: db.prepare('SELECT * FROM users WHERE lower(email) = lower(?)'),
   listAll: db.prepare(
     'SELECT id, display_name, email, tier, created_at FROM users ORDER BY created_at'
