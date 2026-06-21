@@ -14,6 +14,7 @@ import chatRouter from './routes/chat.js';
 import voiceRouter from './routes/voice.js';
 import flashcardsRouter from './routes/flashcards.js';
 import studyGuidesRouter from './routes/studyGuides.js';
+import feedbackRouter from './routes/feedback.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -93,6 +94,7 @@ app.use('/api', chatRouter);
 app.use('/api', voiceRouter);
 app.use('/api', flashcardsRouter);
 app.use('/api', studyGuidesRouter);
+app.use('/api', feedbackRouter);
 
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {

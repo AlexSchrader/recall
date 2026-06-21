@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
 
@@ -367,14 +368,14 @@ export default function SettingsPage() {
       <section className="settings-section">
         <h2>Support</h2>
         <p style={{ fontSize: '.9rem', marginBottom: '.75rem' }}>
-          Found a bug or have a feature request? Send us an email.
+          Found a bug or have a suggestion? Send it directly from the app — you can even attach a screenshot.
         </p>
-        <a
-          href="mailto:recallstudyapp.support@gmail.com"
-          className="btn btn-ghost btn-sm"
-        >
-          recallstudyapp.support@gmail.com
-        </a>
+        <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <Link to="/feedback" className="btn btn-primary btn-sm">Send feedback</Link>
+          <a href="mailto:recallstudyapp.support@gmail.com" style={{ fontSize: '.8rem', color: 'var(--muted)' }}>
+            or email us directly
+          </a>
+        </div>
       </section>
 
       {/* ── Danger zone ── */}
