@@ -318,9 +318,9 @@ export default function SettingsPage() {
         </div>
         <div className="form-group" style={{ marginTop: '.75rem' }}>
           <label>Default question types</label>
-          <div style={{ display: 'flex', gap: '1rem', marginTop: '.35rem' }}>
+          <div className="type-checks">
             {TYPE_OPTIONS.map(t => (
-              <label key={t.value} style={{ display: 'flex', alignItems: 'center', gap: '.35rem', cursor: 'pointer', fontSize: '.875rem' }}>
+              <label key={t.value} className="type-check-label">
                 <input type="checkbox" checked={prefs.types?.includes(t.value) ?? false} onChange={() => togglePrefType(t.value)} />
                 {t.label}
               </label>
