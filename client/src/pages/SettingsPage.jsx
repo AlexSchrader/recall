@@ -13,7 +13,7 @@ function useDebounce(value, delay) {
 }
 
 const DIFFICULTY_OPTIONS = ['easy', 'medium', 'hard', 'mixed'];
-const QCOUNT_OPTIONS = [5, 10, 15, 20];
+const QCOUNT_OPTIONS = [5, 10, 15, 20, 25, 30];
 const TYPE_OPTIONS = [
   { value: 'mcq', label: 'Multiple choice' },
   { value: 'true_false', label: 'True / False' },
@@ -303,7 +303,7 @@ export default function SettingsPage() {
         </p>
         <div className="form-group">
           <label>Default question count</label>
-          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '.5rem', maxWidth: 240 }}>
             {QCOUNT_OPTIONS.map(n => (
               <button
                 key={n}

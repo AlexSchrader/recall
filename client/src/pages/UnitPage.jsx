@@ -165,7 +165,7 @@ export default function UnitPage() {
             <div className="row" style={{ marginBottom: '1rem' }}>
               <div className="form-group">
                 <label>Questions</label>
-                <input type="number" min="1" max="20" value={questionCount} onChange={e => setQuestionCount(e.target.value)} />
+                <input type="number" min="1" max="30" value={questionCount} onChange={e => setQuestionCount(e.target.value)} />
               </div>
               <div className="form-group">
                 <label>Difficulty</label>
