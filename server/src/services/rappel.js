@@ -2,31 +2,45 @@ import Anthropic from '@anthropic-ai/sdk';
 import { SYSTEM_PROMPT } from '../config/rappel.js';
 import { getUserById } from '../db/usersDb.js';
 import { listCoursesByUser } from '../db/coursesDb.js';
-import { listDueForReview } from '../db/topicMasteryDb.js';
+import { listMasteryByUser } from '../db/topicMasteryDb.js';
+import { listWeakQuestions } from '../db/attemptsDb.js';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
 const CHAT_MODEL = 'claude-haiku-4-5-20251001';
 
+function pct(n) { return Math.round(n * 100); }
+
 function buildUserContext(userId) {
   const user = getUserById(userId);
   const courses = listCoursesByUser(userId);
-  const weakTopics = listDueForReview(userId, 5);
+  const allMastery = listMasteryByUser(userId);
+  const weakQuestions = listWeakQuestions(userId, 5);
 
   const courseList = courses.length
     ? courses.map(c => `- ${c.name}`).join('\n')
     : 'No courses yet.';
 
+  const weakTopics = allMastery.filter(t => t.mastery < 0.6).slice(0, 8);
   const weakList = weakTopics.length
-    ? weakTopics.map(t => `- ${t.topic}`).join('\n')
+    ? weakTopics.map(t => `- ${t.topic} (mastery ${pct(t.mastery)}%)`).join('\n')
     : 'None identified yet — keep taking quizzes!';
+
+  const missedList = weakQuestions.length
+    ? weakQuestions.map(q => `- "${q.prompt.slice(0, 80)}" (missed ${q.miss_count}×, topic: ${q.topic})`).join('\n')
+    : 'None yet.';
 
   return `Student name: ${user.display_name}
 Enrolled courses:
 ${courseList}
 
-Topics due for review (weakest first):
-${weakList}`;
+Weak topics (mastery < 60%, lowest first):
+${weakList}
+
+Most commonly missed questions:
+${missedList}
+
+Use this context to proactively reference topics the student struggles with. If they seem stuck, connect it to a known weak topic.`;
 }
 
 export async function generateThreadTitle(firstMessage) {

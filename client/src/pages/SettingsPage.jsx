@@ -11,8 +11,46 @@ function useDebounce(value, delay) {
   return debounced;
 }
 
+const DIFFICULTY_OPTIONS = ['easy', 'medium', 'hard', 'mixed'];
+const QCOUNT_OPTIONS = [5, 10, 15, 20];
+const TYPE_OPTIONS = [
+  { value: 'mcq', label: 'Multiple choice' },
+  { value: 'true_false', label: 'True / False' },
+  { value: 'short', label: 'Short answer' },
+];
+
 export default function SettingsPage() {
   const { user, setUser, refreshUser } = useAuth();
+
+  // ── Stats ──
+  const [stats, setStats] = useState(null);
+  useEffect(() => {
+    api.get('/me/stats').then(setStats).catch(() => {});
+  }, []);
+
+  // ── Study preferences ──
+  const [prefs, setPrefs] = useState({ questionCount: 10, difficulty: 'mixed', types: ['mcq'] });
+  const [prefsSaved, setPrefsSaved] = useState(false);
+  useEffect(() => {
+    api.get('/preferences').then(p => {
+      if (p && Object.keys(p).length) setPrefs(prev => ({ ...prev, ...p }));
+    }).catch(() => {});
+  }, []);
+
+  const togglePrefType = (t) => {
+    setPrefs(p => ({
+      ...p,
+      types: p.types?.includes(t)
+        ? (p.types.length > 1 ? p.types.filter(x => x !== t) : p.types)
+        : [...(p.types ?? []), t],
+    }));
+  };
+
+  const savePrefs = async () => {
+    await api.put('/preferences', prefs);
+    setPrefsSaved(true);
+    setTimeout(() => setPrefsSaved(false), 2000);
+  };
 
   // ── Appearance ──
   const [isDark, setIsDark] = useState(() => document.documentElement.dataset.theme === 'dark');
@@ -139,6 +177,32 @@ export default function SettingsPage() {
     <div className="settings-page">
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Settings</h1>
 
+      {/* ── Stats ── */}
+      {stats && (
+        <div className="stat-grid">
+          <div className="stat-card">
+            <div className="stat-num">{stats.quizzesCompleted}</div>
+            <div className="stat-label">Quizzes done</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num">{stats.questionsAnswered}</div>
+            <div className="stat-label">Questions answered</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num">{stats.cardsReviewed}</div>
+            <div className="stat-label">Cards reviewed</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num">{stats.streak} 🔥</div>
+            <div className="stat-label">Current streak</div>
+          </div>
+          <div className="stat-card">
+            <div className="stat-num">{stats.bestStreak}</div>
+            <div className="stat-label">Best streak</div>
+          </div>
+        </div>
+      )}
+
       {/* ── Appearance ── */}
       <section className="settings-section">
         <h2>Appearance</h2>
@@ -218,6 +282,54 @@ export default function SettingsPage() {
             {passBusy ? 'Saving…' : 'Change passphrase'}
           </button>
         </form>
+      </section>
+
+      {/* ── Study Preferences ── */}
+      <section className="settings-section">
+        <h2>Study Preferences</h2>
+        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginBottom: '1rem' }}>
+          These defaults pre-fill the quiz generator on every unit.
+        </p>
+        <div className="form-group">
+          <label>Default question count</label>
+          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+            {QCOUNT_OPTIONS.map(n => (
+              <button
+                key={n}
+                type="button"
+                className={`btn btn-sm ${prefs.questionCount === n ? 'btn-primary' : 'btn-ghost'}`}
+                onClick={() => setPrefs(p => ({ ...p, questionCount: n }))}
+              >{n}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-group" style={{ marginTop: '.75rem' }}>
+          <label>Default difficulty</label>
+          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
+            {DIFFICULTY_OPTIONS.map(d => (
+              <button
+                key={d}
+                type="button"
+                className={`btn btn-sm ${prefs.difficulty === d ? 'btn-primary' : 'btn-ghost'}`}
+                onClick={() => setPrefs(p => ({ ...p, difficulty: d }))}
+              >{d}</button>
+            ))}
+          </div>
+        </div>
+        <div className="form-group" style={{ marginTop: '.75rem' }}>
+          <label>Default question types</label>
+          <div style={{ display: 'flex', gap: '1rem', marginTop: '.35rem' }}>
+            {TYPE_OPTIONS.map(t => (
+              <label key={t.value} style={{ display: 'flex', alignItems: 'center', gap: '.35rem', cursor: 'pointer', fontSize: '.875rem' }}>
+                <input type="checkbox" checked={prefs.types?.includes(t.value) ?? false} onChange={() => togglePrefType(t.value)} />
+                {t.label}
+              </label>
+            ))}
+          </div>
+        </div>
+        <button className="btn btn-primary btn-sm" style={{ marginTop: '.5rem' }} onClick={savePrefs}>
+          {prefsSaved ? 'Saved!' : 'Save preferences'}
+        </button>
       </section>
 
       {/* ── My Quizzes ── */}

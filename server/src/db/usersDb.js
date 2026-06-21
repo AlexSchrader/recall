@@ -14,7 +14,7 @@ const stmts = {
   updateName: db.prepare('UPDATE users SET display_name = ? WHERE id = ?'),
   updateEmail: db.prepare('UPDATE users SET email = ? WHERE id = ?'),
   updateHash: db.prepare('UPDATE users SET passphrase_hash = ? WHERE id = ?'),
-  updateStreak: db.prepare('UPDATE users SET streak = ?, streak_updated_at = ? WHERE id = ?'),
+  updateStreak: db.prepare('UPDATE users SET streak = ?, streak_updated_at = ?, best_streak = MAX(COALESCE(best_streak,0), ?) WHERE id = ?'),
   delete: db.prepare('DELETE FROM users WHERE id = ?'),
   insertResetToken: db.prepare(
     `INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES (?, ?, ?)`
@@ -94,6 +94,6 @@ export function updateStreak(userId) {
   const yesterdayStr = yesterday.toISOString().slice(0, 10);
 
   const newStreak = lastStr === yesterdayStr ? (user.streak || 0) + 1 : 1;
-  stmts.updateStreak.run(newStreak, now.toISOString(), userId);
+  stmts.updateStreak.run(newStreak, now.toISOString(), newStreak, userId);
   return newStreak;
 }

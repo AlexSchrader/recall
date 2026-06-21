@@ -34,6 +34,12 @@ export default function UnitPage() {
   const [genError, setGenError] = useState('');
 
   useEffect(() => {
+    api.get('/preferences').then(p => {
+      if (p?.questionCount) setQuestionCount(p.questionCount);
+      if (p?.difficulty) setDifficulty(p.difficulty);
+      if (p?.types?.length) setTypes(p.types);
+    }).catch(() => {});
+
     api.get(`/units/${unitId}`)
       .then(u => {
         setUnit(u);

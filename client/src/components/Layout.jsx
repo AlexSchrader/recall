@@ -23,6 +23,7 @@ export default function Layout() {
         <div className="nav-links">
           <NavLink to="/" end>Courses</NavLink>
           <NavLink to="/chat">Rappel</NavLink>
+          <NavLink to="/progress">Progress</NavLink>
         </div>
         {user?.streak > 0 && (
           <span className="streak-badge" title={`${user.streak}-day study streak!`}>
