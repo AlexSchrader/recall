@@ -166,6 +166,15 @@ CREATE INDEX IF NOT EXISTS idx_cards_deck    ON flashcards(deck_id);
 CREATE INDEX IF NOT EXISTS idx_cards_due     ON flashcards(user_id, due_at);
 
 -- Query-path indexes
+CREATE TABLE IF NOT EXISTS feedback (
+  id             TEXT PRIMARY KEY,
+  user_id        TEXT REFERENCES users(id) ON DELETE SET NULL,
+  type           TEXT NOT NULL,
+  message        TEXT NOT NULL,
+  has_screenshot INTEGER NOT NULL DEFAULT 0,
+  created_at     TEXT NOT NULL
+);
+
 CREATE INDEX IF NOT EXISTS idx_courses_user      ON courses(user_id);
 CREATE INDEX IF NOT EXISTS idx_units_course      ON units(course_id);
 CREATE INDEX IF NOT EXISTS idx_docs_unit         ON documents(unit_id);

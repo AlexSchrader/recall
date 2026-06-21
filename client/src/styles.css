@@ -360,6 +360,26 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .weak-q-meta { font-size: .75rem; color: var(--muted); margin-bottom: .2rem; }
 .weak-q-answer { font-size: .78rem; color: var(--success); }
 
+/* ── Feedback page ── */
+.feedback-page { max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+.feedback-form { display: flex; flex-direction: column; gap: 1.25rem; }
+.feedback-type-row { display: flex; flex-direction: column; gap: .5rem; margin-top: .35rem; }
+.feedback-type-btn { display: flex; flex-direction: column; align-items: flex-start; gap: .1rem; padding: .75rem 1rem; border: 2px solid var(--border); border-radius: var(--radius); background: var(--surface); cursor: pointer; text-align: left; transition: border-color .15s; }
+.feedback-type-btn:hover { border-color: var(--primary); }
+.feedback-type-btn.active { border-color: var(--primary); background: #eef2ff; }
+[data-theme="dark"] .feedback-type-btn.active { background: rgba(99,102,241,.15); }
+.ftb-label { font-size: .9rem; font-weight: 600; color: var(--text); }
+.ftb-hint  { font-size: .78rem; color: var(--muted); }
+.screenshot-drop { border: 2px dashed var(--border); border-radius: var(--radius); padding: 1.5rem 1rem; text-align: center; cursor: pointer; font-size: .875rem; color: var(--muted); transition: border-color .15s; }
+.screenshot-drop:hover { border-color: var(--primary); color: var(--primary); }
+.screenshot-preview { position: relative; display: inline-block; max-width: 100%; }
+.screenshot-preview img { max-width: 100%; max-height: 300px; border-radius: var(--radius); border: 1px solid var(--border); display: block; }
+.screenshot-remove { position: absolute; top: .4rem; right: .4rem; background: rgba(0,0,0,.6); color: #fff; border: none; border-radius: 4px; padding: .2rem .5rem; font-size: .75rem; cursor: pointer; }
+.feedback-done { text-align: center; padding: 3rem 1rem; }
+.feedback-done-icon { font-size: 3rem; color: var(--success); margin-bottom: .75rem; }
+.feedback-done h2 { font-size: 1.4rem; margin-bottom: .5rem; }
+.feedback-done p { color: var(--muted); }
+
 /* ── Question type checkboxes (used in UnitPage + Settings) ── */
 .type-checks { display: flex; flex-wrap: wrap; gap: .4rem .75rem; margin-top: .35rem; }
 .type-check-label { display: flex; align-items: center; gap: .35rem; cursor: pointer; font-size: .875rem; white-space: nowrap; }
