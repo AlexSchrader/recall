@@ -21,21 +21,34 @@ export default function OnboardingPage() {
 
   const playPreview = async (e, v) => {
     e.stopPropagation();
-    // Stop any currently playing audio
     if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     if (playing === v) { setPlaying(null); return; }
 
     setPlaying(v);
+
+    // Create Audio synchronously inside the click handler so iOS/Safari
+    // doesn't block autoplay (user gesture must be on the call stack).
+    const audio = new Audio();
+    audioRef.current = audio;
+
     try {
       const res = await fetch(`/api/voice/preview?voice=${v}`, { credentials: 'include' });
-      if (!res.ok) { setPlaying(null); return; }
+      if (!res.ok) {
+        const text = await res.text().catch(() => '');
+        console.error(`[voice/preview] HTTP ${res.status}`, text);
+        setPlaying(null);
+        return;
+      }
       const blob = await res.blob();
+      console.log('[voice/preview] blob size:', blob.size, 'type:', blob.type);
       const url = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.play();
+      audio.src = url;
       audio.onended = () => { URL.revokeObjectURL(url); audioRef.current = null; setPlaying(null); };
-    } catch {
+      audio.onerror = (err) => { console.error('[voice/preview] audio error', err); setPlaying(null); };
+      const playPromise = audio.play();
+      if (playPromise) playPromise.catch(err => { console.error('[voice/preview] play() rejected:', err); setPlaying(null); });
+    } catch (err) {
+      console.error('[voice/preview] fetch error:', err);
       setPlaying(null);
     }
   };
