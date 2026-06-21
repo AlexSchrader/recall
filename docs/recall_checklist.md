@@ -30,8 +30,8 @@ When a task finishes, you MUST:
 
 - **Current phase:** Phase 6 — Cost guardrails & observability
 - **In flight:** Nothing open right now
-- **Next action:** Phase 6 — Admin usage page (`/admin/usage`), verify daily cap enforced across all gen types
-- **Last updated:** 2026-06-21 (post-ship: Rappel study plan, Feynman mode, streak nudge, token logging, edit-row mobile fix, in-app feedback)
+- **Next action:** Phase 5 open items (voice quality review, auto-play toggle) or Phase 7 pre-publish
+- **Last updated:** 2026-06-21 (post-ship: admin usage page, focus quiz picker, daily cap audit pass, usage logging across all generators)
 
 ---
 
@@ -115,10 +115,10 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Stats card: quizzes completed, questions answered, cards reviewed, streak 🔥, best streak — DONE 2026-06-21, commit ec27220
 - [x] Progress page: mastery bars per course/topic, commonly missed questions, Ask Rappel + Explain It shortcuts — DONE 2026-06-21, commit ec27220
 - [x] In-app feedback form (/feedback): type selector, message, screenshot upload (file/drag/paste), client-side compression, stored in DB + emailed via Resend — DONE 2026-06-21, commit 631102f
-- [x] Token usage logging — `usage_log` table; every Claude API call (quiz gen, grading, flashcards, study guides, chat streaming) logs feature + model + token counts — DONE 2026-06-21, commit ccee55b
-- [ ] Focus quiz shortcut — one-click quiz from weak topics only (100% review mix); needs unit picker UX wired on Progress page
-- [ ] Per-user daily generation cap verified across all gen types (quiz, flashcard, study guide, chat) — confirm one shared bucket
-- [ ] Owner-only `/admin/usage` page — per-user daily/monthly spend (estimated $ from token counts in `usage_log`)
+- [x] Token usage logging — `usage_log` table; every Claude API call (quiz gen, grading, flashcards, study guides, chat streaming) logs feature + model + token counts; `_meta` threaded into all generators and grader — DONE 2026-06-21, commit ccee55b + 6a57016
+- [x] Focus quiz shortcut — "Focus Quiz ▾" per course on ProgressPage; fetches units inline; fires 10-question quiz with reviewMix=1 on selected unit — DONE 2026-06-21, commit 6a57016
+- [x] Per-user daily generation cap verified across all gen types — quiz + flashcard deck + study guide share one bucket (confirmed); chat intentionally excluded — DONE 2026-06-21, commit 6a57016
+- [x] Owner-only `/admin/usage` page — daily detail + monthly-by-user + all-users tabs; estimated cost per row from Claude pricing table; protected by `ADMIN_USER_IDS` env var — DONE 2026-06-21, commit 6a57016
 - [ ] ElevenLabs character usage logged alongside Claude tokens (extend `usage_log` or separate table)
 - [ ] Anthropic billing alert configured in Anthropic dashboard (outside app — verify it exists)
 - [ ] ElevenLabs character-quota alert configured (verify)
