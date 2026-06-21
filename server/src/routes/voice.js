@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { Readable } from 'stream';
 import { requireAuth } from '../middleware/auth.js';
-import { VOICE_ID, MODEL_ID } from '../config/rappel.js';
+import { MATHIEU_VOICE_ID, JULIETTE_VOICE_ID, MODEL_ID } from '../config/rappel.js';
+import { getPreferences } from '../db/preferencesDb.js';
 import { logUsage } from '../db/usageLogDb.js';
 
 const router = Router();
@@ -38,8 +39,11 @@ router.post('/voice/tts', requireAuth, requireVoice, async (req, res) => {
   if (!apiKey) return res.status(503).json({ error: 'TTS not configured.' });
 
   try {
+    const userPrefs = getPreferences(req.session.userId)?.prefs ?? {};
+    const voiceId = userPrefs.rappelVoice === 'juliette' ? JULIETTE_VOICE_ID : MATHIEU_VOICE_ID;
+
     const upstream = await fetch(
-      `https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
       {
         method: 'POST',
         headers: {
