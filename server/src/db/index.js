@@ -30,6 +30,9 @@ if (!userCols.includes('streak')) {
   db.exec('ALTER TABLE users ADD COLUMN streak INTEGER NOT NULL DEFAULT 0');
   db.exec('ALTER TABLE users ADD COLUMN streak_updated_at TEXT');
 }
+if (!userCols.includes('best_streak')) {
+  db.exec('ALTER TABLE users ADD COLUMN best_streak INTEGER NOT NULL DEFAULT 0');
+}
 
 export { DB_PATH };
 export default db;

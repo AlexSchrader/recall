@@ -8,6 +8,10 @@ import {
 } from '../db/usersDb.js';
 import { requireAuth } from '../middleware/auth.js';
 import { sendPasswordReset } from '../services/email.js';
+import { countAttemptsByUser, listWeakQuestions } from '../db/attemptsDb.js';
+import { listMasteryByUser, listMasteryByCourse } from '../db/topicMasteryDb.js';
+import { listCoursesByUser } from '../db/coursesDb.js';
+import db from '../db/index.js';
 
 const router = Router();
 const SALT_ROUNDS = 10;
@@ -166,6 +170,43 @@ router.patch('/me/password', requireAuth, async (req, res) => {
   const hash = await bcrypt.hash(newPassphrase, SALT_ROUNDS);
   updatePassphraseHash(req.session.userId, hash);
   res.json({ ok: true });
+});
+
+// GET /api/me/stats
+router.get('/me/stats', requireAuth, (req, res) => {
+  const uid = req.session.userId;
+  const user = getUserById(uid);
+  if (!user) return res.status(401).json({ error: 'User not found.' });
+
+  const quizzesCompleted = db.prepare(
+    `SELECT COUNT(*) AS n FROM quizzes WHERE user_id = ? AND status = 'completed'`
+  ).get(uid).n;
+
+  const questionsAnswered = countAttemptsByUser(uid);
+
+  const cardsReviewed = db.prepare(
+    `SELECT COALESCE(SUM(repetitions), 0) AS n FROM flashcards WHERE user_id = ?`
+  ).get(uid).n;
+
+  res.json({
+    quizzesCompleted,
+    questionsAnswered,
+    cardsReviewed,
+    streak: user.streak ?? 0,
+    bestStreak: user.best_streak ?? 0,
+  });
+});
+
+// GET /api/me/progress  — mastery by course + weak questions
+router.get('/me/progress', requireAuth, (req, res) => {
+  const uid = req.session.userId;
+  const courses = listCoursesByUser(uid);
+  const progress = courses.map(c => ({
+    course: c,
+    topics: listMasteryByCourse(uid, c.id),
+  }));
+  const weakQuestions = listWeakQuestions(uid, 15);
+  res.json({ progress, weakQuestions });
 });
 
 export default router;

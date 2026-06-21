@@ -18,6 +18,7 @@ import DeckPage from './pages/DeckPage.jsx';
 import ReviewPage from './pages/ReviewPage.jsx';
 import StudyGuidePage from './pages/StudyGuidePage.jsx';
 import SettingsPage from './pages/SettingsPage.jsx';
+import ProgressPage from './pages/ProgressPage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -43,6 +44,7 @@ function AppRoutes() {
           <Route path="/flashcards/decks/:deckId/review" element={<div className="page"><ReviewPage /></div>} />
           <Route path="/units/:unitId/study-guide" element={<div className="page"><StudyGuidePage /></div>} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/progress" element={<div className="page"><ProgressPage /></div>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

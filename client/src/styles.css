@@ -329,3 +329,27 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .nav-username { font-size: .875rem; color: var(--muted); cursor: pointer; text-decoration: none; }
 .nav-username:hover { color: var(--primary); text-decoration: none; }
 .success-msg { color: var(--success); font-size: .875rem; margin-top: .5rem; }
+
+/* ── Stats grid ── */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: .75rem; margin-bottom: 1.25rem; }
+.stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem .75rem; text-align: center; box-shadow: var(--shadow); }
+.stat-num { font-size: 1.6rem; font-weight: 700; color: var(--primary); line-height: 1; }
+.stat-label { font-size: .72rem; color: var(--muted); margin-top: .35rem; text-transform: uppercase; letter-spacing: .04em; }
+
+/* ── Progress page ── */
+.progress-page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
+.progress-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
+.mastery-list { display: flex; flex-direction: column; gap: .6rem; }
+.mastery-row { display: flex; align-items: center; gap: .75rem; }
+.mastery-info { flex: 1; display: flex; align-items: center; gap: .75rem; min-width: 0; }
+.mastery-topic { font-size: .875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 120px; max-width: 200px; }
+.mastery-bar-wrap { flex: 1; display: flex; align-items: center; gap: .5rem; }
+.mastery-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.mastery-bar-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
+.mastery-bar-pct { font-size: .75rem; font-weight: 600; min-width: 32px; text-align: right; }
+.weak-q-list { display: flex; flex-direction: column; gap: .6rem; }
+.weak-q-row { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius); }
+.weak-q-body { flex: 1; }
+.weak-q-prompt { font-size: .875rem; font-weight: 500; margin-bottom: .2rem; }
+.weak-q-meta { font-size: .75rem; color: var(--muted); margin-bottom: .2rem; }
+.weak-q-answer { font-size: .78rem; color: var(--success); }

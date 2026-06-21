@@ -18,6 +18,17 @@ const stmts = {
      WHERE a.user_id = ? AND q.topic = ?
      ORDER BY a.answered_at DESC`
   ),
+  countByUser: db.prepare('SELECT COUNT(*) AS total FROM attempts WHERE user_id = ?'),
+  weakQuestions: db.prepare(
+    `SELECT q.id, q.prompt, q.topic, q.correct_answer, q.explanation,
+            COUNT(*) AS miss_count
+     FROM attempts a
+     JOIN questions q ON q.id = a.question_id
+     WHERE a.user_id = ? AND a.is_correct = 0
+     GROUP BY q.id
+     ORDER BY miss_count DESC
+     LIMIT ?`
+  ),
 };
 
 export const bulkCreateAttempts = db.transaction((attempts) => {
@@ -38,4 +49,12 @@ export function listAttemptsByUser(userId, { limit = 50, offset = 0 } = {}) {
 
 export function listAttemptsByTopic(userId, topic) {
   return stmts.listByTopic.all(userId, topic);
+}
+
+export function countAttemptsByUser(userId) {
+  return stmts.countByUser.get(userId).total;
+}
+
+export function listWeakQuestions(userId, limit = 10) {
+  return stmts.weakQuestions.all(userId, limit);
 }
