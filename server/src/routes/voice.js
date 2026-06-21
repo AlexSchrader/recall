@@ -14,6 +14,44 @@ function requireVoice(req, res, next) {
   next();
 }
 
+const PREVIEW_TEXT = `Bonjour! I'm Rappel, your personal study tutor. I'm here whenever you need help — whether it's a tricky concept, a study plan, or just some encouragement. Allons-y, let's begin!`;
+
+// GET /api/voice/preview?voice=mathieu|juliette — no PIN required, used on onboarding
+router.get('/voice/preview', requireAuth, async (req, res) => {
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) return res.status(503).json({ error: 'TTS not configured.' });
+
+  const voiceId = req.query.voice === 'juliette' ? JULIETTE_VOICE_ID : MATHIEU_VOICE_ID;
+
+  try {
+    const upstream = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+      {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg',
+        },
+        body: JSON.stringify({
+          text: PREVIEW_TEXT,
+          model_id: MODEL_ID,
+          voice_settings: { stability: 0.5, similarity_boost: 0.8 },
+        }),
+        signal: AbortSignal.timeout(15000),
+      }
+    );
+
+    if (!upstream.ok) return res.status(502).json({ error: 'TTS unavailable.' });
+
+    res.setHeader('Content-Type', 'audio/mpeg');
+    Readable.fromWeb(upstream.body).pipe(res);
+  } catch (err) {
+    console.error('[voice/preview]', err.message);
+    if (!res.headersSent) res.status(502).json({ error: 'TTS unavailable.' });
+  }
+});
+
 // GET /api/voice/status — lets the client know if the session is already unlocked
 router.get('/voice/status', requireAuth, (req, res) => {
   res.json({ unlocked: req.session.voiceUnlocked === true });

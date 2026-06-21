@@ -1,16 +1,44 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
 const STEPS = 3;
 
+const VOICES = [
+  { value: 'mathieu', label: 'Mathieu', desc: 'Warm & grounded', avatarClass: '' },
+  { value: 'juliette', label: 'Juliette', desc: 'Bright & encouraging', avatarClass: 'ob-voice-avatar--f' },
+];
+
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [voice, setVoice] = useState('mathieu');
+  const [playing, setPlaying] = useState(null); // 'mathieu' | 'juliette' | null
   const [busy, setBusy] = useState(false);
   const { prefs, setPrefs } = useAuth();
   const navigate = useNavigate();
+  const audioRef = useRef(null);
+
+  const playPreview = async (e, v) => {
+    e.stopPropagation();
+    // Stop any currently playing audio
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
+    if (playing === v) { setPlaying(null); return; }
+
+    setPlaying(v);
+    try {
+      const res = await fetch(`/api/voice/preview?voice=${v}`, { credentials: 'include' });
+      if (!res.ok) { setPlaying(null); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.play();
+      audio.onended = () => { URL.revokeObjectURL(url); audioRef.current = null; setPlaying(null); };
+    } catch {
+      setPlaying(null);
+    }
+  };
 
   const finish = async () => {
     setBusy(true);
@@ -78,24 +106,28 @@ export default function OnboardingPage() {
             <h2 className="ob-title">Meet Rappel</h2>
             <p className="ob-sub">Your AI tutor — patient, encouraging, and always there to help you study. Choose a voice:</p>
             <div className="ob-voices">
-              <button
-                type="button"
-                className={`ob-voice-card${voice === 'mathieu' ? ' ob-voice-card--active' : ''}`}
-                onClick={() => setVoice('mathieu')}
-              >
-                <span className="ob-voice-avatar">M</span>
-                <strong>Mathieu</strong>
-                <span className="ob-voice-desc">Warm &amp; grounded</span>
-              </button>
-              <button
-                type="button"
-                className={`ob-voice-card${voice === 'juliette' ? ' ob-voice-card--active' : ''}`}
-                onClick={() => setVoice('juliette')}
-              >
-                <span className="ob-voice-avatar ob-voice-avatar--f">J</span>
-                <strong>Juliette</strong>
-                <span className="ob-voice-desc">Bright &amp; encouraging</span>
-              </button>
+              {VOICES.map(v => (
+                <button
+                  key={v.value}
+                  type="button"
+                  className={`ob-voice-card${voice === v.value ? ' ob-voice-card--active' : ''}`}
+                  onClick={() => setVoice(v.value)}
+                >
+                  <span className={`ob-voice-avatar${v.avatarClass ? ` ${v.avatarClass}` : ''}`}>
+                    {v.label[0]}
+                  </span>
+                  <strong>{v.label}</strong>
+                  <span className="ob-voice-desc">{v.desc}</span>
+                  <button
+                    type="button"
+                    className={`ob-play-btn${playing === v.value ? ' ob-play-btn--active' : ''}`}
+                    onClick={(e) => playPreview(e, v.value)}
+                    title={playing === v.value ? 'Stop' : 'Hear intro'}
+                  >
+                    {playing === v.value ? '■' : '▶'}
+                  </button>
+                </button>
+              ))}
             </div>
             <p className="ob-note">You can change this anytime in Settings → Studying.</p>
             <button className="btn btn-primary ob-cta" disabled={busy} onClick={finish}>
