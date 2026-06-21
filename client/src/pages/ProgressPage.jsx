@@ -76,6 +76,31 @@ export default function ProgressPage() {
     }
   };
 
+  if (!data && !stats) {
+    return (
+      <div className="progress-page">
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>Progress</h1>
+        <div className="skeleton-grid">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="skeleton-stat">
+              <div className="skeleton" style={{ width: 48, height: 28 }} />
+              <div className="skeleton" style={{ width: 80, height: 12 }} />
+            </div>
+          ))}
+        </div>
+        <div className="skeleton-page">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton" style={{ width: `${60 + i * 10}%`, height: 14 }} />
+              <div className="skeleton" style={{ width: '100%', height: 10 }} />
+              <div className="skeleton" style={{ width: '85%', height: 10 }} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="progress-page">
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '1.5rem' }}>Progress</h1>
@@ -207,10 +232,19 @@ export default function ProgressPage() {
       ))}
 
       {data?.progress?.length === 0 && (
-        <div className="empty" style={{ marginTop: '2rem' }}>
-          No mastery data yet. Take a quiz or review flashcards to see your progress here.
+        <div className="onboarding" style={{ marginTop: '1.5rem' }}>
+          <h2 className="onboarding-title">Nothing tracked yet</h2>
+          <p className="onboarding-sub">
+            Mastery scores appear here after you take a quiz or review flashcards.
+            Go to any course, open a unit, and generate your first quiz to get started.
+          </p>
+          <Link to="/" className="btn btn-primary onboarding-cta">Go to my courses</Link>
         </div>
       )}
+
+      {/* Per-course empty state — has courses but no activity in this one */}
+      {data?.progress?.filter(({ topics }) => topics.length === 0).length > 0 &&
+       data?.progress?.some(({ topics }) => topics.length > 0) === false && null}
     </div>
   );
 }

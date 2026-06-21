@@ -226,6 +226,17 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
 .study-guide-md code { background: #f1f5f9; padding: .1rem .35rem; border-radius: 4px; font-size: .9em; }
 .study-guide-md blockquote { border-left: 3px solid var(--primary); padding-left: 1rem; color: var(--muted); margin: .75rem 0; }
 
+/* ── Skeleton loading ── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .4; }
+}
+.skeleton { background: var(--border); border-radius: 4px; animation: skeleton-pulse 1.4s ease-in-out infinite; }
+.skeleton-page { display: flex; flex-direction: column; gap: 1rem; padding: .5rem 0; }
+.skeleton-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; display: flex; flex-direction: column; gap: .75rem; }
+.skeleton-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: .75rem; margin-bottom: 1rem; }
+.skeleton-stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; display: flex; flex-direction: column; gap: .5rem; align-items: center; }
+
 /* ── Streak nudge ── */
 .streak-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; color: #92400e; }
 [data-theme="dark"] .streak-nudge { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
