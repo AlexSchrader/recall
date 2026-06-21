@@ -354,6 +354,7 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 /* ── Progress page ── */
 .progress-page { max-width: 860px; margin: 2rem auto; padding: 0 1rem; }
 .progress-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow); margin-bottom: 1.25rem; }
+.focus-picker { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .65rem .75rem; margin-bottom: .6rem; }
 .mastery-list { display: flex; flex-direction: column; gap: .6rem; }
 .mastery-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
 .mastery-info { flex: 1; display: flex; align-items: center; gap: .75rem; min-width: 0; }
@@ -369,6 +370,26 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .weak-q-prompt { font-size: .875rem; font-weight: 500; margin-bottom: .2rem; }
 .weak-q-meta { font-size: .75rem; color: var(--muted); margin-bottom: .2rem; }
 .weak-q-answer { font-size: .78rem; color: var(--success); }
+
+/* ── Admin page ── */
+.admin-page { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+.admin-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: .75rem; margin-bottom: 1.25rem; }
+.admin-header h1 { font-size: 1.4rem; font-weight: 700; }
+.admin-meta { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.admin-total { font-size: .9rem; color: var(--muted); }
+.admin-total strong { color: var(--text); }
+.admin-tabs { display: flex; gap: .35rem; margin-bottom: 1rem; }
+.admin-tab { padding: .4rem .9rem; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); color: var(--muted); font-size: .85rem; cursor: pointer; }
+.admin-tab.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+.admin-table th { text-align: left; padding: .6rem .75rem; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 600; color: var(--muted); white-space: nowrap; }
+.admin-table td { padding: .55rem .75rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table tr:hover td { background: var(--bg); }
+.badge-free { background: #e0e7ff; color: #3730a3; padding: .15rem .45rem; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+.badge-plus { background: #d1fae5; color: #065f46; padding: .15rem .45rem; border-radius: 4px; font-size: .75rem; font-weight: 600; }
+.badge-pro  { background: #fef3c7; color: #92400e; padding: .15rem .45rem; border-radius: 4px; font-size: .75rem; font-weight: 600; }
 
 /* ── Feedback page ── */
 .feedback-page { max-width: 640px; margin: 2rem auto; padding: 0 1rem; }

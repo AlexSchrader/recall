@@ -43,19 +43,37 @@ export default function ProgressPage() {
     } catch (e) { console.error(e); }
   };
 
-  const focusQuiz = async (courseId, unitId, topic) => {
+  const [unitMap, setUnitMap]       = useState({});   // courseId → units[]
+  const [focusPick, setFocusPick]   = useState(null);  // courseId being picked
+  const [focusBusy, setFocusBusy]   = useState(false);
+
+  const openFocusPicker = async (courseId) => {
+    if (!unitMap[courseId]) {
+      try {
+        const units = await api.get(`/courses/${courseId}/units`);
+        setUnitMap(prev => ({ ...prev, [courseId]: units }));
+      } catch { return; }
+    }
+    setFocusPick(focusPick === courseId ? null : courseId);
+  };
+
+  const fireFocusQuiz = async (courseId, unitId, unitName) => {
+    setFocusBusy(true);
     try {
       const result = await api.post('/quizzes/generate', {
         courseId,
         unitIds: [unitId],
-        title: `Focus: ${topic}`,
+        title: `Focus: ${unitName}`,
         questionCount: 10,
         reviewMix: 1,
         types: ['mcq', 'short'],
         difficulty: 'mixed',
       });
       navigate(`/quizzes/${result.quizId}`);
-    } catch (e) { alert(e.message); }
+    } catch (e) {
+      alert(e.message);
+      setFocusBusy(false);
+    }
   };
 
   return (
@@ -122,9 +140,42 @@ export default function ProgressPage() {
       {data?.progress?.map(({ course, topics }) => (
         topics.length > 0 && (
           <section key={course.id} className="progress-section">
-            <h2 className="section-title">
-              <Link to={`/courses/${course.id}`}>{course.name}</Link>
-            </h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '.5rem', marginBottom: '.5rem' }}>
+              <h2 className="section-title" style={{ margin: 0 }}>
+                <Link to={`/courses/${course.id}`}>{course.name}</Link>
+              </h2>
+              {topics.some(t => t.mastery < 0.7) && (
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => openFocusPicker(course.id)}
+                  disabled={focusBusy}
+                >
+                  Focus Quiz ▾
+                </button>
+              )}
+            </div>
+
+            {/* Unit picker for focus quiz */}
+            {focusPick === course.id && (
+              <div className="focus-picker">
+                <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: '.4rem' }}>Pick a unit to drill weak topics from:</p>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.4rem' }}>
+                  {(unitMap[course.id] ?? []).map(u => (
+                    <button
+                      key={u.id}
+                      className="btn btn-ghost btn-sm"
+                      disabled={focusBusy}
+                      onClick={() => fireFocusQuiz(course.id, u.id, u.name)}
+                    >
+                      {focusBusy ? 'Generating…' : u.name}
+                    </button>
+                  ))}
+                  {(unitMap[course.id] ?? []).length === 0 && (
+                    <span style={{ fontSize: '.85rem', color: 'var(--muted)' }}>No units found.</span>
+                  )}
+                </div>
+              </div>
+            )}
             <div className="mastery-list">
               {topics.map(t => (
                 <div key={t.topic} className="mastery-row">

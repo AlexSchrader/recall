@@ -132,7 +132,8 @@ export async function generateQuiz({ config, sourceContext, preferences }) {
   const messages = [{ role: 'user', content: userContent }];
 
   // ── First generation attempt ──────────────────────────────────────────────
-  const firstResponse = await generate({ model, system, messages, maxTokens: 4096 });
+  const meta = { userId, feature: 'quiz_gen' };
+  const firstResponse = await generate({ model, system, messages, maxTokens: 4096, _meta: meta });
   const firstText = firstResponse.content[0]?.text ?? '';
   let parsed = extractJson(firstText);
 
@@ -143,7 +144,7 @@ export async function generateQuiz({ config, sourceContext, preferences }) {
       { role: 'assistant', content: firstText },
       { role: 'user', content: 'Your response was not valid JSON. Return ONLY the JSON array, nothing else.' },
     ];
-    const repairResponse = await generate({ model, system, messages: repairMessages, maxTokens: 4096 });
+    const repairResponse = await generate({ model, system, messages: repairMessages, maxTokens: 4096, _meta: meta });
     const repairText = repairResponse.content[0]?.text ?? '';
     parsed = extractJson(repairText);
   }

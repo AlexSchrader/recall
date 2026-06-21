@@ -85,7 +85,7 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
   for (const q of questions) {
     const given = (answers.find(a => a.questionId === q.id)?.answer ?? '').trim();
     const score = q.type === 'short'
-      ? await gradeShort(q, given)
+      ? await gradeShort(q, given, userId)
       : gradeAuto(q, given);
     results.push({ question: q, given, score });
   }
