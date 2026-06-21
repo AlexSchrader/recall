@@ -11,6 +11,8 @@ import CoursePage from './pages/CoursePage.jsx';
 import UnitPage from './pages/UnitPage.jsx';
 import QuizPage from './pages/QuizPage.jsx';
 import QuizResultPage from './pages/QuizResultPage.jsx';
+import ChatListPage from './pages/ChatListPage.jsx';
+import ChatThreadPage from './pages/ChatThreadPage.jsx';
 
 function AppRoutes() {
   const { user, loading } = useAuth();
@@ -24,11 +26,13 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses/:courseId" element={<CoursePage />} />
-          <Route path="/units/:unitId" element={<UnitPage />} />
-          <Route path="/quizzes/:quizId" element={<QuizPage />} />
-          <Route path="/quizzes/:quizId/results" element={<QuizResultPage />} />
+          <Route path="/" element={<div className="page"><HomePage /></div>} />
+          <Route path="/courses/:courseId" element={<div className="page"><CoursePage /></div>} />
+          <Route path="/units/:unitId" element={<div className="page"><UnitPage /></div>} />
+          <Route path="/quizzes/:quizId" element={<div className="page"><QuizPage /></div>} />
+          <Route path="/quizzes/:quizId/results" element={<div className="page"><QuizResultPage /></div>} />
+          <Route path="/chat" element={<div className="page"><ChatListPage /></div>} />
+          <Route path="/chat/:threadId" element={<ChatThreadPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
