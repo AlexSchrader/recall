@@ -27,8 +27,8 @@ When a task finishes, you must:
 
 - **Current phase:** Phase 5 — Rappel hardening + Phase 4.5/4.6 polish
 - **In flight:** Nothing open right now (between tasks)
-- **⚡️ Single next action:** Confirm voice auto-play toggle is wired in Settings → Studying (Phase 5 open item) — quick audit, then either stamp or build. After that: ElevenLabs usage logging (Phase 6) or Quick Study shuffle button (Phase 4.6).
-- **Last updated:** 2026-06-22 (S3/S4/G1 audit complete — all confirmed shipped)
+- **⚡️ Single next action:** Use the app for a few days and return with friction. Queued: 60–80% warning-band nudge (Phase 5), ElevenLabs usage logging (Phase 6), retake title disambiguation (Phase 4.5).
+- **Last updated:** 2026-06-22 (Phase 5 complete — voice auto-play confirmed wired)
 
 ---
 
@@ -125,7 +125,7 @@ R1–R5 are merged; this phase covers iteration based on real use.
 - [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — based on actual transcripts (Alex/Claude)
 - [ ] Voice quality review — pick model (`eleven_turbo_v2_5` vs flash) and stability/similarity settings after listening to real replies (Alex)
 - [ ] iOS autoplay watch — current fix relies on the user's tap on Send/mic satisfying the user-gesture requirement. If a friend on iOS reports silent Rappel responses, audit whether the first audio plays without an explicit "tap to play" fallback. Note for later, not a fix-now. (CC)
-- [ ] Decide whether voice replies auto-play or require tap (Settings → Studying toggle is in spec — confirm it's wired) (CC)
+- [x] Voice auto-play toggle: Settings → Studying section writes `voiceAutoPlay` to `/preferences` on change; ChatThreadPage reads it on mount and sets `voiceEnabled`; `playTTS` gates on `voiceEnabled`; per-session 🔊 button overrides without touching saved pref — DONE (confirmed 2026-06-22 audit, shipped pre-tracker) (CC)
 
 ## Phase 6 — Cost guardrails & observability
 
