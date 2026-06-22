@@ -117,6 +117,7 @@ R1–R5 are merged; this phase covers iteration based on real use.
 
 - [x] Markdown rendering in Rappel chat (bold, italic, lists, code via `react-markdown`) — DONE 2026-06-21 (CC)
 - [x] "Get a study plan" entry from QuizResultPage when score < 60% — creates Rappel thread pre-filled with score + missed topics, asks for prioritised plan — DONE 2026-06-21 (CC)
+- [ ] "Warning band" recovery nudge for QuizResultPage scores 60–80% — focused-quiz button targeting just the missed topics ("Lock in the X topics you missed"), distinct from the <60% full-recovery banner. Watch for it being needed in real use first. (CC)
 - [x] "Explain it" / Feynman mode from ProgressPage — per-topic button starts Rappel thread running the Feynman technique (you explain, he fills gaps) — DONE 2026-06-21 (CC)
 - [x] "Ask Rappel" entry per topic on ProgressPage — DONE 2026-06-21 (CC)
 - [x] Tap-to-toggle mic in `ChatThreadPage.jsx` (replaces hold-to-talk): tap once → record + red pulse, live transcription into input, auto-send on silence-detect or second tap, TTS halts on mic tap so Rappel doesn't talk over you, `audio.play().catch()` for graceful autoplay-blocked fallback — DONE 2026-06-22 (CC)
