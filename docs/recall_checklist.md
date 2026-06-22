@@ -25,10 +25,10 @@ When a task finishes, you must:
 
 ## Status at a glance
 
-- **Current phase:** Phase 3 — Flashcards (S3 + S4 open) **OR** Phase 5 — Rappel hardening, your call
+- **Current phase:** Phase 5 — Rappel hardening + Phase 4.5/4.6 polish
 - **In flight:** Nothing open right now (between tasks)
-- **⚡️ Single next action:** Audit Phase 3 (S3 / S4) and Phase 4 (G1) against the live app. For each item, mark line-by-line as shipped / partial / missing, then either stamp `[x]` or carry the gap forward as a concrete `[ ]` task. Cheapest path back to a fully honest Status block.
-- **Last updated:** 2026-06-22
+- **⚡️ Single next action:** Confirm voice auto-play toggle is wired in Settings → Studying (Phase 5 open item) — quick audit, then either stamp or build. After that: ElevenLabs usage logging (Phase 6) or Quick Study shuffle button (Phase 4.6).
+- **Last updated:** 2026-06-22 (S3/S4/G1 audit complete — all confirmed shipped)
 
 ---
 
@@ -78,14 +78,14 @@ Source doc: `docs/Recall_Study_Modes.md`
 
 - [x] **S1** — Flashcard decks + cards DB tables (deck/card schemas, `flashcardsDb.js`, user-scoped queries) — (pre-tracker) (CC)
 - [x] **S2** — Flashcard generation + SM-2 review services (`flashcardGenerator.js`, `flashcardReview.js`) — DONE (implicit; required for Match It which ships from DeckPage and pulls cards from decks ≥4) (CC)
-- [ ] **S3** — Flashcard API + UI (endpoints, FlashcardsScreen, DeckScreen, ReviewSessionScreen, Study tab three-button landing) — *Note: DeckPage clearly exists (Match It launches from it). Audit what's actually shipped vs. spec'd before re-running S3.* (CC)
-- [ ] **S4** — Study Guide (DB + service + API + screen, "Read the study guide" recovery prompt from low quiz scores) (CC)
+- [x] **S3** — Flashcard API + UI: FlashcardsPage, DeckPage, ReviewPage (flip + Again/Hard/Good/Easy + confetti + session summary + Ask Rappel on weak cards); server routes in `flashcards.js`; UnitPage entry buttons — DONE (confirmed 2026-06-22 audit, shipped pre-tracker) (CC)
+- [x] **S4** — Study Guide: StudyGuidePage (generate, display with ReactMarkdown, regenerate, Ask Rappel CTA); server routes in `studyGuides.js`; `pct < 60` recovery banner in QuizResultPage links to study guide + flashcards — DONE (confirmed 2026-06-22 audit, shipped pre-tracker) (CC)
 
 ## Phase 4 — Lenient grading
 
 Source doc: `docs/Recall_Grading_Fix.md`
 
-- [ ] **G1** — Lenient short-answer grading with partial credit (0 / 0.5 / 1 scoring, lenient grading rubric, modelAnswer surfaced on result screen, mastery treats 0.5 as partial) (CC)
+- [x] **G1** — Lenient short-answer grading: `gradeShort` returns 0/0.5/1; lenient system prompt rewards understanding over memorised wording; `~ Partial` badge + modelAnswer shown on result screen; partial count in score summary; mastery uses float score — DONE (confirmed 2026-06-22 audit, shipped pre-tracker) (CC)
 
 ## Phase 4.5 — UX polish & engagement
 
