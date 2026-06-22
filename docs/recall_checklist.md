@@ -29,9 +29,9 @@ When a task finishes, you MUST:
 ## Status at a glance
 
 - **Current phase:** Phase 4.6 — Mini-games (in progress)
-- **In flight:** Nothing open right now
-- **Next action:** Match It game (Phase 4.6), or retake title disambiguation (Phase 4.5), or Phase 7 pre-publish prep
-- **Last updated:** 2026-06-21 (post-ship: retake button, Quick Study on HomePage, onboarding flow, voice picker, Speed Round, Streak Challenge)
+- **In flight:** Rappel nav/mic/TTS fixes + games mastery on dev; not yet cherry-picked to main
+- **Next action:** Cherry-pick dev → main, then Match It game or Phase 5 persona tuning
+- **Last updated:** 2026-06-21 (games mastery, Rappel mic tap-to-toggle, nav height dynamic fix, TTS autoplay catch)
 
 ---
 
@@ -105,6 +105,9 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Quiz results: Retake button — re-generates with stored config_json (same unit, count, difficulty, types), counts against daily cap, inline error if cap is hit; buttons now `[↺ Retake] [Back to unit] [Home]` — DONE 2026-06-21, commit 673a6cc
 - [ ] Retake title disambiguation — multiple retakes pile up with identical titles in Recent Quizzes. Options: (a) auto-suffix "(retake)", (b) attempt badge, (c) leave as-is. Watch for actual confusion first.
 - [ ] Rappel thread auto-title for programmatic entries — "Study plan" and "Explain it" threads should get Claude-generated titles; currently fires on first message in chat route but verify it works for init= flows
+- [~] Rappel chat header covered on mobile — ResizeObserver in Layout.jsx writes --nav-h from actual nav.offsetHeight; fixes 2-row mobile nav covering the back-button/title — STARTED 2026-06-21, commit 7cc4359
+- [~] Rappel mic: tap-to-toggle + live transcript + auto-send — changed from hold-to-talk; interim results show live in input; auto-sends on recognition end; TTS pauses when mic starts; mic-btn--active pulses via transform/opacity — STARTED 2026-06-21, commit 7cc4359
+- [~] Rappel TTS silent fail on mobile — audio.play() now has .catch() so iOS autoplay policy rejections degrade gracefully — STARTED 2026-06-21, commit 7cc4359
 
 ## Phase 4.6 — Mini-games *(in progress)*
 
@@ -116,7 +119,7 @@ Lightweight study modes built on the existing `questions` table. Accessible from
 - [x] HomePage **Quick Study** section — appears once user has ≥1 completed quiz; 🏃 Speed Round + 🔥 Streak Challenge buttons drawing from all courses — DONE 2026-06-21, commit 673a6cc
 - [ ] **Known limitation:** games draw from completed MCQ questions only — units without MCQ history hit "not enough questions". Fix: clearer empty state with CTA to generate a quiz with MCQ enabled.
 - [ ] Streak Challenge can repeat questions within a long streak (refetch re-randomizes, no dedupe). Acceptable now; fix would be a seen-IDs set on the client.
-- [ ] Decide whether mini-game answers update topic mastery. Currently they don't — verify this is intentional. Real retrieval practice should probably count.
+- [~] Mini-game answers update topic mastery — POST /api/games/results groups by topic+course, runs sm2Next, upserts topic_mastery; Speed Round and Streak Challenge both submit on game-over — STARTED 2026-06-21, commit 2d0f422
 - [ ] Match It — tap-pair 8–12 term/definition pairs from a flashcard deck, scored on accuracy + time. Bigger build (new UI component, pairing logic). Parked until after Phase 3 is stable.
 
 ## Phase 5 — Rappel hardening *(mostly complete)*
