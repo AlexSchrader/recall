@@ -1,6 +1,9 @@
 import { Router } from 'express';
+import { v4 as uuidv4 } from 'uuid';
 import { requireAuth } from '../middleware/auth.js';
 import db from '../db/index.js';
+import { getMastery, upsertMastery } from '../db/topicMasteryDb.js';
+import { sm2Next } from '../services/sm2.js';
 
 const router = Router();
 
@@ -31,6 +34,50 @@ router.get('/games/questions', requireAuth, (req, res) => {
     ...r,
     options: JSON.parse(r.options_json ?? '[]'),
   })));
+});
+
+// POST /api/games/results — update topic mastery (SM-2) from game answers
+// body: { results: [{ questionId, correct }] }
+router.post('/games/results', requireAuth, (req, res) => {
+  const uid = req.session.userId;
+  const { results } = req.body ?? {};
+  if (!Array.isArray(results) || !results.length) return res.json({ ok: true });
+
+  const lookupStmt = db.prepare(`
+    SELECT q.topic, u.course_id
+    FROM questions q
+    JOIN quizzes qz ON qz.id = q.quiz_id
+    JOIN json_each(qz.source_unit_ids) AS unit_ref ON 1=1
+    JOIN units u ON u.id = unit_ref.value
+    WHERE q.id = ? AND qz.user_id = ?
+    LIMIT 1
+  `);
+
+  const now = new Date().toISOString();
+  const byKey = {}; // `courseId::topic` → { scoreSum, total, courseId, topic }
+
+  for (const { questionId, correct } of results) {
+    const row = lookupStmt.get(questionId, uid);
+    if (!row) continue;
+    const key = `${row.course_id}::${row.topic}`;
+    if (!byKey[key]) byKey[key] = { scoreSum: 0, total: 0, courseId: row.course_id, topic: row.topic };
+    byKey[key].total += 1;
+    byKey[key].scoreSum += correct ? 1 : 0;
+  }
+
+  for (const { scoreSum, total, courseId, topic } of Object.values(byKey)) {
+    const existing = getMastery(uid, courseId, topic) ?? {
+      id: uuidv4(), user_id: uid, course_id: courseId, topic,
+      ease: 2.5, interval_days: 1, repetitions: 0, mastery: 0.0,
+      due_at: now, last_seen_at: null,
+    };
+    const avg = scoreSum / total;
+    const quality = avg >= 0.9 ? 5 : avg >= 0.7 ? 4 : avg >= 0.4 ? 3 : avg > 0 ? 2 : 1;
+    const next = sm2Next(existing, quality);
+    upsertMastery({ ...existing, ...next, last_seen_at: now });
+  }
+
+  res.json({ ok: true });
 });
 
 export default router;

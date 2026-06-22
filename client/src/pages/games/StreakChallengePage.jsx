@@ -16,6 +16,7 @@ export default function StreakChallengePage() {
   const [total, setTotal]       = useState(0);
   const [selected, setSelected] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
+  const [gameResults, setGameResults] = useState([]); // {questionId, correct}[]
 
   const load = useCallback(() => {
     const params = new URLSearchParams({ limit: BATCH });
@@ -30,6 +31,7 @@ export default function StreakChallengePage() {
         setTotal(0);
         setSelected(null);
         setTransitioning(false);
+        setGameResults([]);
         setPhase('playing');
       })
       .catch(() => setPhase('error'));
@@ -37,12 +39,18 @@ export default function StreakChallengePage() {
 
   useEffect(() => { load(); }, [load]);
 
+  useEffect(() => {
+    if (phase !== 'done' || !gameResults.length) return;
+    api.post('/games/results', { results: gameResults }).catch(() => {});
+  }, [phase]);
+
   const answer = useCallback((opt) => {
     if (transitioning || selected !== null) return;
     const q = questions[idx];
     const correct = opt === q.correct_answer;
     setSelected(opt);
     setTotal(t => t + 1);
+    setGameResults(prev => [...prev, { questionId: q.id, correct }]);
 
     setTimeout(() => {
       if (!correct) {

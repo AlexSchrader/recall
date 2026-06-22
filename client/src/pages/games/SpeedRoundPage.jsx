@@ -48,7 +48,7 @@ export default function SpeedRoundPage() {
 
     const q = questions[idx];
     const correct = picked === q.correct_answer;
-    setAnswers(prev => [...prev, { prompt: q.prompt, selected: picked, correct_answer: q.correct_answer, correct, topic: q.topic }]);
+    setAnswers(prev => [...prev, { questionId: q.id, prompt: q.prompt, selected: picked, correct_answer: q.correct_answer, correct, topic: q.topic }]);
     setSelected(picked);
 
     setTimeout(() => {
@@ -63,6 +63,14 @@ export default function SpeedRoundPage() {
       }
     }, 900);
   }, [idx, questions, transitioning]);
+
+  // Submit mastery update when game finishes
+  useEffect(() => {
+    if (phase !== 'done' || !answers.length) return;
+    api.post('/games/results', {
+      results: answers.map(a => ({ questionId: a.questionId, correct: a.correct })),
+    }).catch(() => {});
+  }, [phase]);
 
   // Per-question countdown timer
   useEffect(() => {
