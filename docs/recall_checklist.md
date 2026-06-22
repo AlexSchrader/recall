@@ -27,7 +27,7 @@ When a task finishes, you must:
 
 - **Current phase:** Phase 3 — Flashcards (S3 + S4 open) **OR** Phase 5 — Rappel hardening, your call
 - **In flight:** Nothing open right now (between tasks)
-- **⚡️ Single next action (Alex):** Pick one and update this line — either **S3** (`docs/Recall_Study_Modes.md`, flashcard API + review UI) or **G1** (`docs/Recall_Grading_Fix.md`, lenient grading)
+- **⚡️ Single next action:** Audit Phase 3 (S3 / S4) and Phase 4 (G1) against the live app. For each item, mark line-by-line as shipped / partial / missing, then either stamp `[x]` or carry the gap forward as a concrete `[ ]` task. Cheapest path back to a fully honest Status block.
 - **Last updated:** 2026-06-22
 
 ---
