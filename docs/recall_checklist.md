@@ -28,10 +28,10 @@ When a task finishes, you MUST:
 
 ## Status at a glance
 
-- **Current phase:** Phase 4.5 / Phase 9 (mini-games)
+- **Current phase:** Phase 4.6 — Mini-games (in progress)
 - **In flight:** Nothing open right now
-- **Next action:** Match It mini-game (own phase entry), retake button (Phase 4.5), or Phase 7 pre-publish prep
-- **Last updated:** 2026-06-21 (post-ship: onboarding flow, voice picker, Speed Round, Streak Challenge, toggle polish)
+- **Next action:** Match It game (Phase 4.6), or retake title disambiguation (Phase 4.5), or Phase 7 pre-publish prep
+- **Last updated:** 2026-06-21 (post-ship: retake button, Quick Study on HomePage, onboarding flow, voice picker, Speed Round, Streak Challenge)
 
 ---
 
@@ -56,7 +56,7 @@ When a task finishes, you MUST:
 
 ## Phase 1 — Auth & Sessions *(complete)*
 
-- [x] Display name + email register; login by display name OR email — DONE 2026-06-21, commit 2e14c1d
+- [x] Display name + email register; login by display name OR email — DONE (pre-tracker)
 - [x] Password reset via Resend email — DONE (pre-tracker)
 - [x] Persistent SQLite session store (survives Railway redeploys) — DONE (pre-tracker)
 - [x] Trust-proxy + secure cookie config for Railway HTTPS — DONE (pre-tracker)
@@ -91,57 +91,68 @@ Source doc: `docs/Recall_Grading_Fix.md`
 
 Drop-in improvements that don't belong to a feature phase. New items land here as they come up.
 
-- [x] Mobile nav overflow — flex-wrap on topnav; nav-links drop to second row on ≤640px; logout no longer hangs off edge — DONE 2026-06-21, commit 631102f
-- [x] Checkbox label misalignment (question types) — `.type-checks` + `.type-check-label` CSS classes fix label drift on mobile in quiz form and Settings — DONE 2026-06-21, commit 631102f
-- [x] Display name in nav links to Settings — clicking your name opens Settings — DONE 2026-06-21
+- [x] Mobile nav overflow — flex-wrap on topnav; nav-links drop to second row on ≤640px — DONE 2026-06-21, commit 631102f
 - [x] Edit-row mobile overflow — color wheel + name input + Save/Cancel/Delete wrap via `flex-wrap`; input has `min-width: 60px` so Delete never falls off edge — DONE 2026-06-21, commit ccee55b
-- [x] Streak nudge banner on HomePage — amber banner when you have an active streak but haven't studied today; links to /progress; disappears once streak updates — DONE 2026-06-21, commit ccee55b
-- [x] Loading skeletons — Progress and Settings pages pulse-animate stat cards + content rows while fetching; no more blank flash on load — DONE 2026-06-21
-- [x] Progress page empty state — actionable "Nothing tracked yet" card with CTA to courses when user has no mastery data — DONE 2026-06-21
-- [x] `.env.example` updated — added RESEND_API_KEY, VOICE_PIN, ADMIN_USER_IDS with inline instructions for finding user ID — DONE 2026-06-21
-- [x] Rappel thread auto-title — already wired in chat route (fires on first message via generateThreadTitle); programmatic entries ("Study plan", "Explain it") get Claude-generated titles automatically — confirmed 2026-06-21
-- [x] Question count extended to 30 — UnitPage number input max raised to 30; Settings default-count picker now 5/10/15/20/25/30 in a 3-col grid — DONE 2026-06-21, commit d449f48
-- [x] Question type checkboxes → toggle switches — both UnitPage and Settings now use `.type-check-row` + `.toggle-switch` (same pill as dark mode toggle); label-left/toggle-right layout; eliminates mobile misalignment — DONE 2026-06-21, commit b213d99
-- [x] CSP: `media-src 'self' blob:` — browser was blocking blob audio URLs (Rappel TTS + game previews); added explicit media-src directive — DONE 2026-06-21, commit 108051e
-- [ ] Quiz result "retake" button — clone same config, fire new generation, navigate straight to the new quiz
+- [x] Display name in nav links to Settings — DONE 2026-06-21
+- [x] Streak nudge banner on HomePage — amber banner when streak is active but not studied today; "Study now" → /progress — DONE 2026-06-21, commit ccee55b
+- [x] Loading skeletons — Progress and Settings pages pulse-animate while fetching; no more blank flash on load — DONE 2026-06-21, commit 2b93c11
+- [x] Progress page empty state — "Nothing tracked yet" card with CTA to courses — DONE 2026-06-21, commit 2b93c11
+- [x] Focus Quiz picker on ProgressPage — "Focus Quiz ▾" per course; inline unit picker; fires 10-question quiz with reviewMix=1 — DONE 2026-06-21, commit 6a57016
+- [x] Question type checkboxes → toggle switches — UnitPage + Settings use pill toggles (label-left/toggle-right); eliminates mobile misalignment — DONE 2026-06-21, commit b213d99
+- [x] Question count extended to 30 — UnitPage max raised to 30; Settings picker is 5/10/15/20/25/30 in a 3-col grid — DONE 2026-06-21, commit d449f48
+- [x] CSP: `media-src 'self' blob:` — browser was blocking blob audio URLs (Rappel TTS + game previews) — DONE 2026-06-21, commit 108051e
+- [x] `.env.example` updated — added RESEND_API_KEY, VOICE_PIN, ADMIN_USER_IDS with inline instructions — DONE 2026-06-21, commit 2b93c11
+- [x] Quiz results: Retake button — re-generates with stored config_json (same unit, count, difficulty, types), counts against daily cap, inline error if cap is hit; buttons now `[↺ Retake] [Back to unit] [Home]` — DONE 2026-06-21, commit 673a6cc
+- [ ] Retake title disambiguation — multiple retakes pile up with identical titles in Recent Quizzes. Options: (a) auto-suffix "(retake)", (b) attempt badge, (c) leave as-is. Watch for actual confusion first.
+- [ ] Rappel thread auto-title for programmatic entries — "Study plan" and "Explain it" threads should get Claude-generated titles; currently fires on first message in chat route but verify it works for init= flows
+
+## Phase 4.6 — Mini-games *(in progress)*
+
+Lightweight study modes built on the existing `questions` table. Accessible from each unit page under "Quick games" — no new nav tab.
+
+- [x] `GET /api/games/questions` — shuffled MCQ questions from completed quizzes; supports `unitId`, `courseId`, or all-courses fallback — DONE 2026-06-21, commit b3aec82
+- [x] Speed Round (`/games/speed-round?unitId=X`) — 3-2-1 countdown, 10 questions, 15s timer bar per question (green → amber → red), auto-advance on answer or timeout, end screen with score + full answer review — DONE 2026-06-21, commit b3aec82
+- [x] Streak Challenge (`/games/streak?unitId=X`) — continuous questions, one wrong ends the game, live streak counter in HUD, seamless batch refetch, end screen with best streak + total answered + contextual message — DONE 2026-06-21, commit b3aec82
+- [x] HomePage **Quick Study** section — appears once user has ≥1 completed quiz; 🏃 Speed Round + 🔥 Streak Challenge buttons drawing from all courses — DONE 2026-06-21, commit 673a6cc
+- [ ] **Known limitation:** games draw from completed MCQ questions only — units without MCQ history hit "not enough questions". Fix: clearer empty state with CTA to generate a quiz with MCQ enabled.
+- [ ] Streak Challenge can repeat questions within a long streak (refetch re-randomizes, no dedupe). Acceptable now; fix would be a seen-IDs set on the client.
+- [ ] Decide whether mini-game answers update topic mastery. Currently they don't — verify this is intentional. Real retrieval practice should probably count.
+- [ ] Match It — tap-pair 8–12 term/definition pairs from a flashcard deck, scored on accuracy + time. Bigger build (new UI component, pairing logic). Parked until after Phase 3 is stable.
 
 ## Phase 5 — Rappel hardening *(mostly complete)*
 
 - [x] Markdown rendering in Rappel chat (bold, italic, lists, inline code, blockquote via react-markdown) — DONE 2026-06-21, commit 10d1d4c
-- [x] Rappel context upgrade: mastery % per weak topic + top 5 commonly missed questions with prompt excerpts — DONE 2026-06-21, commit ec27220
+- [x] Rappel context upgrade: mastery % per weak topic + top 5 commonly missed questions — DONE 2026-06-21, commit ec27220
 - [x] "Ask Rappel" entry points — from ProgressPage per topic, from weak questions list — DONE 2026-06-21, commit ec27220
-- [x] "Get a study plan" CTA on QuizResultPage when score < 60% — creates Rappel thread pre-filled with score + missed topics, asks for prioritised plan — DONE 2026-06-21, commit ccee55b
-- [x] "Explain it" / Feynman mode from ProgressPage — per-topic button starts Rappel thread running Feynman technique (you explain, Rappel fills gaps) — DONE 2026-06-21, commit ccee55b
-- [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — needs actual transcripts to calibrate
-- [ ] Voice quality review — compare `eleven_turbo_v2_5` vs flash; tune stability/similarity settings after listening to real replies
-- [x] Voice auto-play preference — persisted to `preferences` JSON blob; toggled in Settings → Studying and per-session via 🔊 button; loaded on ChatThreadPage mount — DONE 2026-06-21
+- [x] "Get a study plan" CTA on QuizResultPage when score < 60% — DONE 2026-06-21, commit ccee55b
+- [x] "Explain it" / Feynman mode from ProgressPage — per-topic button starts Rappel thread with Feynman technique — DONE 2026-06-21, commit ccee55b
+- [x] Voice auto-play preference — persisted to preferences JSON; toggled in Settings → Studying and per-session via 🔊 button — DONE 2026-06-21
+- [x] Mathieu / Juliette voice picker — both voices play Rappel persona; chosen on onboarding step 3 with ▶ preview; changeable in Settings → Studying — DONE 2026-06-21, commit 51957d7
+- [ ] Persona tuning pass after a week of real chats (adjust French frequency, tone, willingness to push back) — needs actual transcripts
+- [ ] Voice quality review — compare `eleven_turbo_v2_5` vs flash; tune stability/similarity after listening to real replies
 
-## Phase 6 — Settings, progress & cost guardrails *(in progress)*
+## Phase 6 — Settings, progress & cost guardrails *(mostly complete)*
 
-- [x] Settings page: dark/light mode toggle, change display name (availability check), email, passphrase, delete quizzes, delete account — DONE 2026-06-21, commit 85157c1
-- [x] Study preferences (default quiz length/difficulty/types) saved per user, pre-fill quiz form on load — DONE 2026-06-21, commit ec27220
+- [x] Settings page: dark/light mode, change display name, email, passphrase, delete quizzes, delete account — DONE 2026-06-21, commit 85157c1
+- [x] Study preferences (default quiz length/difficulty/types) saved per user, pre-fill quiz form — DONE 2026-06-21, commit ec27220
 - [x] Stats card: quizzes completed, questions answered, cards reviewed, streak 🔥, best streak — DONE 2026-06-21, commit ec27220
 - [x] Progress page: mastery bars per course/topic, commonly missed questions, Ask Rappel + Explain It shortcuts — DONE 2026-06-21, commit ec27220
-- [x] In-app feedback form (/feedback): type selector, message, screenshot upload (file/drag/paste), client-side compression, stored in DB + emailed via Resend — DONE 2026-06-21, commit 631102f
-- [x] Token usage logging — `usage_log` table; every Claude API call (quiz gen, grading, flashcards, study guides, chat streaming) logs feature + model + token counts; `_meta` threaded into all generators and grader — DONE 2026-06-21, commit ccee55b + 6a57016
-- [x] Focus quiz shortcut — "Focus Quiz ▾" per course on ProgressPage; fetches units inline; fires 10-question quiz with reviewMix=1 on selected unit — DONE 2026-06-21, commit 6a57016
-- [x] Per-user daily generation cap verified across all gen types — quiz + flashcard deck + study guide share one bucket (confirmed); chat intentionally excluded — DONE 2026-06-21, commit 6a57016
-- [x] Owner-only `/admin/usage` page — daily detail + monthly-by-user + all-users tabs; estimated cost per row from Claude pricing table; protected by `ADMIN_USER_IDS` env var — DONE 2026-06-21, commit 6a57016
-- [x] ElevenLabs character usage logged — TTS route logs `feature: 'tts'`, `outputTokens = text.length` (characters) to `usage_log`; visible in admin detail tab — DONE 2026-06-21
-- [ ] Anthropic billing alert configured in Anthropic dashboard (outside app — verify it exists)
+- [x] In-app feedback form (/feedback): type selector, message, screenshot upload/drag/paste, client-side compression — DONE 2026-06-21, commit 631102f
+- [x] Token usage logging — `usage_log` table; every Claude call logs feature + model + token counts — DONE 2026-06-21, commit ccee55b
+- [x] ElevenLabs character usage logged — TTS route logs `feature: 'tts'`, `outputTokens = text.length` — DONE 2026-06-21
+- [x] Per-user daily generation cap verified — quiz + flashcard + study guide share one bucket; chat excluded — DONE 2026-06-21
+- [x] Owner-only `/admin/usage` page — daily detail + monthly-by-user + all-users tabs; estimated cost from Claude pricing — DONE 2026-06-21, commit 6a57016
+- [x] Export data — `GET /api/me/export` returns full JSON dump; download button in Settings → Studying — DONE 2026-06-21
+- [ ] **Setup task:** add your user ID to Railway env var `ADMIN_USER_IDS` (run `fetch('/api/me',{credentials:'include'}).then(r=>r.json()).then(d=>console.log(d.id))` in browser console)
+- [ ] Anthropic billing alert configured in Anthropic dashboard (verify)
 - [ ] ElevenLabs character-quota alert configured (verify)
 
-## Phase 9 — Onboarding & mini-games *(in progress)*
+## Phase 7 — First-run experience *(complete)*
 
-- [x] First-run onboarding flow — 3-step page (welcome, how it works, voice picker); routes outside Layout; AppRoutes gates on `prefs.onboardingDone`; AuthContext now fetches prefs alongside user on mount — DONE 2026-06-21, commit 3b430f1
-- [x] Mathieu / Juliette voice picker — both voices play same Rappel persona; user picks on onboarding step 3 (▶ preview button plays a hardcoded intro via `/api/voice/preview`); changeable in Settings → Studying — DONE 2026-06-21, commit 51957d7
-- [x] Speed Round mini-game — 10 MCQ questions, 15-second timer per question (bar shifts green→amber→red); auto-advance on timeout; results screen with full answer review; accessible from "Quick games" section on every unit page — DONE 2026-06-21, commit b3aec82
-- [x] Streak Challenge mini-game — unlimited questions, one wrong answer ends the run; live streak counter; best streak + total tracked; seamlessly refetches when batch exhausted; accessible from unit page alongside Speed Round — DONE 2026-06-21, commit b3aec82
-- [x] `GET /api/games/questions` — shuffled MCQ questions from completed quizzes; supports `unitId`, `courseId`, or all-courses fallback — DONE 2026-06-21, commit b3aec82
-- [ ] Match It — drag-or-tap pairing game for flashcard front/back pairs; own build, own PR; park until Speed/Streak are battle-tested
-- [ ] Better fill-in-the-blank UI — fold into G1 (lenient grading phase) rather than a standalone mini-game
+- [x] 3-step onboarding flow — welcome, how it works, Mathieu/Juliette voice picker; routes outside Layout; AppRoutes gates on `prefs.onboardingDone`; AuthContext fetches prefs alongside user — DONE 2026-06-21, commit 3b430f1
+- [x] Voice preview on onboarding — ▶ button on each voice card plays a hardcoded intro via `/api/voice/preview` (no PIN required) — DONE 2026-06-21, commit 51957d7
 
-## Phase 7 — Pre-publish polish *(deferred)*
+## Phase 8 — Pre-publish polish *(deferred)*
 
 These don't need to happen for private use — they unlock public/paid launch.
 
@@ -153,19 +164,18 @@ These don't need to happen for private use — they unlock public/paid launch.
 - [ ] Marketing landing page (separate from app)
 - [ ] Terms of service + privacy policy
 
-## Phase 8 — Future ideas *(deferred / optional)*
+## Phase 9 — Future ideas *(deferred / optional)*
 
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
-- [ ] Sorting Hat mini-game — binary topic-sort; only worth building for courses with clear parallel categories; skip unless a specific course case arises
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [ ] Bulk unit import (multiple files, auto-unit detection)
 - [ ] Shareable quiz (export as static link for friends)
-- [x] Export data — `GET /api/me/export` returns full JSON dump (quizzes, mastery, flashcard reviews, courses); download button in Settings → Studying — DONE 2026-06-21
 - [ ] Weekly digest email: "Here are your 3 weakest topics this week" (Resend scheduled send)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI)
 - [ ] Postgres migration if user count outgrows SQLite + single Railway service
-- [ ] Custom Rappel persona variations (Italian Marco, British Margaret, etc.)
+- [ ] Sorting Hat mini-game — binary topic-sort; only worth building for courses with clear parallel categories
+- [ ] HomePage quick-study shuffle button that randomly picks a game (wait until 3+ games exist)
 
 ---
 
@@ -173,12 +183,12 @@ These don't need to happen for private use — they unlock public/paid launch.
 
 These don't have a "done" state — they're ongoing.
 
-- **Persona tuning.** Read 5–10 real Rappel chats per week; adjust system prompt for anything that reads off (too French, not enough French, too long, too sycophantic).
-- **Grading rubric calibration.** Spot-check short-answer grading verdicts. If lenient grading drifts too generous or too strict, tighten or loosen the rubric prompt.
-- **Daily cap tuning.** Watch the usage log. If real users bump the cap on normal study days, raise it; if costs spike, lower it.
-- **Quiz quality eyeballing.** Periodically read a fresh generation cold — are questions grounded in the source, or hallucinated? Are explanations useful?
-- **Brand consistency.** Reuse existing components and theme tokens on all new screens — no one-off colors, no inline hex values.
-- **Dependency hygiene.** Skim `npm outdated` once a month; bump security patches, hold off on majors unless something breaks.
+- **Persona tuning.** Read 5–10 real Rappel chats per week; adjust system prompt for anything that reads off.
+- **Grading rubric calibration.** Spot-check short-answer grading verdicts. Tighten or loosen rubric prompt if drift appears.
+- **Daily cap tuning.** Watch the usage log. Raise if real users bump it on normal study days; lower if costs spike.
+- **Quiz quality eyeballing.** Read fresh generations cold — grounded in source or hallucinated? Explanations useful?
+- **Brand consistency.** Reuse existing components and theme tokens on all new screens. No one-off hex values.
+- **Dependency hygiene.** Skim `npm outdated` once a month; bump security patches, hold off on majors.
 
 ---
 
@@ -186,15 +196,15 @@ These don't have a "done" state — they're ongoing.
 
 Decisions and loose ends to settle before public launch.
 
-- **App name.** "Recall" is the working name. Quick check for conflicts before public launch is fine — no urgency while private.
+- **App name.** "Recall" is the working name. Quick conflict check before public launch — fine for private use now.
 - **Theme + colors.** Indigo/blue brand kit. Locked unless something looks off in real use.
-- **Generation model per tier.** Free → Haiku 4.5, Plus → Sonnet 4.6, Pro → Opus 4.8. All current users are Free — paid tiers don't matter until Phase 7.
-- **Daily cap exact numbers per tier.** Currently a default; revisit once Phase 6 admin page is showing real usage.
+- **Generation model per tier.** Free → Haiku 4.5, Plus → Sonnet 4.6, Pro → Opus 4.8. All current users are Free.
+- **Daily cap exact numbers per tier.** Currently default; tune off real usage once admin page is showing data.
 - **Source-token budget per tier.** Same — tune off real usage.
-- **Privacy note exact wording.** Open. Draft when entering Phase 7.
-- **Custom domain.** Deferred until production-solid. Railway subdomain is fine until then.
-- **Auto-play voice replies.** Spec says toggle in Settings → Studying, default on. Confirm it's actually wired. *(Phase 5 open item)*
-- **Focus quiz unit picker.** Data is ready (mastery by course/topic). Remaining work is UX: how does the user pick which unit to draw questions from? Options: inline dropdown on Progress page, redirect to CoursePage, or first-unit heuristic. *(Phase 6 open item)*
+- **Privacy note exact wording.** Open. Draft when entering Phase 8.
+- **Custom domain.** Deferred. Railway subdomain is fine until production-solid.
+- **Auto-play voice replies.** Toggle in Settings → Studying, default off. Wired and confirmed working.
+- **Custom Rappel persona variations.** Could let users pick Italian Marco, British Margaret, etc. Deferred.
 
 ---
 
