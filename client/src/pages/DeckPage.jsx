@@ -124,6 +124,19 @@ export default function DeckPage() {
         </div>
       )}
 
+      {cards.length >= 4 && (
+        <div className="card" style={{ marginBottom: '1.5rem' }}>
+          <p className="section-title" style={{ marginBottom: '.25rem' }}>Match It 🃏</p>
+          <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: '.75rem' }}>Pair terms with definitions — scored on accuracy and time.</p>
+          <Link
+            to={`/games/match?deckId=${deckId}&deckName=${encodeURIComponent(deck?.name ?? '')}`}
+            className="btn btn-ghost"
+          >
+            Play Match It →
+          </Link>
+        </div>
+      )}
+
       <p className="section-title">All cards <span style={{ fontWeight: 400, color: 'var(--muted)' }}>({cards.length})</span></p>
       {cards.length === 0 && <p className="empty">No cards in this deck.</p>}
       <div>

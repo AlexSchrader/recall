@@ -29,9 +29,9 @@ When a task finishes, you MUST:
 ## Status at a glance
 
 - **Current phase:** Phase 4.6 — Mini-games (in progress)
-- **In flight:** Nothing open right now
-- **Next action:** Decide flashcards vs. Match It (see Phase 3 / Phase 4.6 notes), then build
-- **Last updated:** 2026-06-22 (cherry-picked Rappel fixes + games mastery to main)
+- **In flight:** Match It on dev; not yet on main
+- **Next action:** Cherry-pick Match It to main, then Phase 5 persona tuning or Phase 6 admin tasks
+- **Last updated:** 2026-06-22 (Match It game shipped to dev)
 
 ---
 
@@ -120,7 +120,7 @@ Lightweight study modes built on the existing `questions` table. Accessible from
 - [ ] **Known limitation:** games draw from completed MCQ questions only — units without MCQ history hit "not enough questions". Fix: clearer empty state with CTA to generate a quiz with MCQ enabled.
 - [ ] Streak Challenge can repeat questions within a long streak (refetch re-randomizes, no dedupe). Acceptable now; fix would be a seen-IDs set on the client.
 - [x] Mini-game answers update topic mastery — POST /api/games/results groups by topic+course, runs sm2Next, upserts topic_mastery; Speed Round and Streak Challenge both submit on game-over — DONE 2026-06-22, commit 7fc570f
-- [ ] Match It — tap-pair 8–12 term/definition pairs from a flashcard deck, scored on accuracy + time. Bigger build (new UI component, pairing logic). Parked until after Phase 3 is stable.
+- [~] Match It — tap-pair up to 8 term/definition pairs from a flashcard deck; two-column grid, tap-to-select-front then tap-back, shake animation on wrong, scored on mistakes + elapsed time; entry via DeckPage; route /games/match — STARTED 2026-06-22
 
 ## Phase 5 — Rappel hardening *(mostly complete)*
 
