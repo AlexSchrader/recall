@@ -108,8 +108,8 @@ export default function ChatThreadPage() {
       const url = URL.createObjectURL(blob);
       const audio = new Audio(url);
       audioRef.current = audio;
-      audio.play();
       audio.onended = () => { URL.revokeObjectURL(url); setPlayingTTS(false); };
+      audio.play().catch(() => { URL.revokeObjectURL(url); setPlayingTTS(false); });
     } catch {
       setPlayingTTS(false);
     }
@@ -139,18 +139,51 @@ export default function ChatThreadPage() {
 
   const startListening = () => {
     if (!voiceUnlocked) { setShowPin(true); return; }
+    if (streaming) return;
+
+    if (listening) {
+      recognitionRef.current?.stop();
+      return;
+    }
+
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { alert('Speech recognition is not supported in this browser.'); return; }
+
+    stopAudio();
+
     const recognition = new SR();
     recognition.lang = 'en-US';
-    recognition.interimResults = false;
+    recognition.interimResults = true;
+    recognition.continuous = false;
     recognition.maxAlternatives = 1;
+
+    let captured = '';
+
     recognition.onresult = (event) => {
-      const transcript = event.results[0][0].transcript;
-      setInput(prev => prev ? `${prev} ${transcript}` : transcript);
+      let text = '';
+      for (let i = 0; i < event.results.length; i++) {
+        text += event.results[i][0].transcript;
+      }
+      captured = text;
+      setInput(text);
     };
-    recognition.onend = () => setListening(false);
-    recognition.onerror = () => setListening(false);
+
+    recognition.onend = () => {
+      setListening(false);
+      const content = captured.trim();
+      if (content) {
+        setInput('');
+        sendMessage(null, content);
+      }
+    };
+
+    recognition.onerror = (e) => {
+      setListening(false);
+      if (e.error !== 'aborted' && e.error !== 'no-speech') {
+        console.warn('Speech recognition error:', e.error);
+      }
+    };
+
     recognitionRef.current = recognition;
     recognition.start();
     setListening(true);
@@ -158,7 +191,6 @@ export default function ChatThreadPage() {
 
   const stopListening = () => {
     recognitionRef.current?.stop();
-    setListening(false);
   };
 
   const sendMessage = async (e, overrideContent = null) => {
@@ -263,10 +295,9 @@ export default function ChatThreadPage() {
           <button
             type="button"
             className={`mic-btn ${listening ? 'mic-btn--active' : ''}`}
-            onPointerDown={startListening}
-            onPointerUp={stopListening}
-            onPointerLeave={stopListening}
-            title="Hold to speak"
+            onClick={startListening}
+            disabled={streaming}
+            title={listening ? 'Tap to stop' : 'Tap to speak'}
           >
             🎤
           </button>
@@ -275,7 +306,7 @@ export default function ChatThreadPage() {
             className="chat-input"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder={listening ? 'Listening…' : 'Ask Rappel anything…'}
+            placeholder={listening ? 'Listening… speak now' : 'Ask Rappel anything…'}
             disabled={streaming}
             autoFocus
           />
