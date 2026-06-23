@@ -85,9 +85,15 @@ export default function StreakChallengePage() {
   if (phase === 'error') return (
     <div className="page game-page">
       <div className="empty" style={{ marginTop: '3rem' }}>
-        <p>Not enough MCQ questions yet for this unit.</p>
-        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem' }}>Generate at least one quiz first.</p>
-        <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Back</Link>
+        <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🔥</p>
+        <p><strong>No questions yet</strong></p>
+        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 280, margin: '.5rem auto 0' }}>
+          Streak Challenge needs at least one completed MCQ quiz. Generate a quiz with "Multiple choice" enabled first.
+        </p>
+        <div style={{ display: 'flex', gap: '.5rem', justifyContent: 'center', marginTop: '1rem', flexWrap: 'wrap' }}>
+          <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm">← Back</Link>
+          {unitId && <Link to={`/units/${unitId}`} className="btn btn-primary btn-sm">Go generate a quiz →</Link>}
+        </div>
       </div>
     </div>
   );

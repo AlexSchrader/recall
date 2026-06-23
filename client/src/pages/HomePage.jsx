@@ -274,6 +274,10 @@ export default function HomePage() {
           <div style={{ display: 'flex', gap: '.75rem', flexWrap: 'wrap' }}>
             <Link to="/games/speed-round" className="btn btn-ghost">🏃 Speed Round</Link>
             <Link to="/games/streak" className="btn btn-ghost">🔥 Streak Challenge</Link>
+            <button
+              className="btn btn-primary"
+              onClick={() => navigate(Math.random() < 0.5 ? '/games/speed-round' : '/games/streak')}
+            >🎲 Surprise me</button>
           </div>
         </>
       )}
