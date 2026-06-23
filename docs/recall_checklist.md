@@ -107,9 +107,9 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [x] HomePage **Quick Study** section — appears once user has ≥1 completed quiz; two buttons (🏃 Speed Round, 🔥 Streak Challenge) drawing from all courses combined — DONE 2026-06-21 (CC)
 - [x] Match It — up to 8 pairs per round from any deck with ≥4 cards, two-column shuffled layout (terms left, definitions right), tap-to-select with green-lock / red-shake feedback, live timer + mistake counter HUD, entry from DeckPage as "Match It 🃏" card — DONE 2026-06-22 (CC)
 - [x] Mini-games feed topic mastery — `POST /api/games/results` groups answers by topic+course, computes a quality score, upserts `topic_mastery` via the same SM-2 engine. Both Speed Round and Streak Challenge submit on game-over — DONE 2026-06-22, commit `7fc570f` (CC)
-- [ ] **Known limitation:** mini-games draw from completed MCQ questions only — units without MCQ history hit a "not enough questions" error. Either (a) show a clearer empty state with "Generate a quiz with MCQ enabled first," or (b) fall back to true/false if MCQ pool is empty, or (c) nudge MCQ as the default in quiz generation. Pick one before more games ship. (Alex/CC)
+- [x] **Mini-game empty state:** both Speed Round and Streak Challenge show emoji + bold heading + clear "MCQ first" instruction + "Go generate a quiz →" CTA when unitId is set — DONE 2026-06-23, commit `0c443fc` (CC)
 - [ ] Streak Challenge can repeat a question within a single long streak (refetches re-randomize, no dedupe). Acceptable for now; revisit if a user reports it. Fix would be a seen-this-session set on the client. (CC)
-- [ ] HomePage "Quick Study" shuffle button that randomly picks a mini-game now that 3+ exist (was deferred awaiting this milestone). (CC)
+- [x] HomePage "Quick Study" shuffle button — "🎲 Surprise me" randomly navigates to Speed Round or Streak Challenge — DONE 2026-06-23, commit `0c443fc` (CC)
 
 ## Phase 5 — Rappel hardening
 
