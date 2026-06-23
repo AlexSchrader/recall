@@ -59,7 +59,7 @@ export async function generateStudyGuide({ userId, unitId }) {
   const unit = getUnitById(unitId);
   if (!unit) throw new Error('Unit not found.');
 
-  const { generationModel, dailyCap, sourceTokenBudget } = getGenerationConfig(user.tier);
+  const { model: generationModel, dailyCap, sourceTokenBudget } = getGenerationConfig(user.tier);
 
   const today = todayUtc();
   const total = countTodayByUser(userId)
