@@ -100,11 +100,12 @@ export default function MatchItPage() {
   if (phase === 'error') return (
     <div className="page game-page">
       <div className="empty" style={{ marginTop: '3rem' }}>
-        <p>Need at least 4 cards to play Match It.</p>
-        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem' }}>
-          Generate a flashcard deck from your documents first.
+        <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🃏</p>
+        <p><strong>Not enough cards</strong></p>
+        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 280, margin: '.5rem auto 0' }}>
+          Match It needs at least 4 flashcards. Generate a deck from your documents first.
         </p>
-        <Link to={deckId ? `/flashcards/decks/${deckId}` : '/'} className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Back</Link>
+        <Link to={deckId ? `/flashcards/decks/${deckId}` : '/'} className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Back to deck</Link>
       </div>
     </div>
   );
