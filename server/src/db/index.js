@@ -34,5 +34,11 @@ if (!userCols.includes('best_streak')) {
   db.exec('ALTER TABLE users ADD COLUMN best_streak INTEGER NOT NULL DEFAULT 0');
 }
 
+// Migration: store screenshot base64 in feedback table
+const feedbackCols = db.prepare('PRAGMA table_info(feedback)').all().map(c => c.name);
+if (!feedbackCols.includes('screenshot')) {
+  db.exec('ALTER TABLE feedback ADD COLUMN screenshot TEXT');
+}
+
 export { DB_PATH };
 export default db;

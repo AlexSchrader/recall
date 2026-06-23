@@ -37,7 +37,7 @@ export default function QuizResultPage() {
       const { quizId: newId } = await api.post('/quizzes/generate', {
         courseId:      cfg.courseId,
         unitIds:       cfg.unitIds,
-        title:         quiz.title,
+        title:         quiz.title.replace(/ \(retake\)$/, '') + ' (retake)',
         questionCount: cfg.questionCount ?? 10,
         reviewMix:     cfg.reviewMix ?? 0,
         types:         cfg.types ?? ['mcq'],

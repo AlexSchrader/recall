@@ -21,12 +21,14 @@ router.post('/admin/unlock', requireAuth, requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
-// Cost per million tokens (input / output) — update if Anthropic changes pricing
+// Cost per million tokens (input / output) — update if pricing changes
+// ElevenLabs: $0.50 / 1k chars → $500 / 1M chars, stored as output_tokens
 const PRICING = {
   'claude-haiku-4-5':          { in: 0.80,  out: 4.00 },
   'claude-haiku-4-5-20251001': { in: 0.80,  out: 4.00 },
   'claude-sonnet-4-6':         { in: 3.00,  out: 15.00 },
   'claude-opus-4-8':           { in: 15.00, out: 75.00 },
+  'eleven_turbo_v2_5':         { in: 0,     out: 500.00 },
 };
 
 function estimateCost(model, inputTokens, outputTokens) {

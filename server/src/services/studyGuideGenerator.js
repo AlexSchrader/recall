@@ -91,7 +91,7 @@ export async function generateStudyGuide({ userId, unitId }) {
   const now = new Date().toISOString();
   upsertGuide.run(uuidv4(), userId, unitId, content, generationModel, now);
 
-  return { content, model: generationModel, createdAt: now };
+  return { content, model: generationModel, created_at: now };
 }
 
 export function getStudyGuide(userId, unitId) {

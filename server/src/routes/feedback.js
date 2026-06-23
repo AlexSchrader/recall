@@ -34,6 +34,7 @@ router.post('/feedback', requireAuth, async (req, res) => {
     type,
     message: message.trim(),
     has_screenshot: screenshotBase64 ? 1 : 0,
+    screenshot: screenshotBase64 ?? null,
     created_at: now,
   });
 

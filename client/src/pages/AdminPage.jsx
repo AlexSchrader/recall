@@ -7,6 +7,7 @@ const FEATURE_LABELS = {
   study_guide_gen: 'Study guide gen',
   grading:         'Grading',
   chat:            'Rappel chat',
+  tts:             'Voice (chars)',
 };
 
 function fmt$( n ) { return n < 0.01 ? '<$0.01' : `$${n.toFixed(4)}`; }
@@ -180,6 +181,13 @@ export default function AdminPage() {
                   <a href={url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">Open as GitHub issue →</a>
                 </div>
                 <p style={{ fontSize: '.9rem', whiteSpace: 'pre-wrap' }}>{f.message}</p>
+                {f.screenshot && (
+                  <img
+                    src={`data:image/jpeg;base64,${f.screenshot}`}
+                    alt="screenshot"
+                    style={{ maxWidth: '100%', marginTop: '.75rem', borderRadius: 'var(--radius)', border: '1px solid var(--border)' }}
+                  />
+                )}
               </div>
             );
           })}
