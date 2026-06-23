@@ -174,7 +174,13 @@ export default function UnitPage() {
       {/* Generate quiz */}
       <p className="section-title">Generate quiz</p>
       {parsedDocs.length === 0
-        ? <p className="empty" style={{ marginBottom: 0 }}>Upload and parse at least one document to generate a quiz.</p>
+        ? (
+          <p className="empty" style={{ marginBottom: 0 }}>
+            {docs.length === 0
+              ? 'Upload at least one document to generate a quiz.'
+              : 'No documents parsed successfully. Try re-uploading or use a different format (PDF, DOCX, TXT, MD, or image).'}
+          </p>
+        )
         : (
           <form onSubmit={generateQuiz} className="card">
             <div className="form-group">
