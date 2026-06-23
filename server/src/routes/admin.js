@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { getUsageSummary, getMonthlyByUser } from '../db/usageLogDb.js';
+import { listFeedback } from '../db/feedbackDb.js';
 import db from '../db/index.js';
 
 const router = Router();
@@ -48,6 +49,11 @@ router.get('/admin/usage', requireAuth, requireAdmin, (req, res) => {
     monthly: monthlyWithCost,
     detail,
   });
+});
+
+// GET /api/admin/feedback
+router.get('/admin/feedback', requireAuth, requireAdmin, (req, res) => {
+  res.json(listFeedback());
 });
 
 export default router;
