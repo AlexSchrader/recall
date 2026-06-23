@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [month, setMonth]   = useState(new Date().toISOString().slice(0, 7));
   const [view, setView]     = useState('monthly'); // 'monthly' | 'detail' | 'users' | 'feedback'
   const [feedback, setFeedback] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // user id pending delete
 
   useEffect(() => {
     setError('');
@@ -145,7 +146,7 @@ export default function AdminPage() {
         <div className="admin-table-wrap">
           <table className="admin-table">
             <thead>
-              <tr><th>Display name</th><th>Tier</th><th>Joined</th></tr>
+              <tr><th>Display name</th><th>Tier</th><th>Joined</th><th></th></tr>
             </thead>
             <tbody>
               {data.allUsers.map(u => (
@@ -153,6 +154,21 @@ export default function AdminPage() {
                   <td>{u.display_name}</td>
                   <td><span className={`badge badge-${u.tier}`}>{u.tier}</span></td>
                   <td style={{ color: 'var(--muted)', fontSize: '.85rem' }}>{u.created_at?.slice(0, 10)}</td>
+                  <td>
+                    {confirmDelete === u.id ? (
+                      <span style={{ fontSize: '.8rem' }}>
+                        Sure?{' '}
+                        <button className="btn btn-danger btn-sm" onClick={async () => {
+                          await api.delete(`/admin/users/${u.id}`);
+                          setData(d => ({ ...d, allUsers: d.allUsers.filter(x => x.id !== u.id) }));
+                          setConfirmDelete(null);
+                        }}>Yes, delete</button>{' '}
+                        <button className="btn btn-sm" onClick={() => setConfirmDelete(null)}>Cancel</button>
+                      </span>
+                    ) : (
+                      <button className="btn btn-sm" style={{ color: 'var(--danger)', borderColor: 'var(--danger)', border: '1px solid' }} onClick={() => setConfirmDelete(u.id)}>Delete</button>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>

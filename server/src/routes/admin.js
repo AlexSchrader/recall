@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { requireAuth, requireAdmin } from '../middleware/auth.js';
 import { getUsageSummary, getMonthlyByUser } from '../db/usageLogDb.js';
 import { listFeedback } from '../db/feedbackDb.js';
+import { deleteUser } from '../db/usersDb.js';
 import db from '../db/index.js';
 
 const router = Router();
@@ -54,6 +55,16 @@ router.get('/admin/usage', requireAuth, requireAdmin, (req, res) => {
 // GET /api/admin/feedback
 router.get('/admin/feedback', requireAuth, requireAdmin, (req, res) => {
   res.json(listFeedback());
+});
+
+// DELETE /api/admin/users/:id
+router.delete('/admin/users/:id', requireAuth, requireAdmin, (req, res) => {
+  const { id } = req.params;
+  if (id === req.session.userId) return res.status(400).json({ error: 'Cannot delete your own account.' });
+  // Kill any active sessions for this user
+  db.prepare(`DELETE FROM sessions WHERE sess LIKE ?`).run(`%${id}%`);
+  deleteUser(id);
+  res.json({ ok: true });
 });
 
 export default router;
