@@ -30,7 +30,7 @@ export default function SettingsPage() {
   }, []);
 
   // ── Study preferences ──
-  const [prefs, setPrefs] = useState({ questionCount: 10, difficulty: 'mixed', types: ['mcq'] });
+  const [prefs, setPrefs] = useState({ questionCount: 10, difficulty: 'mixed', types: ['mcq'], reviewMix: 0.2 });
   const [prefsSaved, setPrefsSaved] = useState(false);
   useEffect(() => {
     api.get('/preferences').then(p => {
@@ -51,6 +51,26 @@ export default function SettingsPage() {
     await api.put('/preferences', prefs);
     setPrefsSaved(true);
     setTimeout(() => setPrefsSaved(false), 2000);
+  };
+
+  // ── Voice preview ──
+  const [previewingVoice, setPreviewingVoice] = useState(null);
+  const previewAudioRef = useRef(null);
+
+  const playVoicePreview = async (voiceValue) => {
+    previewAudioRef.current?.pause();
+    if (previewingVoice === voiceValue) { setPreviewingVoice(null); return; }
+    setPreviewingVoice(voiceValue);
+    try {
+      const res = await fetch(`/api/voice/preview?voice=${voiceValue}`, { credentials: 'include' });
+      if (!res.ok) { setPreviewingVoice(null); return; }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const audio = new Audio(url);
+      previewAudioRef.current = audio;
+      audio.play().catch(() => {});
+      audio.onended = () => { setPreviewingVoice(null); URL.revokeObjectURL(url); };
+    } catch { setPreviewingVoice(null); }
   };
 
   // ── Appearance ──
@@ -341,6 +361,19 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
+        <div className="form-group" style={{ marginTop: '.75rem' }}>
+          <label>Default review mix — {Math.round((prefs.reviewMix ?? 0.2) * 100)}% of questions target your weak topics</label>
+          <input
+            type="range"
+            min="0" max="0.5" step="0.1"
+            value={prefs.reviewMix ?? 0.2}
+            onChange={e => setPrefs(p => ({ ...p, reviewMix: Number(e.target.value) }))}
+            style={{ width: '100%', maxWidth: 300 }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', color: 'var(--muted)', maxWidth: 300 }}>
+            <span>All new</span><span>50% review</span>
+          </div>
+        </div>
         <button className="btn btn-primary btn-sm" style={{ marginTop: '.5rem' }} onClick={savePrefs}>
           {prefsSaved ? 'Saved!' : 'Save preferences'}
         </button>
@@ -406,7 +439,7 @@ export default function SettingsPage() {
           <p style={{ fontSize: '.8rem', color: 'var(--muted)', margin: '.25rem 0 .6rem' }}>
             Choose whose voice you hear when Rappel speaks.
           </p>
-          <div style={{ display: 'flex', gap: '.5rem' }}>
+          <div style={{ display: 'flex', gap: '.5rem', flexWrap: 'wrap' }}>
             {[{ value: 'mathieu', label: 'Mathieu' }, { value: 'juliette', label: 'Juliette' }].map(v => (
               <button
                 key={v.value}
@@ -416,9 +449,15 @@ export default function SettingsPage() {
                   const next = { ...prefs, rappelVoice: v.value };
                   setPrefs(next);
                   api.put('/preferences', next).catch(() => {});
+                  playVoicePreview(v.value);
                 }}
-              >{v.label}</button>
+              >
+                {previewingVoice === v.value ? '🔊 ' : ''}{v.label}
+              </button>
             ))}
+            <span style={{ fontSize: '.75rem', color: 'var(--muted)', alignSelf: 'center' }}>
+              {previewingVoice ? 'Playing preview…' : 'Click to hear a preview'}
+            </span>
           </div>
         </div>
 

@@ -38,6 +38,7 @@ export default function UnitPage() {
       if (p?.questionCount) setQuestionCount(p.questionCount);
       if (p?.difficulty) setDifficulty(p.difficulty);
       if (p?.types?.length) setTypes(p.types);
+      if (p?.reviewMix !== undefined) setReviewMix(p.reviewMix);
     }).catch(() => {});
 
     api.get(`/units/${unitId}`)
