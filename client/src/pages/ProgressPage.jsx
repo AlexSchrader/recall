@@ -43,11 +43,13 @@ export default function ProgressPage() {
     } catch (e) { console.error(e); }
   };
 
-  const [unitMap, setUnitMap]       = useState({});   // courseId → units[]
-  const [focusPick, setFocusPick]   = useState(null);  // courseId being picked
-  const [focusBusy, setFocusBusy]   = useState(false);
+  const [unitMap, setUnitMap]       = useState({});
+  const [focusPick, setFocusPick]   = useState(null);
+  const [focusBusy, setFocusBusy]   = useState(null); // null | unitId
+  const [focusErr, setFocusErr]     = useState('');
 
   const openFocusPicker = async (courseId) => {
+    setFocusErr('');
     if (!unitMap[courseId]) {
       try {
         const units = await api.get(`/courses/${courseId}/units`);
@@ -58,7 +60,8 @@ export default function ProgressPage() {
   };
 
   const fireFocusQuiz = async (courseId, unitId, unitName) => {
-    setFocusBusy(true);
+    setFocusBusy(unitId);
+    setFocusErr('');
     try {
       const result = await api.post('/quizzes/generate', {
         courseId,
@@ -71,8 +74,8 @@ export default function ProgressPage() {
       });
       navigate(`/quizzes/${result.quizId}`);
     } catch (e) {
-      alert(e.message);
-      setFocusBusy(false);
+      setFocusErr(e.message);
+      setFocusBusy(null);
     }
   };
 
@@ -173,7 +176,7 @@ export default function ProgressPage() {
                 <button
                   className="btn btn-primary btn-sm"
                   onClick={() => openFocusPicker(course.id)}
-                  disabled={focusBusy}
+                  disabled={focusBusy !== null}
                 >
                   Focus Quiz ▾
                 </button>
@@ -189,16 +192,17 @@ export default function ProgressPage() {
                     <button
                       key={u.id}
                       className="btn btn-ghost btn-sm"
-                      disabled={focusBusy}
+                      disabled={focusBusy !== null}
                       onClick={() => fireFocusQuiz(course.id, u.id, u.name)}
                     >
-                      {focusBusy ? 'Generating…' : u.name}
+                      {focusBusy === u.id ? 'Generating…' : u.name}
                     </button>
                   ))}
                   {(unitMap[course.id] ?? []).length === 0 && (
                     <span style={{ fontSize: '.85rem', color: 'var(--muted)' }}>No units found.</span>
                   )}
                 </div>
+                {focusErr && <p className="error-msg" style={{ marginTop: '.5rem', fontSize: '.85rem' }}>{focusErr}</p>}
               </div>
             )}
             <div className="mastery-list">
