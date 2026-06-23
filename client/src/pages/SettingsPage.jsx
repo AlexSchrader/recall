@@ -427,7 +427,7 @@ export default function SettingsPage() {
               onChange={() => {
                 const next = !prefs.voiceAutoPlay;
                 setPrefs(p => ({ ...p, voiceAutoPlay: next }));
-                api.put('/preferences', { ...prefs, voiceAutoPlay: next }).catch(() => {});
+                api.put('/preferences', { voiceAutoPlay: next }).catch(() => {});
               }}
             />
             <span className="toggle-slider" />
@@ -446,9 +446,8 @@ export default function SettingsPage() {
                 type="button"
                 className={`btn btn-sm ${(prefs.rappelVoice ?? 'mathieu') === v.value ? 'btn-primary' : 'btn-ghost'}`}
                 onClick={() => {
-                  const next = { ...prefs, rappelVoice: v.value };
-                  setPrefs(next);
-                  api.put('/preferences', next).catch(() => {});
+                  setPrefs(p => ({ ...p, rappelVoice: v.value }));
+                  api.put('/preferences', { rappelVoice: v.value }).catch(() => {});
                   playVoicePreview(v.value);
                 }}
               >
