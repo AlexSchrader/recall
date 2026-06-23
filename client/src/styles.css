@@ -278,6 +278,10 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
 .recovery-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .9rem; color: #92400e; }
 [data-theme="dark"] .recovery-banner { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
 
+/* ── Warning-band nudge (60–80%) ── */
+.warning-nudge { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .9rem; color: #1e40af; }
+[data-theme="dark"] .warning-nudge { background: rgba(59,130,246,.1); border-color: rgba(59,130,246,.3); color: #93c5fd; }
+
 /* ── Flashcard review ── */
 .fc-progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem; }
 .fc-progress-bar { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s ease; }

@@ -11,6 +11,7 @@ export default function QuizResultPage() {
   const [creatingThread, setCreatingThread] = useState(false);
   const [retaking, setRetaking] = useState(false);
   const [retakeErr, setRetakeErr] = useState('');
+  const [locking, setLocking] = useState(false);
 
   useEffect(() => {
     api.get(`/quizzes/${quizId}`).then(setQuiz).catch(() => navigate('/'));
@@ -47,6 +48,26 @@ export default function QuizResultPage() {
     } catch (err) {
       setRetakeErr(err.message ?? 'Could not generate retake. Try again.');
       setRetaking(false);
+    }
+  };
+
+  const lockIn = async () => {
+    setLocking(true);
+    try {
+      const cfg = JSON.parse(quiz.config_json ?? '{}');
+      const { quizId: newId } = await api.post('/quizzes/generate', {
+        courseId:      cfg.courseId,
+        unitIds:       cfg.unitIds,
+        title:         `Focus: ${missedTopics.slice(0, 2).join(', ') || quiz.title}`,
+        questionCount: 10,
+        reviewMix:     1,
+        types:         cfg.types ?? ['mcq'],
+        difficulty:    cfg.difficulty ?? 'mixed',
+      });
+      navigate(`/quizzes/${newId}`);
+    } catch (err) {
+      setRetakeErr(err.message ?? 'Could not generate focus quiz.');
+      setLocking(false);
     }
   };
 
@@ -99,6 +120,20 @@ export default function QuizResultPage() {
                 <Link to={`/units/${firstUnitId}/flashcards`} className="btn btn-ghost btn-sm">Flashcards</Link>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {pct >= 60 && pct < 80 && missedTopics.length > 0 && (
+        <div className="warning-nudge">
+          <span>
+            Almost there — lock in the {missedTopics.length} topic{missedTopics.length !== 1 ? 's' : ''} you missed:{' '}
+            <strong>{missedTopics.join(', ')}</strong>.
+          </span>
+          <div style={{ display: 'flex', gap: '.5rem', marginTop: '.6rem', flexWrap: 'wrap' }}>
+            <button className="btn btn-primary btn-sm" onClick={lockIn} disabled={locking}>
+              {locking ? 'Generating…' : 'Focus quiz on missed topics →'}
+            </button>
           </div>
         </div>
       )}
