@@ -7,6 +7,20 @@ import db from '../db/index.js';
 
 const router = Router();
 
+function requireAdminPin(req, res, next) {
+  if (!req.session.adminUnlocked) return res.status(403).json({ locked: true });
+  next();
+}
+
+// POST /api/admin/unlock
+router.post('/admin/unlock', requireAuth, requireAdmin, (req, res) => {
+  const { pin } = req.body ?? {};
+  const expected = process.env.VOICE_PIN;
+  if (!expected || pin !== expected) return res.status(403).json({ error: 'Incorrect PIN.' });
+  req.session.adminUnlocked = true;
+  res.json({ ok: true });
+});
+
 // Cost per million tokens (input / output) — update if Anthropic changes pricing
 const PRICING = {
   'claude-haiku-4-5':          { in: 0.80,  out: 4.00 },
@@ -21,7 +35,7 @@ function estimateCost(model, inputTokens, outputTokens) {
 }
 
 // GET /api/admin/usage  — detailed daily breakdown + monthly totals
-router.get('/admin/usage', requireAuth, requireAdmin, (req, res) => {
+router.get('/admin/usage', requireAuth, requireAdmin, requireAdminPin, (req, res) => {
   const month = req.query.month ?? new Date().toISOString().slice(0, 7); // YYYY-MM
 
   const rows     = getUsageSummary();
@@ -53,12 +67,12 @@ router.get('/admin/usage', requireAuth, requireAdmin, (req, res) => {
 });
 
 // GET /api/admin/feedback
-router.get('/admin/feedback', requireAuth, requireAdmin, (req, res) => {
+router.get('/admin/feedback', requireAuth, requireAdmin, requireAdminPin, (req, res) => {
   res.json(listFeedback());
 });
 
 // DELETE /api/admin/users/:id
-router.delete('/admin/users/:id', requireAuth, requireAdmin, (req, res) => {
+router.delete('/admin/users/:id', requireAuth, requireAdmin, requireAdminPin, (req, res) => {
   const { id } = req.params;
   if (id === req.session.userId) return res.status(400).json({ error: 'Cannot delete your own account.' });
   // Kill any active sessions for this user

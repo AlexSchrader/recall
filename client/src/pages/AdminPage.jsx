@@ -19,19 +19,64 @@ export default function AdminPage() {
   const [view, setView]     = useState('monthly'); // 'monthly' | 'detail' | 'users' | 'feedback'
   const [feedback, setFeedback] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(null); // user id pending delete
+  const [locked, setLocked]   = useState(false);
+  const [pin, setPin]         = useState('');
+  const [pinError, setPinError] = useState('');
+  const [unlocking, setUnlocking] = useState(false);
 
   useEffect(() => {
     setError('');
     api.get(`/admin/usage?month=${month}`)
       .then(setData)
-      .catch(e => setError(e.message));
+      .catch(e => {
+        if (e.status === 403 && e.data?.locked) { setLocked(true); return; }
+        setError(e.message);
+      });
   }, [month]);
+
+  const submitPin = async (e) => {
+    e.preventDefault();
+    setUnlocking(true);
+    setPinError('');
+    try {
+      await api.post('/admin/unlock', { pin });
+      setLocked(false);
+      setPin('');
+      // Refetch now that we're unlocked
+      api.get(`/admin/usage?month=${month}`).then(setData).catch(e => setError(e.message));
+    } catch {
+      setPinError('Incorrect PIN.');
+    } finally {
+      setUnlocking(false);
+    }
+  };
 
   useEffect(() => {
     if (view === 'feedback' && !feedback) {
       api.get('/admin/feedback').then(setFeedback).catch(() => setFeedback([]));
     }
   }, [view]);
+
+  if (locked) return (
+    <div className="page" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+      <form onSubmit={submitPin} style={{ width: '100%', maxWidth: 320, textAlign: 'center' }}>
+        <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>🔒</div>
+        <h2 style={{ marginBottom: '1.5rem' }}>Admin PIN</h2>
+        <input
+          type="password"
+          placeholder="Enter PIN"
+          value={pin}
+          onChange={e => setPin(e.target.value)}
+          autoFocus
+          style={{ width: '100%', marginBottom: '.75rem', textAlign: 'center', fontSize: '1.1rem', letterSpacing: '.15em' }}
+        />
+        {pinError && <p className="error-msg" style={{ marginBottom: '.75rem' }}>{pinError}</p>}
+        <button className="btn btn-primary" style={{ width: '100%' }} disabled={unlocking || !pin}>
+          {unlocking ? 'Checking…' : 'Unlock'}
+        </button>
+      </form>
+    </div>
+  );
 
   if (error) return <div className="page" style={{ padding: '2rem' }}><p className="error-msg">{error}</p></div>;
   if (!data)  return <div className="page" style={{ padding: '2rem' }}><p style={{ color: 'var(--muted)' }}>Loading…</p></div>;

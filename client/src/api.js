@@ -11,6 +11,7 @@ async function request(method, path, body) {
     const err = await res.json().catch(() => ({ error: res.statusText }));
     const e = new Error(err.error || res.statusText);
     e.status = res.status;
+    e.data = err;
     // Session expired — notify AuthContext so it redirects to login cleanly.
     // Skip auth paths to allow login/register error messages to surface normally.
     if (res.status === 401 && !path.startsWith('/auth/') && path !== '/me') {
