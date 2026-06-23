@@ -125,10 +125,7 @@ export default function ChatThreadPage() {
     if (voiceEnabled) stopAudio();
     const next = !voiceEnabled;
     setVoiceEnabled(next);
-    // Persist so the preference survives across sessions
-    api.get('/preferences').then(prefs => {
-      api.put('/preferences', { ...prefs, voiceAutoPlay: next }).catch(() => {});
-    }).catch(() => {});
+    api.put('/preferences', { voiceAutoPlay: next }).catch(() => {});
   };
 
   const onPinUnlocked = () => {
