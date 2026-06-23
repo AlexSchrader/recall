@@ -16,7 +16,8 @@ export default function AdminPage() {
   const [data, setData]     = useState(null);
   const [error, setError]   = useState('');
   const [month, setMonth]   = useState(new Date().toISOString().slice(0, 7));
-  const [view, setView]     = useState('monthly'); // 'monthly' | 'detail' | 'users'
+  const [view, setView]     = useState('monthly'); // 'monthly' | 'detail' | 'users' | 'feedback'
+  const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     setError('');
@@ -24,6 +25,12 @@ export default function AdminPage() {
       .then(setData)
       .catch(e => setError(e.message));
   }, [month]);
+
+  useEffect(() => {
+    if (view === 'feedback' && !feedback) {
+      api.get('/admin/feedback').then(setFeedback).catch(() => setFeedback([]));
+    }
+  }, [view]);
 
   if (error) return <div className="page" style={{ padding: '2rem' }}><p className="error-msg">{error}</p></div>;
   if (!data)  return <div className="page" style={{ padding: '2rem' }}><p style={{ color: 'var(--muted)' }}>Loading…</p></div>;
@@ -49,7 +56,7 @@ export default function AdminPage() {
 
       {/* Tab strip */}
       <div className="admin-tabs">
-        {[['monthly', 'Monthly by user'], ['detail', 'Daily detail'], ['users', 'All users']].map(([k, l]) => (
+        {[['monthly', 'Monthly by user'], ['detail', 'Daily detail'], ['users', 'All users'], ['feedback', 'Feedback']].map(([k, l]) => (
           <button key={k} className={`admin-tab ${view === k ? 'active' : ''}`} onClick={() => setView(k)}>{l}</button>
         ))}
       </div>
@@ -104,6 +111,32 @@ export default function AdminPage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Feedback */}
+      {view === 'feedback' && (
+        <div>
+          {!feedback && <p style={{ color: 'var(--muted)', padding: '1.5rem 0' }}>Loading…</p>}
+          {feedback?.length === 0 && <p style={{ color: 'var(--muted)', padding: '1.5rem 0' }}>No feedback submitted yet.</p>}
+          {feedback?.map(f => {
+            const label = f.type === 'bug' ? 'bug' : f.type === 'feature' ? 'enhancement' : 'feedback';
+            const title = encodeURIComponent(`[${f.type}] from ${f.display_name}`);
+            const body  = encodeURIComponent(`**From:** ${f.display_name}\n**Date:** ${f.created_at?.slice(0, 10)}\n\n---\n\n${f.message}`);
+            const url   = `https://github.com/AlexSchrader/recall/issues/new?title=${title}&body=${body}&labels=${label}`;
+            return (
+              <div key={f.id} className="card" style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', marginBottom: '.5rem' }}>
+                  <div>
+                    <span className={`badge badge-${f.type === 'bug' ? 'bad' : f.type === 'feature' ? 'ok' : 'partial'}`} style={{ marginRight: '.5rem' }}>{f.type}</span>
+                    <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>{f.display_name} · {f.created_at?.slice(0, 10)}</span>
+                  </div>
+                  <a href={url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">Open as GitHub issue →</a>
+                </div>
+                <p style={{ fontSize: '.9rem', whiteSpace: 'pre-wrap' }}>{f.message}</p>
+              </div>
+            );
+          })}
         </div>
       )}
 
