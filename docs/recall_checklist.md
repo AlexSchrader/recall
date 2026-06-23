@@ -25,10 +25,10 @@ When a task finishes, you must:
 
 ## Status at a glance
 
-- **Current phase:** Phase 5 — Rappel hardening + Phase 4.5/4.6 polish
-- **In flight:** Nothing open right now (between tasks)
-- **⚡️ Single next action:** Use the app for a few days and return with friction. Queued: 60–80% warning-band nudge (Phase 5), ElevenLabs usage logging (Phase 6), retake title disambiguation (Phase 4.5).
-- **Last updated:** 2026-06-22 (Phase 5 complete — voice auto-play confirmed wired)
+- **Current phase:** Phase 6 — Cost observability + ongoing hardening
+- **In flight:** Nothing open (overnight session complete)
+- **⚡️ Single next action:** Alex to answer morning questions (see bottom), then use the app and report friction. Remaining coded work: 60–80% warning nudge, iOS autoplay watch, persona tuning.
+- **Last updated:** 2026-06-23 (overnight session — dark mode inputs, screenshot storage, retake titles, admin PIN, feedback pipeline, voice preview, review mix slider)
 
 ---
 
@@ -96,7 +96,7 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Focus Quiz picker on ProgressPage — courses with any topic below 70% mastery get a "Focus Quiz ▾" button that expands inline to pick a unit; fires a 10-question quiz with 100% review mix from that unit's weakest topics — DONE 2026-06-21 (CC)
 - [x] Quiz results "Retake" button — re-generates with the exact same config (unit, count, difficulty, types), counts against the daily cap, inline error if cap is hit; results page now `[↺ Retake] [Back to unit] [Home]` — DONE 2026-06-21 (CC)
 - [x] Dynamic `--nav-h` CSS variable — `ResizeObserver` on `<nav>` writes the actual nav height to `:root` so the chat area starts exactly below it (fixes mobile two-row nav overlap from old hardcoded `57px`) — DONE 2026-06-21 (CC)
-- [ ] Retake title disambiguation — multiple retakes currently pile up with identical titles in Recent Quizzes. Decide between (a) auto-suffix " (retake)" / " (retake 2)" etc., (b) show attempt number as a small badge, or (c) leave as-is and rely on timestamps. Watch for actual confusion first. (Alex/CC)
+- [x] Retake title disambiguation — retake button strips any existing " (retake)" suffix then appends it, so repeated retakes stay clean instead of stacking — DONE 2026-06-23, commit `576f70a` (CC)
 
 ## Phase 4.6 — Mini-games *(complete)*
 
@@ -126,6 +126,11 @@ R1–R5 are merged; this phase covers iteration based on real use.
 - [ ] Voice quality review — pick model (`eleven_turbo_v2_5` vs flash) and stability/similarity settings after listening to real replies (Alex)
 - [ ] iOS autoplay watch — current fix relies on the user's tap on Send/mic satisfying the user-gesture requirement. If a friend on iOS reports silent Rappel responses, audit whether the first audio plays without an explicit "tap to play" fallback. Note for later, not a fix-now. (CC)
 - [x] Voice auto-play toggle: Settings → Studying section writes `voiceAutoPlay` to `/preferences` on change; ChatThreadPage reads it on mount and sets `voiceEnabled`; `playTTS` gates on `voiceEnabled`; per-session 🔊 button overrides without touching saved pref — DONE (confirmed 2026-06-22 audit, shipped pre-tracker) (CC)
+- [x] Voice preview in Settings — clicking Mathieu or Juliette plays the intro clip via `GET /api/voice/preview`; 🔊 indicator + "Playing preview…" hint while audio plays; stops if you click the other voice — DONE 2026-06-23 (CC)
+- [x] Review mix slider in Settings → Studying preferences — 0–50% range, saves to `/preferences`, UnitPage reads it on mount so the quiz form defaults to the saved value — DONE 2026-06-23 (CC)
+- [x] Dark mode input text fix — `color: var(--text)` added to `.form-group` inputs/textareas, `.chat-input`, `.edit-inline-input`, `.pin-input`; was rendering black text on dark surface — DONE 2026-06-23, commit `576f70a` (CC)
+- [x] Screenshot storage in feedback — `screenshot TEXT` column added to feedback table via migration; route now persists base64; admin Feedback tab renders the image inline — DONE 2026-06-23, commit `576f70a` (CC)
+- [x] Feedback → email → GitHub pipeline — in-app feedback hits Resend (`RESEND_API_KEY` in Railway), lands in `recallstudyapp.support@gmail.com`; Google Apps Script polls every 5min and opens GitHub issues with `bug`/`enhancement`/`feedback` label; script lives in the support Google account — DONE 2026-06-23 (Alex/CC)
 
 ## Phase 6 — Cost guardrails & observability
 
@@ -134,8 +139,11 @@ You're paying for every Claude + ElevenLabs call. Need to see the spend before i
 - [x] Token usage logging — every Claude API call (quiz gen, grading, flashcards, study guides, chat) logs to `usage_log` table with user, feature, model, input/output tokens — DONE 2026-06-21 (CC)
 - [x] Daily cap audit — single shared bucket confirmed for quiz gen + flashcard gen + study guide gen (chat intentionally excluded — no cap on asking Rappel questions) — DONE 2026-06-21 (CC)
 - [x] Owner-only `/admin/usage` page — three tabs (Monthly by user, Daily detail, All users), month picker, estimated $ from Claude pricing table (Haiku $0.80/$4, Sonnet $3/$15, Opus $15/$75 per M tokens in/out). Protected by `ADMIN_USER_IDS` env var (returns 403 to non-admins) — DONE 2026-06-21 (CC)
+- [x] Admin PIN gate — `/admin` shows a lock screen on every new session; enter `VOICE_PIN` to unlock; all admin data routes require `req.session.adminUnlocked`; non-admins still can't get past `requireAdmin` regardless — DONE 2026-06-23 (CC)
+- [x] Admin Feedback tab — lists all in-app feedback submissions with type badge, submitter, date, message, and inline screenshot (base64); each item has "Open as GitHub issue →" link pre-filled with title + body + label — DONE 2026-06-23 (CC)
+- [x] Admin delete user — Users tab has per-row Delete button with inline confirm; `DELETE /api/admin/users/:id` kills active sessions then cascades-deletes all user data; self-delete blocked server-side — DONE 2026-06-23 (CC)
 - [ ] **Setup task:** add your user ID to Railway env var `ADMIN_USER_IDS` (one-time: `SELECT id FROM users WHERE display_name = 'YourName'`, paste the id into Railway) (Alex)
-- [ ] ElevenLabs character usage logged alongside Claude tokens (extend `usage_log` or parallel table) — admin page can then show voice spend too (CC)
+- [x] ElevenLabs character usage logged — TTS calls log to `usage_log` with `feature='tts'`, `model='eleven_turbo_v2_5'`, `output_tokens=char_count`; admin pricing table includes ElevenLabs at $500/1M chars; admin feature label shows 'Voice (chars)' — DONE 2026-06-23, commit `576f70a` (CC)
 - [ ] Anthropic billing alert configured outside the app (verify) (Alex)
 - [ ] ElevenLabs character-quota alert configured (verify) (Alex)
 
