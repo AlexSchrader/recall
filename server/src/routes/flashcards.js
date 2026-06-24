@@ -36,6 +36,22 @@ router.post('/units/:unitId/flashcards/generate', requireAuth, async (req, res) 
   }
 });
 
+// Regenerate a deck: build a fresh deck from the same unit (enforces the daily
+// cap via generateDeck), then delete the old one. New deck first, so a failure
+// leaves the original intact.
+router.post('/flashcards/decks/:deckId/regenerate', requireAuth, async (req, res) => {
+  const deck = getDeck(req.params.deckId, req.session.userId);
+  if (!deck) return res.status(404).json({ error: 'Deck not found.' });
+  const count = getCardCounts(deck.id).total || 20;
+  try {
+    const result = await generateDeck({ userId: req.session.userId, unitId: deck.unit_id, count });
+    deleteDeck(deck.id, req.session.userId);
+    res.status(201).json(result);
+  } catch (err) {
+    res.status(err.status ?? 500).json({ error: err.message });
+  }
+});
+
 // ── Decks ─────────────────────────────────────────────────────────────────────
 
 router.get('/units/:unitId/flashcards/decks', requireAuth, (req, res) => {
