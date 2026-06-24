@@ -4,7 +4,7 @@ import { listDueForReview } from '../db/topicMasteryDb.js';
 import { createQuiz } from '../db/quizzesDb.js';
 import { bulkCreateQuestions } from '../db/questionsDb.js';
 
-const VALID_TYPES = new Set(['mcq', 'multi', 'short', 'true_false']);
+const VALID_TYPES = new Set(['mcq', 'multi', 'short', 'true_false', 'cloze']);
 const VALID_DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 
 export class GenerationError extends Error {
@@ -24,11 +24,11 @@ Output ONLY the JSON array — no prose, no markdown fences, no other text.
 
 Each element must conform to this schema:
 {
-  "type": "mcq" | "multi" | "short" | "true_false",
+  "type": "mcq" | "multi" | "short" | "true_false" | "cloze",
   "topic": "<concise label, 3–6 words>",
   "prompt": "<the question text>",
   "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
-  "correct_answer": "<A|B|C|D for mcq | comma-separated letters like \"A,C\" for multi | True|False for true_false | brief phrase for short>",
+  "correct_answer": "<A|B|C|D for mcq | comma-separated letters like \"A,C\" for multi | True|False for true_false | the missing word or short phrase for cloze | brief phrase for short>",
   "rubric": "<grading guidance, 1–2 sentences>",
   "explanation": "<why the answer is correct, 1–2 sentences>",
   "source_ref": "<relevant section or heading>",
@@ -38,6 +38,7 @@ Each element must conform to this schema:
 Rules:
 - "options" is required for mcq and multi (exactly 4 items prefixed A) B) C) D)); omit for all other types.
 - "multi" is a "select all that apply" question with TWO OR THREE correct options; set correct_answer to those letters comma-separated (e.g. "A,C"). The prompt should make clear that more than one answer applies. Never make all four options correct.
+- "cloze" is a fill-in-the-blank: the prompt is a sentence with the key term replaced by a blank written as four underscores "____". Put exactly one blank per prompt, and set correct_answer to the single word or short phrase that fills it. Omit options.
 - "rubric" is required for short answer; omit for all other types.
 - "explanation" is required on every question.
 - Base every question strictly on the provided source material; introduce no outside facts.
@@ -98,6 +99,8 @@ export function validateQuestion(q) {
     if (letters.length < 2) return false;
     if (!letters.every(l => ['A', 'B', 'C', 'D'].includes(l))) return false;
   }
+  // cloze prompt must actually contain a blank.
+  if (q.type === 'cloze' && !/_{2,}/.test(q.prompt)) return false;
   return true;
 }
 
