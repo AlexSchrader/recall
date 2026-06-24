@@ -47,8 +47,10 @@ export default function SpeedRoundPage() {
     clearInterval(timerRef.current);
 
     const q = questions[idx];
-    const correct = picked === q.correct_answer;
-    setAnswers(prev => [...prev, { questionId: q.id, prompt: q.prompt, selected: picked, correct_answer: q.correct_answer, correct, topic: q.topic }]);
+    // options are "A) ...", "B) ..." etc.; correct_answer is just the letter.
+    const correct = picked != null && picked[0] === q.correct_answer;
+    const correctOption = (q.options ?? []).find(o => o[0] === q.correct_answer) ?? q.correct_answer;
+    setAnswers(prev => [...prev, { questionId: q.id, prompt: q.prompt, selected: picked, correct_answer: correctOption, correct, topic: q.topic }]);
     setSelected(picked);
 
     setTimeout(() => {
@@ -173,7 +175,7 @@ export default function SpeedRoundPage() {
         {options.map((opt, i) => {
           let cls = 'game-option';
           if (selected !== null) {
-            if (opt === q.correct_answer) cls += ' game-option--correct';
+            if (opt[0] === q.correct_answer) cls += ' game-option--correct';
             else if (opt === selected) cls += ' game-option--wrong';
           }
           return (

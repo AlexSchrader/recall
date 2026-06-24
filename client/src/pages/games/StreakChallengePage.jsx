@@ -47,7 +47,8 @@ export default function StreakChallengePage() {
   const answer = useCallback((opt) => {
     if (transitioning || selected !== null) return;
     const q = questions[idx];
-    const correct = opt === q.correct_answer;
+    // options are "A) ...", "B) ..." etc.; correct_answer is just the letter.
+    const correct = opt[0] === q.correct_answer;
     setSelected(opt);
     setTotal(t => t + 1);
     setGameResults(prev => [...prev, { questionId: q.id, correct }]);
@@ -139,7 +140,7 @@ export default function StreakChallengePage() {
         {options.map((opt, i) => {
           let cls = 'game-option';
           if (selected !== null) {
-            if (opt === q.correct_answer) cls += ' game-option--correct';
+            if (opt[0] === q.correct_answer) cls += ' game-option--correct';
             else if (opt === selected) cls += ' game-option--wrong';
           }
           return (
