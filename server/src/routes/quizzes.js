@@ -11,7 +11,7 @@ import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
 import { getUnitById } from '../db/unitsDb.js';
 import { fetchWikiSummary } from '../services/wikipedia.js';
-import { gradeAuto, gradeShort } from '../services/grader.js';
+import { gradeAuto, gradeShort, gradeMulti } from '../services/grader.js';
 import { sm2Next } from '../services/sm2.js';
 import { requireAuth } from '../middleware/auth.js';
 
@@ -81,12 +81,15 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
   const questions = listQuestionsByQuiz(quiz.id);
   const now = new Date().toISOString();
   const results = [];
+  const userId = req.session.userId;
 
   for (const q of questions) {
     const given = (answers.find(a => a.questionId === q.id)?.answer ?? '').trim();
     const score = q.type === 'short'
       ? await gradeShort(q, given, userId)
-      : gradeAuto(q, given);
+      : q.type === 'multi'
+        ? gradeMulti(q, given)
+        : gradeAuto(q, given);
     results.push({ question: q, given, score });
   }
 

@@ -16,6 +16,31 @@ function McqOptions({ questionId, options, value, onChange }) {
   );
 }
 
+function MultiOptions({ questionId, options, value, onChange }) {
+  const selected = value ? value.split(',') : [];
+  const toggle = (letter) => {
+    const set = new Set(selected);
+    if (set.has(letter)) set.delete(letter); else set.add(letter);
+    onChange([...set].sort().join(','));
+  };
+  return (
+    <div className="option-list">
+      {(options ?? []).map(opt => (
+        <label key={opt}>
+          <input
+            type="checkbox"
+            name={`multi-${questionId}`}
+            value={opt[0]}
+            checked={selected.includes(opt[0])}
+            onChange={() => toggle(opt[0])}
+          />
+          {opt}
+        </label>
+      ))}
+    </div>
+  );
+}
+
 function TrueFalseOptions({ questionId, value, onChange }) {
   return (
     <div className="option-list">
@@ -98,6 +123,12 @@ export default function QuizPage() {
 
             {q.type === 'mcq' && (
               <McqOptions questionId={q.id} options={parsedOptions(q.options_json)} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
+            )}
+            {q.type === 'multi' && (
+              <>
+                <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: '.4rem' }}>Select all that apply</p>
+                <MultiOptions questionId={q.id} options={parsedOptions(q.options_json)} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
+              </>
             )}
             {q.type === 'true_false' && (
               <TrueFalseOptions questionId={q.id} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
