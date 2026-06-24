@@ -6,6 +6,38 @@ export function gradeAuto(question, answer) {
   return correct === given ? 1 : 0;
 }
 
+// Parse a comma-separated letter answer ("A,C") into a normalised Set {A,C}.
+function parseLetters(str) {
+  return new Set(
+    (str ?? '')
+      .split(',')
+      .map(s => s.trim().toUpperCase())
+      .filter(Boolean)
+  );
+}
+
+// Multiple-answer ("select all that apply") grading with partial credit.
+// correct_answer and the student answer are both comma-separated letters.
+// Score = (correct picks − wrong picks) / total correct, clamped to [0,1],
+// then bucketed to 1 / 0.5 / 0 to match the rest of the grading pipeline.
+// Selecting everything nets zero (wrong picks cancel the right ones), so it
+// can't be gamed.
+export function gradeMulti(question, answer) {
+  const correctSet = parseLetters(question.correct_answer);
+  const givenSet = parseLetters(answer);
+  if (correctSet.size === 0 || givenSet.size === 0) return 0;
+
+  let right = 0, wrong = 0;
+  for (const letter of givenSet) {
+    if (correctSet.has(letter)) right += 1;
+    else wrong += 1;
+  }
+
+  const fraction = Math.max(0, (right - wrong) / correctSet.size);
+  if (fraction >= 1) return 1;
+  return fraction > 0 ? 0.5 : 0;
+}
+
 export async function gradeShort(question, answer, userId = null) {
   if (!answer?.trim()) return 0;
 

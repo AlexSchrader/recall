@@ -4,7 +4,7 @@ import { listDueForReview } from '../db/topicMasteryDb.js';
 import { createQuiz } from '../db/quizzesDb.js';
 import { bulkCreateQuestions } from '../db/questionsDb.js';
 
-const VALID_TYPES = new Set(['mcq', 'short', 'true_false']);
+const VALID_TYPES = new Set(['mcq', 'multi', 'short', 'true_false']);
 const VALID_DIFFICULTIES = new Set(['easy', 'medium', 'hard']);
 
 export class GenerationError extends Error {
@@ -24,11 +24,11 @@ Output ONLY the JSON array — no prose, no markdown fences, no other text.
 
 Each element must conform to this schema:
 {
-  "type": "mcq" | "short" | "true_false",
+  "type": "mcq" | "multi" | "short" | "true_false",
   "topic": "<concise label, 3–6 words>",
   "prompt": "<the question text>",
   "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
-  "correct_answer": "<A|B|C|D for mcq | True|False for true_false | brief phrase for short>",
+  "correct_answer": "<A|B|C|D for mcq | comma-separated letters like \"A,C\" for multi | True|False for true_false | brief phrase for short>",
   "rubric": "<grading guidance, 1–2 sentences>",
   "explanation": "<why the answer is correct, 1–2 sentences>",
   "source_ref": "<relevant section or heading>",
@@ -36,7 +36,8 @@ Each element must conform to this schema:
 }
 
 Rules:
-- "options" is required for mcq (exactly 4 items prefixed A) B) C) D)); omit for all other types.
+- "options" is required for mcq and multi (exactly 4 items prefixed A) B) C) D)); omit for all other types.
+- "multi" is a "select all that apply" question with TWO OR THREE correct options; set correct_answer to those letters comma-separated (e.g. "A,C"). The prompt should make clear that more than one answer applies. Never make all four options correct.
 - "rubric" is required for short answer; omit for all other types.
 - "explanation" is required on every question.
 - Base every question strictly on the provided source material; introduce no outside facts.
@@ -88,7 +89,15 @@ export function validateQuestion(q) {
   if (!q.topic?.trim() || !q.prompt?.trim()) return false;
   if (!q.correct_answer?.trim() || !q.explanation?.trim()) return false;
   if (!VALID_DIFFICULTIES.has(q.difficulty)) return false;
-  if (q.type === 'mcq' && (!Array.isArray(q.options) || q.options.length !== 4)) return false;
+  if ((q.type === 'mcq' || q.type === 'multi') && (!Array.isArray(q.options) || q.options.length !== 4)) return false;
+  // multi must name at least two distinct correct option letters (A–D).
+  if (q.type === 'multi') {
+    const letters = [...new Set(
+      q.correct_answer.split(',').map(s => s.trim().toUpperCase()).filter(Boolean)
+    )];
+    if (letters.length < 2) return false;
+    if (!letters.every(l => ['A', 'B', 'C', 'D'].includes(l))) return false;
+  }
   return true;
 }
 

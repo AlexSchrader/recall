@@ -5,6 +5,7 @@ import { api, uploadDocument } from '../api.js';
 const DIFFICULTY_OPTIONS = ['easy', 'medium', 'hard', 'mixed'];
 const TYPE_OPTIONS = [
   { value: 'mcq', label: 'Multiple choice' },
+  { value: 'multi', label: 'Multiple answer' },
   { value: 'true_false', label: 'True / False' },
   { value: 'short', label: 'Short answer' },
 ];
