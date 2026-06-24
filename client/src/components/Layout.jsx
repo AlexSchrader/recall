@@ -35,12 +35,12 @@ export default function Layout() {
           <NavLink to="/" end>Courses</NavLink>
           <NavLink to="/chat">Rappel</NavLink>
           <NavLink to="/progress">Progress</NavLink>
+          {user?.streak > 0 && (
+            <span className="streak-badge" title={`${user.streak}-day study streak!`}>
+              🔥 {user.streak}
+            </span>
+          )}
         </div>
-        {user?.streak > 0 && (
-          <span className="streak-badge" title={`${user.streak}-day study streak!`}>
-            🔥 {user.streak}
-          </span>
-        )}
         <Link to="/settings" className="nav-username" title="Settings">
           <span className="nav-gear" aria-hidden>⚙️</span>
           <span className="nav-username-text">{user?.display_name}</span>
