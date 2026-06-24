@@ -298,13 +298,16 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .fc-progress-bar { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s ease; }
 
 .fc-scene { perspective: 1200px; width: 100%; cursor: pointer; -webkit-user-select: none; user-select: none; margin-bottom: .25rem; }
-.fc-card { width: 100%; min-height: 240px; position: relative; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1); }
+.fc-card { width: 100%; min-height: 240px; display: grid; transform-style: preserve-3d; transition: transform .5s cubic-bezier(.4,0,.2,1); }
 .fc-card.flipped { transform: rotateY(180deg); }
+/* Both faces share one grid cell so the card grows to fit the taller face —
+   long answers stay inside the card instead of spilling past its border. */
 .fc-face {
-  position: absolute; inset: 0; backface-visibility: hidden;
+  grid-area: 1 / 1; backface-visibility: hidden;
   display: flex; align-items: center; justify-content: center; flex-direction: column;
   padding: 2rem; border-radius: 12px; text-align: center;
   background: var(--surface); border: 2px solid var(--border); box-shadow: var(--shadow);
+  overflow-wrap: anywhere;
 }
 .fc-back { transform: rotateY(180deg); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--surface)); color: var(--text); }
 .fc-text { font-size: 1.2rem; line-height: 1.6; color: var(--text); }
