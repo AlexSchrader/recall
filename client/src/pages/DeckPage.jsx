@@ -17,6 +17,9 @@ export default function DeckPage() {
   const [cards, setCards] = useState([]);
   const [sessionLimit, setSessionLimit] = useState(null); // null = all due
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [confirmRegen, setConfirmRegen] = useState(false);
+  const [regenerating, setRegenerating] = useState(false);
+  const [regenError, setRegenError] = useState('');
   const [editingCard, setEditingCard] = useState(null);
   const [editFields, setEditFields] = useState({ front: '', back: '', topic: '' });
 
@@ -35,6 +38,18 @@ export default function DeckPage() {
   const deleteDeck = async () => {
     await api.delete(`/flashcards/decks/${deckId}`);
     navigate(`/units/${deck.unit_id}/flashcards`);
+  };
+
+  const regenerate = async () => {
+    setRegenerating(true);
+    setRegenError('');
+    try {
+      const result = await api.post(`/flashcards/decks/${deckId}/regenerate`, {});
+      navigate(`/flashcards/decks/${result.deckId}`);
+    } catch (err) {
+      setRegenError(err.message);
+      setRegenerating(false);
+    }
   };
 
   const startEdit = (card) => {
@@ -78,6 +93,23 @@ export default function DeckPage() {
           ? <button className="btn btn-sm" style={{ color: 'var(--danger)', borderColor: 'var(--danger)', border: '1px solid' }} onClick={() => setConfirmDelete(true)}>Delete deck</button>
           : <span style={{ fontSize: '.875rem' }}>Delete this deck? <button className="btn btn-danger btn-sm" onClick={deleteDeck}>Yes, delete</button> <button className="btn btn-sm" onClick={() => setConfirmDelete(false)}>Cancel</button></span>
         }
+      </div>
+
+      <div style={{ marginBottom: '1rem' }}>
+        {!confirmRegen ? (
+          <button className="btn btn-ghost btn-sm" onClick={() => setConfirmRegen(true)} disabled={regenerating}>
+            ↻ Regenerate cards
+          </button>
+        ) : (
+          <span style={{ fontSize: '.85rem' }}>
+            Replace all cards with fresh ones? Review progress for this deck resets.{' '}
+            <button className="btn btn-primary btn-sm" onClick={regenerate} disabled={regenerating}>
+              {regenerating ? 'Regenerating…' : 'Yes, regenerate'}
+            </button>{' '}
+            <button className="btn btn-sm" onClick={() => setConfirmRegen(false)} disabled={regenerating}>Cancel</button>
+          </span>
+        )}
+        {regenError && <p className="error-msg" style={{ marginTop: '.5rem' }}>{regenError}</p>}
       </div>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
