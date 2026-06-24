@@ -91,6 +91,7 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
   cursor: pointer; transition: border-color .15s;
 }
 .item-row:hover { border-color: var(--primary); }
+.item-row--selected { border-color: var(--primary); }
 .item-row .label { flex: 1; font-weight: 500; }
 .item-row .meta  { font-size: .8rem; color: var(--muted); }
 .item-row--editing { cursor: default; }

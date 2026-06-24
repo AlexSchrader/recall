@@ -15,6 +15,7 @@ export default function CoursePage() {
   const [editName, setEditName] = useState('');
   const [editBusy, setEditBusy] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
@@ -145,10 +146,20 @@ export default function CoursePage() {
                 </form>
               </li>
             ) : (
-              <li key={u.id} className="item-row" onClick={() => navigate(`/units/${u.id}`)}>
-                <span className="label">{u.name}</span>
+              <li
+                key={u.id}
+                className={`item-row ${selectedId === u.id ? 'item-row--selected' : ''}`}
+                onClick={() => setSelectedId(selectedId === u.id ? null : u.id)}
+              >
+                <span
+                  className="label"
+                  style={{ cursor: 'pointer' }}
+                  onClick={e => { e.stopPropagation(); navigate(`/units/${u.id}`); }}
+                >{u.name}</span>
                 <span className="meta">{u.documentCount ?? 0} doc{u.documentCount !== 1 ? 's' : ''}</span>
-                <button className="edit-btn" style={{ opacity: 1 }} title="Rename unit" onClick={e => startEditUnit(e, u)}>✏️</button>
+                {selectedId === u.id && (
+                  <button className="edit-btn" style={{ opacity: 1 }} title="Rename unit" onClick={e => startEditUnit(e, u)}>✏️</button>
+                )}
               </li>
             ))}
           </ul>
