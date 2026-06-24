@@ -21,7 +21,8 @@ function buildPrompt(sourceText, count, unitName) {
 Create exactly ${count} flashcards from the source material below. Return ONLY a valid JSON array — no prose, no markdown fences.
 
 Rules:
-- Each card covers ONE tight concept. Front: a term, question, or prompt. Back: the answer in 1–2 sentences.
+- Each card covers ONE tight concept. Front: a term, question, or prompt.
+- Back: a concise answer that just gets the point across — a single phrase or one short sentence, aim for under 20 words. Summarise the key idea in your own words; do NOT copy long passages or narrative verbatim. Capture the gist, not every detail. The student is recalling the core fact, not reciting the source.
 - Cover the material broadly — spread cards across the full unit, not just the opening pages.
 - topic: a concise 2–4 word tag (e.g. "Cell Division", "Supply & Demand"). Must match the style used for quiz topics.
 - No duplicate fronts within this deck.
