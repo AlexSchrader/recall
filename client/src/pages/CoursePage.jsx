@@ -11,6 +11,9 @@ export default function CoursePage() {
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState('');
+  const [editBusy, setEditBusy] = useState(false);
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
@@ -31,6 +34,28 @@ export default function CoursePage() {
       setError(err.message);
     } finally {
       setBusy(false);
+    }
+  };
+
+  const startEditUnit = (e, u) => {
+    e.stopPropagation();
+    setEditingId(u.id);
+    setEditName(u.name);
+    setError('');
+  };
+
+  const saveUnit = async (e, id) => {
+    e.preventDefault();
+    if (!editName.trim()) return;
+    setEditBusy(true);
+    try {
+      const updated = await api.put(`/units/${id}`, { name: editName.trim() });
+      setUnits(prev => prev.map(u => u.id === id ? { ...u, ...updated } : u));
+      setEditingId(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditBusy(false);
     }
   };
 
@@ -73,14 +98,32 @@ export default function CoursePage() {
       {units.length === 0
         ? <p className="empty">No units yet. Add one above.</p>
         : (
+          <>
           <ul className="item-list">
-            {units.map(u => (
+            {units.map(u => editingId === u.id ? (
+              <li key={u.id} className="item-row item-row--editing">
+                <form onSubmit={e => saveUnit(e, u.id)} style={{ display: 'flex', alignItems: 'center', gap: '.5rem', flex: 1 }}>
+                  <input
+                    className="edit-inline-input"
+                    value={editName}
+                    onChange={e => setEditName(e.target.value)}
+                    autoFocus
+                    required
+                  />
+                  <button className="btn btn-primary btn-sm" type="submit" disabled={editBusy}>{editBusy ? 'Saving…' : 'Save'}</button>
+                  <button className="btn btn-sm" type="button" onClick={() => setEditingId(null)} disabled={editBusy}>Cancel</button>
+                </form>
+              </li>
+            ) : (
               <li key={u.id} className="item-row" onClick={() => navigate(`/units/${u.id}`)}>
                 <span className="label">{u.name}</span>
                 <span className="meta">{u.documentCount ?? 0} doc{u.documentCount !== 1 ? 's' : ''}</span>
+                <button className="edit-btn" style={{ opacity: 1 }} title="Rename unit" onClick={e => startEditUnit(e, u)}>✏️</button>
               </li>
             ))}
           </ul>
+          {error && <p className="error-msg" style={{ marginTop: '.5rem' }}>{error}</p>}
+          </>
         )
       }
     </>
