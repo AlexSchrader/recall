@@ -57,6 +57,7 @@ function AppRoutes() {
           <Route path="/units/:unitId/flashcards" element={<div className="page"><FlashcardsPage /></div>} />
           <Route path="/flashcards/decks/:deckId" element={<div className="page"><DeckPage /></div>} />
           <Route path="/flashcards/decks/:deckId/review" element={<div className="page"><ReviewPage /></div>} />
+          <Route path="/flashcards/daily" element={<div className="page"><ReviewPage daily /></div>} />
           <Route path="/units/:unitId/study-guide" element={<div className="page"><StudyGuidePage /></div>} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/progress" element={<div className="page"><ProgressPage /></div>} />

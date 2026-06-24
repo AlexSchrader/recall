@@ -76,11 +76,15 @@ function motivationalMessage(results) {
   return "Tough session, but that's how it works. Keep going and Rappel can help explain any that didn't click.";
 }
 
-export default function ReviewPage() {
+export default function ReviewPage({ daily = false }) {
   const { deckId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
+
+  // In daily mode there's no single deck — review pulls due cards from every
+  // deck, and "back" returns home rather than to a deck page.
+  const backTo = daily ? '/' : `/flashcards/decks/${deckId}`;
 
   const [deck, setDeck] = useState(null);
   const [cards, setCards] = useState([]);
@@ -94,14 +98,14 @@ export default function ReviewPage() {
   const limit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 30;
 
   useEffect(() => {
-    Promise.all([
-      api.get(`/flashcards/decks/${deckId}`),
-      api.get(`/flashcards/decks/${deckId}/due?limit=${limit}`),
-    ])
-      .then(([d, c]) => { setDeck(d); setCards(c); })
-      .catch(() => navigate('/'))
-      .finally(() => setLoading(false));
-  }, [deckId]);
+    const load = daily
+      ? api.get(`/flashcards/due?limit=${limit}`).then(c => { setDeck({ name: 'Daily Review' }); setCards(c); })
+      : Promise.all([
+          api.get(`/flashcards/decks/${deckId}`),
+          api.get(`/flashcards/decks/${deckId}/due?limit=${limit}`),
+        ]).then(([d, c]) => { setDeck(d); setCards(c); });
+    load.catch(() => navigate('/')).finally(() => setLoading(false));
+  }, [deckId, daily]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -157,13 +161,13 @@ export default function ReviewPage() {
   if (cards.length === 0) {
     return (
       <>
-        <p className="breadcrumb"><Link to={`/flashcards/decks/${deckId}`}>← {deck?.name}</Link></p>
+        <p className="breadcrumb"><Link to={backTo}>← {daily ? 'Home' : deck?.name}</Link></p>
         <div className="session-complete">
           <div className="complete-icon">✅</div>
           <h2>All caught up!</h2>
           <p className="complete-msg">No cards are due right now. Come back later — your brain needs time to consolidate.</p>
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-ghost" onClick={() => navigate(`/flashcards/decks/${deckId}`)}>Back to deck</button>
+            <button className="btn btn-ghost" onClick={() => navigate(backTo)}>{daily ? 'Back home' : 'Back to deck'}</button>
             <button className="btn btn-primary" onClick={() => askRappel([])}>Chat with Rappel</button>
           </div>
         </div>
@@ -215,7 +219,7 @@ export default function ReviewPage() {
             )}
           </div>
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-ghost" onClick={() => navigate(`/flashcards/decks/${deckId}`)}>Back to deck</button>
+            <button className="btn btn-ghost" onClick={() => navigate(backTo)}>{daily ? 'Back home' : 'Back to deck'}</button>
             {weakCards.length > 0 && (
               <button className="btn btn-primary" onClick={() => askRappel(weakCards)} disabled={askingRappel}>
                 {askingRappel ? 'Opening…' : `Ask Rappel about ${weakCards.length} tricky card${weakCards.length !== 1 ? 's' : ''}`}
@@ -232,7 +236,7 @@ export default function ReviewPage() {
 
   return (
     <>
-      <p className="breadcrumb"><Link to={`/flashcards/decks/${deckId}`}>← {deck?.name}</Link></p>
+      <p className="breadcrumb"><Link to={backTo}>← {daily ? 'Home' : deck?.name}</Link></p>
       <div style={{ display: 'flex', alignItems: 'center', gap: '.75rem', marginBottom: '.25rem' }}>
         <span style={{ fontSize: '.8rem', color: 'var(--muted)' }}>{currentIdx + 1} / {cards.length}</span>
         <div className="fc-progress" style={{ flex: 1 }}>

@@ -66,6 +66,12 @@ router.get('/flashcards/decks/:deckId/cards', requireAuth, (req, res) => {
   res.json(getCardsForDeck(deck.id, req.session.userId));
 });
 
+// All due cards across every deck — powers the home "Daily Review" session.
+router.get('/flashcards/due', requireAuth, (req, res) => {
+  const limit = Math.min(50, Number(req.query.limit) || 30);
+  res.json(getDueCards(req.session.userId, {}, limit));
+});
+
 router.get('/flashcards/decks/:deckId/due', requireAuth, (req, res) => {
   const deck = getDeck(req.params.deckId, req.session.userId);
   if (!deck) return res.status(404).json({ error: 'Deck not found.' });

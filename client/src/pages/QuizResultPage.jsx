@@ -9,6 +9,7 @@ export default function QuizResultPage() {
   const [quiz, setQuiz] = useState(null);
   const [results, setResults] = useState(state?.results ?? null);
   const [creatingThread, setCreatingThread] = useState(false);
+  const [explaining, setExplaining] = useState(false);
   const [retaking, setRetaking] = useState(false);
   const [retakeErr, setRetakeErr] = useState('');
   const [locking, setLocking] = useState(false);
@@ -68,6 +69,22 @@ export default function QuizResultPage() {
     } catch (err) {
       setRetakeErr(err.message ?? 'Could not generate focus quiz.');
       setLocking(false);
+    }
+  };
+
+  // Active recall: Rappel asks the user to explain topics back in their own
+  // words, one at a time — the inverse of the "explain it to me" study plan.
+  const startExplainBack = async () => {
+    setExplaining(true);
+    try {
+      const topicList = missedTopics.length
+        ? missedTopics.map(t => `• ${t}`).join('\n')
+        : '• (any key topics from this quiz)';
+      const initMsg = `I just finished the "${quiz.title}" quiz. Help me lock it in with active recall: ask me to explain these topics one at a time, in my own words. Wait for my answer each time, then tell me what I got right and what I missed before moving to the next:\n${topicList}\n\nStart with the first one.`;
+      const thread = await api.post('/chat/threads', { title: `Explain back: ${quiz.title}` });
+      navigate(`/chat/${thread.id}?init=${encodeURIComponent(initMsg)}`);
+    } catch {
+      setExplaining(false);
     }
   };
 
@@ -171,6 +188,9 @@ export default function QuizResultPage() {
       <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>
         <button className="btn btn-primary" onClick={retake} disabled={retaking}>
           {retaking ? 'Generating…' : '↺ Retake'}
+        </button>
+        <button className="btn btn-ghost" onClick={startExplainBack} disabled={explaining}>
+          {explaining ? 'Opening Rappel…' : '🗣️ Explain it back'}
         </button>
         {firstUnitId && <Link to={`/units/${firstUnitId}`} className="btn btn-ghost">Back to unit</Link>}
         <Link to="/" className="btn btn-ghost">Home</Link>

@@ -19,6 +19,7 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
+  const [dueCount, setDueCount] = useState(0);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#4f46e5');
   const [adding, setAdding] = useState(false);
@@ -38,6 +39,7 @@ export default function HomePage() {
   useEffect(() => {
     api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
+    api.get('/flashcards/due?limit=50').then(c => setDueCount(c.length)).catch(() => {});
   }, [user.id]);
 
   // Coming straight from onboarding (?start=1): open the create-course form so
@@ -136,6 +138,12 @@ export default function HomePage() {
         <div className="streak-nudge">
           <span>Your <strong>{user.streak}-day streak</strong> is on the line — study something today to keep it going!</span>
           <Link to="/progress" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Study now</Link>
+        </div>
+      )}
+      {dueCount > 0 && (
+        <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+          <span>🗓️ <strong>{dueCount}{dueCount >= 50 ? '+' : ''} card{dueCount !== 1 ? 's' : ''}</strong> due across your decks</span>
+          <Link to="/flashcards/daily" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Daily Review →</Link>
         </div>
       )}
       <div className="page-header">
