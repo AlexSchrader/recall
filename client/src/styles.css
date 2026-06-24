@@ -198,7 +198,7 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 nav.topnav .nav-links { display: flex; gap: .5rem; }
 nav.topnav .nav-links a { font-size: .875rem; color: var(--muted); padding: .3rem .6rem; border-radius: var(--radius); }
 nav.topnav .nav-links a:hover,
-nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); text-decoration: none; }
+nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 12%, var(--surface)); color: var(--primary); text-decoration: none; }
 .voice-btn { background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: .2rem .3rem; border-radius: 6px; transition: background .15s; line-height: 1; }
 .voice-btn:hover { background: #f1f5f9; }
 .voice-btn--on { background: #eef2ff; }
@@ -295,11 +295,11 @@ nav.topnav .nav-links a.active { background: #eef2ff; color: var(--primary); tex
   padding: 2rem; border-radius: 12px; text-align: center;
   background: var(--surface); border: 2px solid var(--border); box-shadow: var(--shadow);
 }
-.fc-back { transform: rotateY(180deg); border-color: var(--primary); background: #eef2ff; }
-.fc-text { font-size: 1.2rem; line-height: 1.6; }
+.fc-back { transform: rotateY(180deg); border-color: var(--primary); background: color-mix(in srgb, var(--primary) 10%, var(--surface)); color: var(--text); }
+.fc-text { font-size: 1.2rem; line-height: 1.6; color: var(--text); }
 .fc-hint { font-size: .8rem; color: var(--muted); margin-top: 1rem; }
-.fc-topic { font-size: .75rem; font-weight: 600; color: var(--primary); background: #eef2ff; padding: .2rem .6rem; border-radius: 99px; margin-bottom: .75rem; }
-.fc-back .fc-topic { background: #fff; }
+.fc-topic { font-size: .75rem; font-weight: 600; color: var(--primary); background: color-mix(in srgb, var(--primary) 12%, var(--surface)); padding: .2rem .6rem; border-radius: 99px; margin-bottom: .75rem; }
+.fc-back .fc-topic { background: var(--surface); }
 
 .fc-rating-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; margin-top: 1.25rem; }
 .rating-btn {
