@@ -106,6 +106,32 @@ describe('validateQuestion', () => {
   it('rejects invalid difficulty', () => {
     expect(validateQuestion({ ...makeMcq(), difficulty: 'extreme' })).toBe(false);
   });
+
+  it('accepts a multi with two correct letters', () => {
+    expect(validateQuestion({ ...makeMcq(), type: 'multi', correct_answer: 'A,C' })).toBe(true);
+  });
+
+  it('rejects a multi with only one correct letter', () => {
+    expect(validateQuestion({ ...makeMcq(), type: 'multi', correct_answer: 'A' })).toBe(false);
+  });
+
+  it('rejects a multi with an out-of-range letter', () => {
+    expect(validateQuestion({ ...makeMcq(), type: 'multi', correct_answer: 'A,E' })).toBe(false);
+  });
+
+  it('accepts a cloze with a blank in the prompt', () => {
+    expect(validateQuestion({
+      type: 'cloze', topic: 'Cells', prompt: 'The ____ is the powerhouse of the cell.',
+      correct_answer: 'mitochondria', explanation: 'It makes ATP.', difficulty: 'easy',
+    })).toBe(true);
+  });
+
+  it('rejects a cloze with no blank in the prompt', () => {
+    expect(validateQuestion({
+      type: 'cloze', topic: 'Cells', prompt: 'What is the powerhouse of the cell?',
+      correct_answer: 'mitochondria', explanation: 'It makes ATP.', difficulty: 'easy',
+    })).toBe(false);
+  });
 });
 
 // ── buildUserPrompt ───────────────────────────────────────────────────────────

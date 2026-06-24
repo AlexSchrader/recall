@@ -38,6 +38,26 @@ export function gradeMulti(question, answer) {
   return fraction > 0 ? 0.5 : 0;
 }
 
+// Fill-in-the-blank grading. Deterministic (no AI cost): normalise case,
+// surrounding punctuation and whitespace, and forgive a leading article so
+// "the mitochondria" matches "mitochondria".
+function normalizeCloze(s) {
+  return (s ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[.,;:!?'"()]/g, '')
+    .replace(/\s+/g, ' ');
+}
+
+export function gradeCloze(question, answer) {
+  const given = normalizeCloze(answer);
+  if (!given) return 0;
+  const correct = normalizeCloze(question.correct_answer);
+  if (given === correct) return 1;
+  const stripArticle = s => s.replace(/^(the|a|an)\s+/, '');
+  return stripArticle(given) === stripArticle(correct) ? 1 : 0;
+}
+
 export async function gradeShort(question, answer, userId = null) {
   if (!answer?.trim()) return 0;
 

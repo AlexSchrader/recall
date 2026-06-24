@@ -133,6 +133,15 @@ export default function QuizPage() {
             {q.type === 'true_false' && (
               <TrueFalseOptions questionId={q.id} value={answers[q.id]} onChange={v => setAnswer(q.id, v)} />
             )}
+            {q.type === 'cloze' && (
+              <input
+                type="text"
+                placeholder="Fill in the blank…"
+                value={answers[q.id]}
+                onChange={e => setAnswer(q.id, e.target.value)}
+                style={{ width: '100%', marginTop: '.25rem' }}
+              />
+            )}
             {q.type === 'short' && (
               <textarea
                 placeholder="Your answer…"
