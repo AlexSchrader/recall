@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, Link, NavLink } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link, NavLink } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
@@ -16,6 +16,7 @@ async function searchBooks(q) {
 export default function HomePage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [courses, setCourses] = useState([]);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [newName, setNewName] = useState('');
@@ -38,6 +39,15 @@ export default function HomePage() {
     api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
   }, [user.id]);
+
+  // Coming straight from onboarding (?start=1): open the create-course form so
+  // the first thing the user sees is the path to adding their material.
+  useEffect(() => {
+    if (searchParams.get('start') === '1') {
+      setAdding(true);
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const onBookQuery = (val) => {
     setBookQuery(val);
