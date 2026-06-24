@@ -35,6 +35,7 @@ export default function HomePage() {
   const [editColor, setEditColor] = useState('#4f46e5');
   const [editBusy, setEditBusy] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
     api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
@@ -252,14 +253,25 @@ export default function HomePage() {
               </form>
             </li>
           ) : (
-            <li key={c.id} className="item-row" onClick={() => navigate(`/courses/${c.id}`)}>
+            <li
+              key={c.id}
+              className={`item-row ${selectedId === c.id ? 'item-row--selected' : ''}`}
+              onClick={() => setSelectedId(selectedId === c.id ? null : c.id)}
+            >
               <span style={{ width: 12, height: 12, borderRadius: '50%', background: c.color ?? '#4f46e5', flexShrink: 0 }} />
-              <span className="label">{c.name}</span>
-              <button
-                className="btn-icon edit-btn"
-                title="Edit course"
-                onClick={e => startEdit(e, c)}
-              >✏️</button>
+              <span
+                className="label"
+                style={{ cursor: 'pointer' }}
+                onClick={e => { e.stopPropagation(); navigate(`/courses/${c.id}`); }}
+              >{c.name}</span>
+              {selectedId === c.id && (
+                <button
+                  className="edit-btn"
+                  style={{ opacity: 1 }}
+                  title="Edit course"
+                  onClick={e => startEdit(e, c)}
+                >✏️</button>
+              )}
             </li>
           ))}
         </ul>
