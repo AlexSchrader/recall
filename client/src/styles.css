@@ -264,6 +264,17 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .ob-voice-card strong { font-size: .95rem; }
 .ob-voice-desc { color: var(--muted); font-size: .8rem; }
 .ob-note { font-size: .78rem; color: var(--muted); margin: 0; }
+.ob-demo-card {
+  width: 100%; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .6rem;
+  padding: 1.5rem 1.25rem; border: 2px solid var(--primary); border-radius: var(--radius);
+  background: color-mix(in srgb, var(--primary) 8%, var(--surface)); color: var(--text);
+  cursor: pointer; -webkit-user-select: none; user-select: none; transition: background .15s;
+}
+.ob-demo-topic { font-size: .72rem; font-weight: 600; color: var(--primary); background: var(--surface); padding: .2rem .6rem; border-radius: 99px; }
+.ob-demo-text { font-size: 1.1rem; line-height: 1.5; }
+.ob-demo-hint { font-size: .78rem; color: var(--muted); }
+.ob-demo-rate { display: flex; gap: .6rem; width: 100%; }
+.ob-demo-rate .btn { flex: 1; justify-content: center; }
 .ob-play-btn { margin-top: .25rem; padding: .3rem .7rem; border-radius: 999px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: .78rem; cursor: pointer; transition: background .15s, border-color .15s, color .15s; }
 .ob-play-btn:hover { border-color: var(--primary); color: var(--primary); }
 .ob-play-btn.ob-play-btn--active { background: var(--primary); border-color: var(--primary); color: #fff !important; }

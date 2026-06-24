@@ -3,12 +3,58 @@ import { useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 
-const STEPS = 3;
+const STEPS = 4;
 
 const VOICES = [
   { value: 'mathieu', label: 'Mathieu', desc: 'Warm & grounded', avatarClass: '' },
   { value: 'juliette', label: 'Juliette', desc: 'Bright & encouraging', avatarClass: 'ob-voice-avatar--f' },
 ];
+
+// Canned sample cards for the onboarding "try it" demo. Intentionally generic
+// trivia so this step costs nothing — no AI call, no upload, works offline.
+// The real, personalised generation happens after onboarding when the user
+// uploads their own material.
+const DEMO_CARDS = [
+  { topic: 'Biology', front: "What's the “powerhouse of the cell”?", back: 'The mitochondria — it produces most of the cell’s energy (ATP).' },
+  { topic: 'History', front: 'In what year did World War II end?', back: '1945.' },
+];
+
+function DemoStep({ onContinue }) {
+  const [idx, setIdx] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const card = DEMO_CARDS[idx];
+  const isLast = idx === DEMO_CARDS.length - 1;
+
+  const rate = () => {
+    if (isLast) { onContinue(); return; }
+    setIdx(i => i + 1);
+    setRevealed(false);
+  };
+
+  return (
+    <div className="ob-step">
+      <h2 className="ob-title">Try a card</h2>
+      <p className="ob-sub">This is how studying feels — read the question, reveal the answer, then tell Recall how it went. Your weak cards come back sooner.</p>
+
+      <div className="ob-demo-card" onClick={() => !revealed && setRevealed(true)}>
+        <span className="ob-demo-topic">{card.topic}</span>
+        <div className="ob-demo-text">{revealed ? card.back : card.front}</div>
+        {!revealed && <div className="ob-demo-hint">Tap to reveal</div>}
+      </div>
+
+      <p className="ob-note">Card {idx + 1} of {DEMO_CARDS.length}</p>
+
+      {revealed ? (
+        <div className="ob-demo-rate">
+          <button className="btn btn-ghost" onClick={rate}>Still fuzzy</button>
+          <button className="btn btn-primary" onClick={rate}>{isLast ? 'Got it — continue →' : 'Got it!'}</button>
+        </div>
+      ) : (
+        <button className="btn btn-primary ob-cta" onClick={() => setRevealed(true)}>Show answer</button>
+      )}
+    </div>
+  );
+}
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
@@ -110,11 +156,15 @@ export default function OnboardingPage() {
                 </div>
               </div>
             </div>
-            <button className="btn btn-primary ob-cta" onClick={() => setStep(3)}>Meet your tutor →</button>
+            <button className="btn btn-primary ob-cta" onClick={() => setStep(3)}>Try it →</button>
           </div>
         )}
 
         {step === 3 && (
+          <DemoStep onContinue={() => setStep(4)} />
+        )}
+
+        {step === 4 && (
           <div className="ob-step">
             <h2 className="ob-title">Meet Rappel</h2>
             <p className="ob-sub">Your AI tutor — patient, encouraging, and always there to help you study. Choose a voice:</p>
