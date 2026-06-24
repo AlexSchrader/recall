@@ -14,6 +14,7 @@ export default function CoursePage() {
   const [editingId, setEditingId] = useState(null);
   const [editName, setEditName] = useState('');
   const [editBusy, setEditBusy] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
@@ -41,7 +42,27 @@ export default function CoursePage() {
     e.stopPropagation();
     setEditingId(u.id);
     setEditName(u.name);
+    setConfirmDeleteId(null);
     setError('');
+  };
+
+  const cancelEditUnit = () => {
+    setEditingId(null);
+    setConfirmDeleteId(null);
+  };
+
+  const deleteUnit = async (id) => {
+    setEditBusy(true);
+    try {
+      await api.delete(`/units/${id}`);
+      setUnits(prev => prev.filter(u => u.id !== id));
+      setEditingId(null);
+      setConfirmDeleteId(null);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setEditBusy(false);
+    }
   };
 
   const saveUnit = async (e, id) => {
@@ -111,7 +132,16 @@ export default function CoursePage() {
                     required
                   />
                   <button className="btn btn-primary btn-sm" type="submit" disabled={editBusy}>{editBusy ? 'Saving…' : 'Save'}</button>
-                  <button className="btn btn-sm" type="button" onClick={() => setEditingId(null)} disabled={editBusy}>Cancel</button>
+                  <button className="btn btn-sm" type="button" onClick={cancelEditUnit} disabled={editBusy}>Cancel</button>
+                  {confirmDeleteId === u.id ? (
+                    <>
+                      <span className="muted" style={{ fontSize: '.85rem' }}>Delete unit &amp; its contents?</span>
+                      <button className="btn btn-danger btn-sm" type="button" onClick={() => deleteUnit(u.id)} disabled={editBusy}>Yes</button>
+                      <button className="btn btn-sm" type="button" onClick={() => setConfirmDeleteId(null)} disabled={editBusy}>No</button>
+                    </>
+                  ) : (
+                    <button className="btn btn-danger btn-sm" type="button" onClick={() => setConfirmDeleteId(u.id)} disabled={editBusy}>Delete</button>
+                  )}
                 </form>
               </li>
             ) : (
