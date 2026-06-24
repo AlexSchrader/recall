@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { VOICE_ID, MODEL_ID, SYSTEM_PROMPT } from '../server/src/config/rappel.js';
+import { MATHIEU_VOICE_ID, JULIETTE_VOICE_ID, MODEL_ID, SYSTEM_PROMPT } from '../server/src/config/rappel.js';
 
 describe('Rappel config', () => {
-  it('exports the correct ElevenLabs voice ID', () => {
-    expect(VOICE_ID).toBe('y7bvdjGvOKdLpEryP5tK');
+  it('exports the correct ElevenLabs voice IDs', () => {
+    expect(MATHIEU_VOICE_ID).toBe('y7bvdjGvOKdLpEryP5tK');
+    expect(JULIETTE_VOICE_ID).toBe('iqeGjbO2PWBKBBBnzTAx');
   });
 
   it('exports the correct ElevenLabs model ID', () => {
