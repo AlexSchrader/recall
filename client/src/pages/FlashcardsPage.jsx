@@ -61,7 +61,7 @@ export default function FlashcardsPage() {
 
       {decks.length === 0 ? (
         <div className="onboarding" style={{ padding: '2rem 0' }}>
-          <div style={{ fontSize: '2.5rem', marginBottom: '.75rem' }}>🃏</div>
+          <div style={{ fontSize: '2.5rem', marginBottom: '.75rem' }}>⚡️</div>
           <p style={{ fontWeight: 600, marginBottom: '.5rem' }}>No flashcard decks yet</p>
           <p className="muted" style={{ marginBottom: '1.5rem' }}>Generate a deck from your uploaded documents and start memorizing.</p>
           <button className="btn btn-primary" onClick={() => setShowGen(true)}>Generate deck</button>
