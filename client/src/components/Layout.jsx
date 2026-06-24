@@ -41,7 +41,10 @@ export default function Layout() {
             🔥 {user.streak}
           </span>
         )}
-        <Link to="/settings" className="nav-username">{user?.display_name}</Link>
+        <Link to="/settings" className="nav-username" title="Settings">
+          <span className="nav-gear" aria-hidden>⚙️</span>
+          <span className="nav-username-text">{user?.display_name}</span>
+        </Link>
         <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Log out</button>
       </nav>
       <main>
