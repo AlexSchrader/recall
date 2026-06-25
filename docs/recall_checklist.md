@@ -199,7 +199,7 @@ These don't need to happen for you and your friends — they unlock public/paid 
 - [ ] Shareable quiz (export a quiz as a static link)
 - [x] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback) — DONE 2026-06-25 as "Explain it back" on QuizResultPage, commit `7be61ba` (CC)
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
-- [ ] **Exam countdown** — set a target date on a course; front-load weak topics as it approaches. *Needs a schema change (`exam_date` on courses) — awaiting Alex's go-ahead.* (CC)
+- [x] **Exam countdown** — shipped 2026-06-24 as a per-course feature (see Phase 4.7 "Study planning"). (CC)
 - [ ] Postgres migration (if user count outgrows SQLite + one Railway service)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI / custom LLM endpoint)
