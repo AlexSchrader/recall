@@ -195,7 +195,8 @@ These don't need to happen for you and your friends — they unlock public/paid 
 ## Phase 8 — Future ideas *(deferred / optional)*
 
 - [ ] Streak + reminder notifications (web push, opt-in)
-- [ ] Bulk unit import (multiple files, auto-unit detection)
+- [x] **Bulk unit import** — `POST /api/courses/:id/bulk-import` (multer array, ≤15 files) creates one unit per file named from the filename, parses each; CoursePage "⇪ Bulk import" button picks multiple files, shows progress + a summary (incl. parse failures) and refreshes the unit list — DONE 2026-06-24 (CC)
+  - **While I was in there (fire fix):** the document routes (`POST /units/:id/documents`, `GET /units/:id/documents`, `GET`/`DELETE /documents/:id`) had **no `requireAuth` and no ownership check** — any caller could upload to, read, or delete any unit/document by guessing an id (cross-user data access + credit burn on parse). Added `requireAuth` + an `ownedUnit` guard (unit → course → `user_id`) to all of them. (CC)
 - [ ] Shareable quiz (export a quiz as a static link)
 - [x] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback) — DONE 2026-06-25 as "Explain it back" on QuizResultPage, commit `7be61ba` (CC)
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { api } from '../api.js';
+import { api, bulkImportUnits } from '../api.js';
 import { examCountdownLabel, examUrgency } from '../examCountdown.js';
 
 export default function CoursePage() {
@@ -20,11 +20,38 @@ export default function CoursePage() {
   const [editingExam, setEditingExam] = useState(false);
   const [examInput, setExamInput] = useState('');
   const [examBusy, setExamBusy] = useState(false);
+  const [bulkBusy, setBulkBusy] = useState(false);
+  const [bulkMsg, setBulkMsg] = useState('');
+  const bulkRef = useRef(null);
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
     api.get(`/courses/${courseId}/units`).then(setUnits).catch(console.error);
   }, [courseId]);
+
+  const handleBulkImport = async (e) => {
+    const files = Array.from(e.target.files ?? []);
+    if (bulkRef.current) bulkRef.current.value = '';
+    if (!files.length) return;
+    setBulkBusy(true);
+    setBulkMsg('');
+    setError('');
+    try {
+      const { created } = await bulkImportUnits(courseId, files);
+      // Refresh the unit list so counts/positions are authoritative.
+      const fresh = await api.get(`/courses/${courseId}/units`);
+      setUnits(fresh);
+      const failed = created.filter(c => c.document?.parse_status === 'failed').length;
+      setBulkMsg(
+        `Added ${created.length} unit${created.length !== 1 ? 's' : ''}` +
+        (failed ? ` · ${failed} file${failed !== 1 ? 's' : ''} couldn't be parsed` : '')
+      );
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBulkBusy(false);
+    }
+  };
 
   const openExamEdit = () => {
     setExamInput(course?.exam_date ?? '');
@@ -120,8 +147,29 @@ export default function CoursePage() {
           <h1>{course.name}</h1>
         </div>
         <button className="btn btn-ghost btn-sm" onClick={() => setAdding(v => !v)}>+ Unit</button>
+        <label className="btn btn-ghost btn-sm" style={{ cursor: bulkBusy ? 'default' : 'pointer' }}>
+          {bulkBusy ? 'Importing…' : '⇪ Bulk import'}
+          <input
+            ref={bulkRef}
+            type="file"
+            multiple
+            accept=".pdf,.docx,.txt,.md,image/*"
+            style={{ display: 'none' }}
+            onChange={handleBulkImport}
+            disabled={bulkBusy}
+          />
+        </label>
         <button className="btn btn-danger btn-sm" onClick={deleteCourse}>Delete course</button>
       </div>
+
+      {bulkMsg && (
+        <p className="success-msg" style={{ marginBottom: '.75rem' }}>{bulkMsg}</p>
+      )}
+      {bulkBusy && (
+        <p className="muted" style={{ marginBottom: '.75rem', fontSize: '.85rem' }}>
+          Creating a unit per file and parsing each — this can take a moment for large PDFs.
+        </p>
+      )}
 
       {/* Exam countdown */}
       <div className="exam-row">

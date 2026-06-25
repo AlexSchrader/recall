@@ -44,3 +44,19 @@ export async function uploadDocument(unitId, file) {
   }
   return res.json();
 }
+
+// Bulk import: one new unit per file, named from the filename. Returns { created: [{unit, document}] }.
+export async function bulkImportUnits(courseId, files) {
+  const form = new FormData();
+  for (const f of files) form.append('files', f);
+  const res = await fetch(`${BASE}/courses/${courseId}/bulk-import`, {
+    method: 'POST',
+    body: form,
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: res.statusText }));
+    throw new Error(err.error || res.statusText);
+  }
+  return res.json();
+}
