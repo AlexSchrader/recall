@@ -17,5 +17,5 @@ jobs:
         run: npm ci
       - name: Lint
         run: npm run lint
-      - name: Test
+      - name: Test (unit + route-level integration)
         run: npm test

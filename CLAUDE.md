@@ -98,7 +98,11 @@ These are not preferences. Changing any of them is a discussion, not a refactor 
 - **API wrapper at `client/src/api.js`** with `credentials: 'include'`. UI never calls `fetch` directly to `/api`.
 - **Errors return `{ error: string }`** with a correct HTTP status. Central error middleware shapes responses.
 - **`usage_log` writes happen inside `claude.js`** so every Claude call logs automatically. Don't bypass it.
-- **Tests use Vitest + supertest, with `claude.js` mocked.** The suite must be deterministic — never hit Anthropic or ElevenLabs in tests.
+- **Tests use Vitest + supertest, with external boundaries mocked.** The suite must be deterministic — never hit Anthropic, ElevenLabs, Resend, or Wikipedia. Two layers:
+  - *Pure unit tests* (`__tests__/*.test.js`) cover pure functions (grading, prompt builders, source-context selection, exam countdown).
+  - *Route-level integration tests* (`__tests__/integration/*.test.js`) drive the real Express app via supertest against a fresh in-memory SQLite DB (`DATABASE_PATH=:memory:`, schema from the same migration code production runs). Seed helpers live in `__tests__/helpers/seed.js`; global env + mocks in `__tests__/setup/integration.setup.js`. Mocked at the module boundary: `services/claude.js` (`generate` returns deterministic JSON per `_meta.feature`; `getGenerationConfig` stays real), `services/rappel.js` (chat streams through the Anthropic client directly, so it's mocked separately from `claude.js`), `services/wikipedia.js`, `services/email.js`. ElevenLabs has no service module — voice routes are tested up to the PIN gate with `ELEVENLABS_API_KEY` unset so any TTS path fails closed (503).
+  - `vitest.config.js` uses `pool: 'forks'` — better-sqlite3 is a native addon that segfaults on worker-thread teardown; the setup file also closes the DB handle in `afterAll`.
+  - **New cross-cutting middleware (auth, scoping, rate-limit, cap) lands with regression tests in this harness** — owner happy-path, cross-user denial, and (where IDs come from the body) body-id trust.
 
 ---
 

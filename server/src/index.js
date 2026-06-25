@@ -32,7 +32,8 @@ const Store = session.Store;
 class BetterSQLiteStore extends Store {
   constructor() {
     super();
-    setInterval(() => db.prepare('DELETE FROM sessions WHERE expired_at < ?').run(Date.now()), 60_000);
+    // unref so the interval never keeps a test process (or graceful shutdown) alive.
+    setInterval(() => db.prepare('DELETE FROM sessions WHERE expired_at < ?').run(Date.now()), 60_000).unref();
   }
   get(sid, cb) {
     try {
@@ -130,12 +131,18 @@ function countFilesRecursive(dir) {
   return n;
 }
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT} [${isProd ? 'production' : 'development'}]`);
-  console.log(`DB: ${DB_PATH}`);
-  if (isProd) {
-    const clientDist = resolve(__dirname, '../../client/dist');
-    const n = countFilesRecursive(clientDist);
-    console.log(`Client dist: ${clientDist} — ${n > 0 ? `${n} files` : 'EMPTY or NOT FOUND'}`);
-  }
-});
+// Export the app for integration tests (supertest binds to it directly — no listen).
+export { app };
+
+// Only bind a port when run as the server, not when imported by a test.
+if (process.env.NODE_ENV !== 'test') {
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT} [${isProd ? 'production' : 'development'}]`);
+    console.log(`DB: ${DB_PATH}`);
+    if (isProd) {
+      const clientDist = resolve(__dirname, '../../client/dist');
+      const n = countFilesRecursive(clientDist);
+      console.log(`Client dist: ${clientDist} — ${n > 0 ? `${n} files` : 'EMPTY or NOT FOUND'}`);
+    }
+  });
+}
