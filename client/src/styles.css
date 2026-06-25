@@ -75,7 +75,7 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 .form-group textarea { min-height: 80px; resize: vertical; }
 
 /* ── Buttons ── */
-.btn { display: inline-flex; align-items: center; gap: .4rem; padding: .45rem 1rem; border: none; border-radius: var(--radius); font: inherit; font-size: .875rem; font-weight: 500; cursor: pointer; transition: opacity .15s; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .45rem 1rem; border: none; border-radius: var(--radius); font: inherit; font-size: .875rem; font-weight: 500; white-space: nowrap; cursor: pointer; transition: opacity .15s; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
@@ -114,8 +114,8 @@ nav.topnav .user  { font-size: .875rem; color: var(--muted); }
 .auth-card h1 { font-size: 1.5rem; margin-bottom: 1.5rem; }
 
 /* ── Page header ── */
-.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem; }
-.page-header h1 { font-size: 1.5rem; flex: 1; }
+.page-header { display: flex; align-items: center; gap: .6rem 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.page-header h1 { font-size: 1.5rem; flex: 1 1 auto; }
 .breadcrumb { font-size: .8rem; color: var(--muted); margin-bottom: .5rem; }
 
 /* ── Quiz ── */
