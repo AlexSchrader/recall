@@ -25,10 +25,10 @@ When a task finishes, you must:
 
 ## Status at a glance
 
-- **Current phase:** Phase 6 — Cost observability + ongoing hardening
-- **In flight:** Nothing open (overnight session complete)
-- **⚡️ Single next action:** Alex to answer morning questions (see bottom), then use the app and report friction. Remaining coded work: 60–80% warning nudge, iOS autoplay watch, persona tuning.
-- **Last updated:** 2026-06-23 (overnight session — dark mode inputs, screenshot storage, retake titles, admin PIN, feedback pipeline, voice preview, review mix slider)
+- **Current phase:** Phase 6 — Cost observability + ongoing hardening (Phase 4.7 study-mode expansion landed 2026-06-25)
+- **In flight:** Nothing open
+- **⚡️ Single next action:** Alex to feel-check the 2026-06-25 work on mobile (new question types, daily review, regenerate, nav, row-select edit). Then decide on the two remaining study ideas: **Exam countdown** (needs `exam_date` schema change — awaiting go-ahead) and **Confidence-weighted answers** (touches SM-2).
+- **Last updated:** 2026-06-25 (session — fixed games 0/10 grading + short-answer submit crash; added multiple-answer + cloze question types; daily cross-deck review; explain-it-back; concise flashcard answers; regenerate-deck button; flashcard overflow fix; onboarding demo + create-course landing; mobile nav cleanup; inline edit/delete units; tap-to-select edit pencils)
 
 ---
 
@@ -111,6 +111,36 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [ ] Streak Challenge can repeat a question within a single long streak (refetches re-randomize, no dedupe). Acceptable for now; revisit if a user reports it. Fix would be a seen-this-session set on the client. (CC)
 - [x] HomePage "Quick Study" shuffle button — "🎲 Surprise me" randomly navigates to Speed Round or Streak Challenge — DONE 2026-06-23, commit `0c443fc` (CC)
 
+## Phase 4.7 — Study-mode expansion & UX polish *(2026-06-25 session)*
+
+New question types, study flows, and a round of mobile UX cleanup. All built CC-side, merged to `main`, client builds green + test suite passing (32 tests).
+
+**Bug fixes**
+- [x] Quick Study **0/10 grading bug** — Speed Round + Streak Challenge compared the full option text (`"C) …"`) to `correct_answer` (the letter `"C"`), so every answer was marked wrong. Compare `opt[0]`; also show the full correct answer text in Speed Round results — DONE 2026-06-25, commit `4d196c2` (CC)
+- [x] **Crash on quiz submit** — submit handler referenced an undefined `userId` when grading short answers, 500-ing any quiz containing one. Declared it from the session — DONE 2026-06-25, commit `36e5adb` (CC)
+- [x] Flashcard **answer readable in dark mode** (back face hardcoded light bg with inherited light text) + joker 🃏 → ⚡️ emoji + theme-aware active nav pill — DONE 2026-06-25, commit `b1ba8e1` (CC)
+- [x] Flashcard **long-answer overflow** — flip card now grid-stacks both faces so it grows to fit; `overflow-wrap` stops long words breaking out — DONE 2026-06-25, commit `4dde617` (CC)
+
+**Question types**
+- [x] **Multiple-answer ("select all that apply")** — `multi` type end to end: generator emits 2–3 correct letters (`"A,C"`), `gradeMulti` partial credit `(right−wrong)/total` bucketed to 1/0.5/0 (selecting all nets 0), QuizPage checkboxes, type option in UnitPage + Settings; validation tests added — DONE 2026-06-25, commit `36e5adb` (CC)
+- [x] **Fill-in-the-blank (cloze)** — `cloze` type: prompt has a `____` blank, deterministic (no-AI) `gradeCloze` normalises case/punctuation/whitespace + forgives a leading article; single-line input; validation requires a blank; tests added — DONE 2026-06-25, commit `5ff8fe9` (CC)
+
+**Study flows**
+- [x] **Daily Review** — `/flashcards/daily` reviews due cards across *all* decks (ReviewPage `daily` mode + `GET /flashcards/due`); HomePage shows an "N cards due across your decks" card linking in — DONE 2026-06-25, commit `7be61ba` (CC)
+- [x] **Explain it back (active recall)** — QuizResultPage button opens Rappel asking you to explain each topic in your own words and checking you (inverse of the "explain it to me" study plan). Satisfies the Phase 8 "Teach it back" idea — DONE 2026-06-25, commit `7be61ba` (CC)
+- [x] **Concise flashcard answers** — generation prompt tightened so backs are gist-level (<~20 words, summarised, no verbatim copying) instead of long passages — DONE 2026-06-25, commit `6d07061` (CC)
+- [x] **Regenerate deck button** — `POST /flashcards/decks/:id/regenerate` builds a fresh deck from the same unit (reuses `generateDeck` so the daily cap is enforced + counted), then deletes the old one (new-first, so a failure leaves the original intact). DeckPage button behind a confirm — DONE 2026-06-25, commit `92d7926` (CC)
+
+**Onboarding & nav**
+- [x] Onboarding **"Try a card" demo** — zero-cost canned flashcard (reveal + rate) so new users feel the loop before uploading; no AI call — DONE 2026-06-25, commit `e9ad4b1` (CC)
+- [x] Onboarding **lands in create-course flow** — finishing routes to `/?start=1`; HomePage opens the new-course form (then clears the flag) — DONE 2026-06-25, commit `dd86e4c` (CC)
+- [x] **Mobile top nav cleanup** — two clean rows (account bar: brand · ⚙️ settings · logout; tab bar: Courses · Rappel · Progress · 🔥streak); username collapses to a gear; streak badge moved onto the tab row — DONE 2026-06-25, commits `d4ff633` → `0aa5065` → `bf44f31` (CC)
+
+**Course/unit management**
+- [x] **Inline edit unit names** + delete (in edit mode, behind a confirm) on CoursePage, via existing `PUT`/`DELETE /units/:id` — DONE 2026-06-25, commits `1481967`, `bbbbcb7` (CC)
+- [x] **Tap-to-select edit pencils** — course + unit rows reveal their ✏️ only when selected (highlighted), replacing hover-only/always-visible pencils; mobile-friendly, tap the name to open — DONE 2026-06-25, commits `aacf608`, `2690408` (CC)
+- [x] Stale `rappel.test.js` fixed — single `VOICE_ID` export was split into `MATHIEU_VOICE_ID`/`JULIETTE_VOICE_ID`; suite back to green — DONE 2026-06-25, commit `7be61ba` (CC)
+
 ## Phase 5 — Rappel hardening
 
 R1–R5 are merged; this phase covers iteration based on real use.
@@ -164,8 +194,9 @@ These don't need to happen for you and your friends — they unlock public/paid 
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [ ] Bulk unit import (multiple files, auto-unit detection)
 - [ ] Shareable quiz (export a quiz as a static link)
-- [ ] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback)
+- [x] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback) — DONE 2026-06-25 as "Explain it back" on QuizResultPage, commit `7be61ba` (CC)
 - [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
+- [ ] **Exam countdown** — set a target date on a course; front-load weak topics as it approaches. *Needs a schema change (`exam_date` on courses) — awaiting Alex's go-ahead.* (CC)
 - [ ] Postgres migration (if user count outgrows SQLite + one Railway service)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI / custom LLM endpoint)
