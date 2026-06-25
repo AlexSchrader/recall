@@ -213,6 +213,8 @@ export default function ChatThreadPage() {
       let buffer = '';
       let full = '';
 
+      // Standard Web Streams reader loop — runs until reader.read() reports done.
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
