@@ -34,8 +34,24 @@ router.get('/courses/:id', requireAuth, (req, res) => {
 router.put('/courses/:id', requireAuth, (req, res) => {
   const course = getCourseById(req.params.id);
   if (!course || course.user_id !== req.session.userId) return res.status(404).json({ error: 'Course not found.' });
-  const { name = course.name, color = course.color } = req.body ?? {};
-  updateCourse(course.id, { name, color });
+  const body = req.body ?? {};
+  const name = body.name ?? course.name;
+  const color = body.color ?? course.color;
+
+  // exam_date: accept a YYYY-MM-DD string, or null to clear. Only touch it if the key is present.
+  let exam_date = course.exam_date;
+  if ('exam_date' in body) {
+    const raw = body.exam_date;
+    if (raw === null || raw === '') {
+      exam_date = null;
+    } else if (typeof raw === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(raw) && !Number.isNaN(Date.parse(raw))) {
+      exam_date = raw;
+    } else {
+      return res.status(400).json({ error: 'exam_date must be a YYYY-MM-DD date or null.' });
+    }
+  }
+
+  updateCourse(course.id, { name, color, exam_date });
   res.json(getCourseById(course.id));
 });
 

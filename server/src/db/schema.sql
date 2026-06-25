@@ -11,6 +11,7 @@ CREATE TABLE IF NOT EXISTS courses (
   user_id    TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   name       TEXT NOT NULL,
   color      TEXT,
+  exam_date  TEXT,
   created_at TEXT NOT NULL
 );
 

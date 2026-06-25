@@ -40,5 +40,11 @@ if (!feedbackCols.includes('screenshot')) {
   db.exec('ALTER TABLE feedback ADD COLUMN screenshot TEXT');
 }
 
+// Migration: optional exam date per course (powers the exam countdown)
+const courseCols = db.prepare('PRAGMA table_info(courses)').all().map(c => c.name);
+if (!courseCols.includes('exam_date')) {
+  db.exec('ALTER TABLE courses ADD COLUMN exam_date TEXT');
+}
+
 export { DB_PATH };
 export default db;

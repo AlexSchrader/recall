@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link, NavLink } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
+import { examCountdownLabel, examUrgency } from '../examCountdown.js';
 
 async function searchBooks(q) {
   if (!q.trim()) return [];
@@ -264,6 +265,11 @@ export default function HomePage() {
                 style={{ cursor: 'pointer' }}
                 onClick={e => { e.stopPropagation(); navigate(`/courses/${c.id}`); }}
               >{c.name}</span>
+              {examCountdownLabel(c.exam_date) && (
+                <span className={`exam-badge exam-badge--${examUrgency(c.exam_date)} exam-badge--mini`}>
+                  📅 {examCountdownLabel(c.exam_date)}
+                </span>
+              )}
               {selectedId === c.id && (
                 <button
                   className="edit-btn"

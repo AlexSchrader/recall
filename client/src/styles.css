@@ -290,6 +290,21 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .streak-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; color: #92400e; }
 [data-theme="dark"] .streak-nudge { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
 
+/* ── Exam countdown ── */
+.exam-row { margin-bottom: 1.25rem; }
+.exam-edit { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
+.exam-badge { display: inline-flex; align-items: center; gap: .35rem; font-size: .85rem; font-weight: 600; padding: .35rem .7rem; border-radius: 999px; border: 1px solid transparent; cursor: pointer; }
+.exam-badge--mini { font-size: .72rem; padding: .15rem .5rem; cursor: default; flex-shrink: 0; }
+.exam-badge--far    { background: #eff6ff; border-color: #bfdbfe; color: #1e40af; }
+.exam-badge--soon   { background: #fff7ed; border-color: #fed7aa; color: #92400e; }
+.exam-badge--urgent { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.exam-badge--past   { background: var(--surface); border-color: var(--border); color: var(--muted); }
+[data-theme="dark"] .exam-badge--far    { background: rgba(59,130,246,.12); border-color: rgba(59,130,246,.3); color: #93c5fd; }
+[data-theme="dark"] .exam-badge--soon   { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
+[data-theme="dark"] .exam-badge--urgent { background: rgba(220,38,38,.14); border-color: rgba(220,38,38,.4); color: #fca5a5; }
+.exam-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1.25rem; font-size: .875rem; color: #b91c1c; }
+[data-theme="dark"] .exam-nudge { background: rgba(220,38,38,.12); border-color: rgba(220,38,38,.35); color: #fca5a5; }
+
 /* ── Low-score recovery banner ── */
 .recovery-banner { background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; font-size: .9rem; color: #92400e; }
 [data-theme="dark"] .recovery-banner { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }

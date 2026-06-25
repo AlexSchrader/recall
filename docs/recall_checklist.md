@@ -25,10 +25,10 @@ When a task finishes, you must:
 
 ## Status at a glance
 
-- **Current phase:** Phase 6 — Cost observability + ongoing hardening (Phase 4.7 study-mode expansion landed 2026-06-25)
+- **Current phase:** Phase 6 — Cost observability + ongoing hardening
 - **In flight:** Nothing open
-- **⚡️ Single next action:** Alex to feel-check the 2026-06-25 work on mobile (new question types, daily review, regenerate, nav, row-select edit). Then decide on the two remaining study ideas: **Exam countdown** (needs `exam_date` schema change — awaiting go-ahead) and **Confidence-weighted answers** (touches SM-2).
-- **Last updated:** 2026-06-25 (session — fixed games 0/10 grading + short-answer submit crash; added multiple-answer + cloze question types; daily cross-deck review; explain-it-back; concise flashcard answers; regenerate-deck button; flashcard overflow fix; onboarding demo + create-course landing; mobile nav cleanup; inline edit/delete units; tap-to-select edit pencils)
+- **⚡️ Single next action:** Alex to feel-check exam countdown (set an exam date on a course, watch the badge + Progress nudge). Remaining study idea: **Confidence-weighted answers** (touches shared SM-2 — discuss before building). Also queued: study-guide bugfix already shipped; the two Alex-only setup tasks (billing alerts).
+- **Last updated:** 2026-06-24 (session — fixed study guide + flashcard `model: Field required` crash; built exam countdown per course)
 
 ---
 
@@ -140,6 +140,9 @@ New question types, study flows, and a round of mobile UX cleanup. All built CC-
 - [x] **Inline edit unit names** + delete (in edit mode, behind a confirm) on CoursePage, via existing `PUT`/`DELETE /units/:id` — DONE 2026-06-25, commits `1481967`, `bbbbcb7` (CC)
 - [x] **Tap-to-select edit pencils** — course + unit rows reveal their ✏️ only when selected (highlighted), replacing hover-only/always-visible pencils; mobile-friendly, tap the name to open — DONE 2026-06-25, commits `aacf608`, `2690408` (CC)
 - [x] Stale `rappel.test.js` fixed — single `VOICE_ID` export was split into `MATHIEU_VOICE_ID`/`JULIETTE_VOICE_ID`; suite back to green — DONE 2026-06-25, commit `7be61ba` (CC)
+
+**Study planning**
+- [x] **Exam countdown (per course)** — optional `exam_date` on courses (nullable column, migrated via `PRAGMA table_info`; schema change greenlit by Alex 2026-06-24). CoursePage sets/edits/clears the date and shows a colour-coded countdown badge (far/soon/urgent/past); HomePage course rows show a mini badge; ProgressPage shows an "exam soon" nudge for the soonest exam within 14 days. Server validates `YYYY-MM-DD` or null. Pure date helpers in `client/src/examCountdown.js` with 8 unit tests — DONE 2026-06-24 (CC)
 
 ## Phase 5 — Rappel hardening
 

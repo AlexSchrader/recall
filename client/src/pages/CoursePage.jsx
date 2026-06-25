@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api } from '../api.js';
+import { examCountdownLabel, examUrgency } from '../examCountdown.js';
 
 export default function CoursePage() {
   const { courseId } = useParams();
@@ -16,11 +17,32 @@ export default function CoursePage() {
   const [editBusy, setEditBusy] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [editingExam, setEditingExam] = useState(false);
+  const [examInput, setExamInput] = useState('');
+  const [examBusy, setExamBusy] = useState(false);
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
     api.get(`/courses/${courseId}/units`).then(setUnits).catch(console.error);
   }, [courseId]);
+
+  const openExamEdit = () => {
+    setExamInput(course?.exam_date ?? '');
+    setEditingExam(true);
+  };
+
+  const saveExamDate = async (value) => {
+    setExamBusy(true);
+    try {
+      const updated = await api.put(`/courses/${courseId}`, { exam_date: value || null });
+      setCourse(updated);
+      setEditingExam(false);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setExamBusy(false);
+    }
+  };
 
   const createUnit = async (e) => {
     e.preventDefault();
@@ -99,6 +121,33 @@ export default function CoursePage() {
         </div>
         <button className="btn btn-ghost btn-sm" onClick={() => setAdding(v => !v)}>+ Unit</button>
         <button className="btn btn-danger btn-sm" onClick={deleteCourse}>Delete course</button>
+      </div>
+
+      {/* Exam countdown */}
+      <div className="exam-row">
+        {editingExam ? (
+          <div className="exam-edit">
+            <label style={{ fontSize: '.85rem', color: 'var(--muted)' }}>Exam date</label>
+            <input
+              type="date"
+              value={examInput}
+              onChange={e => setExamInput(e.target.value)}
+              disabled={examBusy}
+              autoFocus
+            />
+            <button className="btn btn-primary btn-sm" disabled={examBusy} onClick={() => saveExamDate(examInput)}>Save</button>
+            {course.exam_date && (
+              <button className="btn btn-ghost btn-sm" disabled={examBusy} onClick={() => saveExamDate(null)}>Clear</button>
+            )}
+            <button className="btn btn-sm" disabled={examBusy} onClick={() => setEditingExam(false)}>Cancel</button>
+          </div>
+        ) : course.exam_date ? (
+          <button className={`exam-badge exam-badge--${examUrgency(course.exam_date)}`} onClick={openExamEdit} title="Edit exam date">
+            📅 {examCountdownLabel(course.exam_date)}
+          </button>
+        ) : (
+          <button className="btn btn-ghost btn-sm" onClick={openExamEdit}>📅 Set exam date</button>
+        )}
       </div>
 
       {adding && (

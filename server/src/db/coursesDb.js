@@ -9,7 +9,7 @@ const stmts = {
     `INSERT INTO courses (id, user_id, name, color, created_at)
      VALUES (@id, @user_id, @name, @color, @created_at)`
   ),
-  update: db.prepare('UPDATE courses SET name = @name, color = @color WHERE id = @id'),
+  update: db.prepare('UPDATE courses SET name = @name, color = @color, exam_date = @exam_date WHERE id = @id'),
   delete: db.prepare('DELETE FROM courses WHERE id = ?'),
 };
 
@@ -25,8 +25,8 @@ export function listCoursesByUser(userId) {
   return stmts.listByUser.all(userId);
 }
 
-export function updateCourse(id, { name, color }) {
-  return stmts.update.run({ id, name, color });
+export function updateCourse(id, { name, color, exam_date }) {
+  return stmts.update.run({ id, name, color, exam_date: exam_date ?? null });
 }
 
 export function deleteCourse(id) {

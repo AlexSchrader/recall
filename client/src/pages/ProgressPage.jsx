@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
+import { daysUntilExam, examCountdownLabel } from '../examCountdown.js';
 
 function MasteryBar({ value }) {
   const pct = Math.round((value ?? 0) * 100);
@@ -133,6 +134,25 @@ export default function ProgressPage() {
           </div>
         </div>
       )}
+
+      {/* ── Exam soon nudge (soonest upcoming exam within 14 days) ── */}
+      {(() => {
+        const upcoming = (data?.progress ?? [])
+          .map(p => ({ course: p.course, days: daysUntilExam(p.course?.exam_date) }))
+          .filter(x => x.days !== null && x.days >= 0 && x.days <= 14)
+          .sort((a, b) => a.days - b.days)[0];
+        if (!upcoming) return null;
+        return (
+          <div className="exam-nudge">
+            <span>
+              <strong>{examCountdownLabel(upcoming.course.exam_date)}</strong> for {upcoming.course.name} — focus your weakest topics now.
+            </span>
+            <Link to={`/courses/${upcoming.course.id}`} className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>
+              Open course
+            </Link>
+          </div>
+        );
+      })()}
 
       {/* ── Weak questions ── */}
       {data?.weakQuestions?.length > 0 && (
