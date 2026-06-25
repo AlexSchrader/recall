@@ -16,6 +16,7 @@ export default function CoursePage() {
   const [editName, setEditName] = useState('');
   const [editBusy, setEditBusy] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+  const [confirmDeleteCourse, setConfirmDeleteCourse] = useState(false);
   const [selectedId, setSelectedId] = useState(null);
   const [editingExam, setEditingExam] = useState(false);
   const [examInput, setExamInput] = useState('');
@@ -131,7 +132,6 @@ export default function CoursePage() {
   };
 
   const deleteCourse = async () => {
-    if (!confirm(`Delete "${course?.name}" and all its contents?`)) return;
     await api.delete(`/courses/${courseId}`);
     navigate('/');
   };
@@ -140,7 +140,18 @@ export default function CoursePage() {
 
   return (
     <>
-      <p className="breadcrumb"><Link to="/">Home</Link> › Courses</p>
+      <div className="course-top">
+        <p className="breadcrumb breadcrumb--lg"><Link to="/">Home</Link> › Courses</p>
+        {confirmDeleteCourse ? (
+          <span className="course-del-confirm">
+            Delete this course &amp; everything in it?
+            <button className="btn btn-danger btn-sm" onClick={deleteCourse}>Yes, delete</button>
+            <button className="btn btn-sm" onClick={() => setConfirmDeleteCourse(false)}>Cancel</button>
+          </span>
+        ) : (
+          <button className="course-del-x" title="Delete course" onClick={() => setConfirmDeleteCourse(true)}>✕</button>
+        )}
+      </div>
       <div className="page-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem', flex: 1 }}>
           <span style={{ width: 16, height: 16, borderRadius: '50%', background: course.color ?? '#4f46e5' }} />
@@ -159,7 +170,6 @@ export default function CoursePage() {
             disabled={bulkBusy}
           />
         </label>
-        <button className="btn btn-danger btn-sm" onClick={deleteCourse}>Delete course</button>
       </div>
 
       {bulkMsg && (
