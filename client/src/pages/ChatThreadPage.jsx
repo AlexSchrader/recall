@@ -27,7 +27,7 @@ function PinModal({ onUnlock, onClose }) {
     <div className="pin-overlay" onClick={onClose}>
       <div className="pin-modal" onClick={e => e.stopPropagation()}>
         <h3>Voice unlock</h3>
-        <p style={{ color: 'var(--muted)', fontSize: '.875rem', marginBottom: '1rem' }}>Enter your PIN to enable Rappel's voice.</p>
+        <p style={{ color: 'var(--muted)', fontSize: '.875rem', marginBottom: '1rem' }}>Enter your PIN to enable Rappel&apos;s voice.</p>
         <form onSubmit={submit}>
           <input
             className="pin-input"
@@ -184,10 +184,6 @@ export default function ChatThreadPage() {
     recognitionRef.current = recognition;
     recognition.start();
     setListening(true);
-  };
-
-  const stopListening = () => {
-    recognitionRef.current?.stop();
   };
 
   const sendMessage = async (e, overrideContent = null) => {

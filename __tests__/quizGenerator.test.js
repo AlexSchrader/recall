@@ -28,7 +28,7 @@ vi.mock('../server/src/db/questionsDb.js', () => ({
 }));
 
 // ── Imports (resolved against the mocked modules above) ──────────────────────
-import { generateQuiz, buildSystemPrompt, buildUserPrompt, extractJson, validateQuestion } from '../server/src/services/quizGenerator.js';
+import { generateQuiz, buildUserPrompt, extractJson, validateQuestion } from '../server/src/services/quizGenerator.js';
 import { generate } from '../server/src/services/claude.js';
 import { listDueForReview } from '../server/src/db/topicMasteryDb.js';
 import { bulkCreateQuestions } from '../server/src/db/questionsDb.js';

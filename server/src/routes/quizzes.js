@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { getUserById, updateStreak } from '../db/usersDb.js';
 import { getPreferences } from '../db/preferencesDb.js';
 import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz, deleteQuiz } from '../db/quizzesDb.js';
-import { listQuestionsByQuiz, getQuestionById } from '../db/questionsDb.js';
+import { listQuestionsByQuiz } from '../db/questionsDb.js';
 import { bulkCreateAttempts } from '../db/attemptsDb.js';
 import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
 import { getGenerationConfig, ClaudeError } from '../services/claude.js';

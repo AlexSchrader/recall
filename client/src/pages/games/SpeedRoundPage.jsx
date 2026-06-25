@@ -8,7 +8,6 @@ const TOTAL = 10;
 export default function SpeedRoundPage() {
   const [searchParams] = useSearchParams();
   const unitId   = searchParams.get('unitId');
-  const unitName = searchParams.get('unitName') ?? 'this unit';
 
   const [phase, setPhase]       = useState('loading'); // loading | error | countdown | playing | done
   const [questions, setQuestions] = useState([]);
@@ -101,7 +100,7 @@ export default function SpeedRoundPage() {
         <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🏃</p>
         <p><strong>No questions yet</strong></p>
         <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 280, margin: '.5rem auto 0' }}>
-          Speed Round needs at least one completed MCQ quiz. Generate a quiz with "Multiple choice" enabled first.
+          Speed Round needs at least one completed MCQ quiz. Generate a quiz with &quot;Multiple choice&quot; enabled first.
         </p>
         <div style={{ display: 'flex', gap: '.5rem', justifyContent: 'center', marginTop: '1rem', flexWrap: 'wrap' }}>
           <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm">← Back</Link>

@@ -60,7 +60,7 @@ router.post('/chat/threads/:id/messages', requireAuth, async (req, res) => {
   const now = new Date().toISOString();
 
   // Persist user message
-  const userMsg = addMessage({
+  addMessage({
     id: uuidv4(),
     threadId: thread.id,
     role: 'user',

@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   buildSourceContextFromDocs,
   splitIntoChunks,
-  selectRepresentative,
 } from '../server/src/ingestion/sourceContext.js';
 
 describe('splitIntoChunks', () => {

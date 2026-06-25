@@ -78,9 +78,9 @@ export function buildUserPrompt({ questionCount, types, difficulty, reviewTopics
 
 export function extractJson(text) {
   const trimmed = text.trim();
-  try { return JSON.parse(trimmed); } catch {}
+  try { return JSON.parse(trimmed); } catch { /* not bare JSON — try to extract an array below */ }
   const match = trimmed.match(/\[[\s\S]*\]/);
-  if (match) { try { return JSON.parse(match[0]); } catch {} }
+  if (match) { try { return JSON.parse(match[0]); } catch { /* embedded array didn't parse */ } }
   return null;
 }
 
@@ -111,9 +111,9 @@ export function validateQuestion(q) {
  * @param {object} sourceContext - { text, imageBlocks } pre-resolved by the route
  * @param {object} preferences  - user prefs pre-resolved by the route
  */
-export async function generateQuiz({ config, sourceContext, preferences }) {
+export async function generateQuiz({ config, sourceContext }) {
   const {
-    userId, courseId, unitIds, title,
+    userId, unitIds, title,
     questionCount, reviewMix, types, difficulty, tier = 'free',
   } = config;
 

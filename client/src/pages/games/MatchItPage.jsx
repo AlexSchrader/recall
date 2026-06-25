@@ -20,7 +20,6 @@ function formatTime(s) {
 export default function MatchItPage() {
   const [searchParams] = useSearchParams();
   const deckId   = searchParams.get('deckId');
-  const deckName = searchParams.get('deckName') ?? 'this deck';
 
   const [phase, setPhase]         = useState('loading'); // loading | error | playing | done
   const [fronts, setFronts]       = useState([]);  // [{id, text}] shuffled

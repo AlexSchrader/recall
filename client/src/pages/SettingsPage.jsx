@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
@@ -23,7 +23,7 @@ const TYPE_OPTIONS = [
 ];
 
 export default function SettingsPage() {
-  const { user, setUser, refreshUser } = useAuth();
+  const { user, setUser } = useAuth();
 
   // ── Stats ──
   const [stats, setStats] = useState(null);

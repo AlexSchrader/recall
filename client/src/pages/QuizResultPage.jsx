@@ -7,7 +7,7 @@ export default function QuizResultPage() {
   const { state } = useLocation();
   const navigate = useNavigate();
   const [quiz, setQuiz] = useState(null);
-  const [results, setResults] = useState(state?.results ?? null);
+  const [results] = useState(state?.results ?? null);
   const [creatingThread, setCreatingThread] = useState(false);
   const [explaining, setExplaining] = useState(false);
   const [retaking, setRetaking] = useState(false);
