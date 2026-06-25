@@ -36,14 +36,6 @@ export default function ProgressPage() {
     } catch (e) { console.error(e); }
   };
 
-  const explainItToMe = async (topic) => {
-    const msg = `I want to understand "${topic}" better using the Feynman technique. Ask me to explain it in my own simple words — like I'm teaching it to someone who's never heard of it. Then tell me what I got right, what I missed, and fill in any gaps.`;
-    try {
-      const thread = await api.post('/chat/threads', { title: `Explain: ${topic}` });
-      navigate(`/chat/${thread.id}?init=${encodeURIComponent(msg)}`);
-    } catch (e) { console.error(e); }
-  };
-
   const [unitMap, setUnitMap]       = useState({});
   const [focusPick, setFocusPick]   = useState(null);
   const [focusBusy, setFocusBusy]   = useState(null); // null | unitId
@@ -240,13 +232,6 @@ export default function ProgressPage() {
                     >{pct}%</span>
                   </div>
                   <div className="mastery-actions">
-                    <button
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => explainItToMe(t.topic)}
-                      title="Practice explaining this topic (Feynman method)"
-                    >
-                      Explain it
-                    </button>
                     <button
                       className="btn btn-ghost btn-sm"
                       onClick={() => askRappelAbout(t.topic)}

@@ -440,10 +440,11 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .focus-picker { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: .65rem .75rem; margin-bottom: .6rem; }
 .mastery-list { display: flex; flex-direction: column; gap: .6rem; }
 .mastery-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; }
-.mastery-info { flex: 1; display: flex; align-items: center; gap: .75rem; min-width: 0; }
-.mastery-actions { display: flex; gap: .35rem; flex-shrink: 0; }
+.mastery-info { flex: 1; display: flex; align-items: center; gap: .6rem; min-width: 0; }
+/* Actions hug the right edge; the bar is capped so the pill stays grouped on the left. */
+.mastery-actions { display: flex; gap: .35rem; flex-shrink: 0; margin-left: auto; }
 .mastery-topic { font-size: .875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 120px; max-width: 200px; }
-.mastery-bar-wrap { flex: 1; display: flex; align-items: center; }
+.mastery-bar-wrap { flex: 1 1 auto; max-width: 200px; display: flex; align-items: center; }
 .mastery-bar-bg { flex: 1; height: 8px; background: var(--border); border-radius: 99px; overflow: hidden; }
 .mastery-bar-fill { height: 100%; border-radius: 99px; transition: width .4s ease; }
 /* Percentage as its own pill — grouped with the bar it labels, set apart from the action buttons. */
