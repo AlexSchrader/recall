@@ -10,12 +10,22 @@ import { getGenerationConfig, ClaudeError } from '../services/claude.js';
 import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
 import { getUnitById } from '../db/unitsDb.js';
+import { getCourseById } from '../db/coursesDb.js';
 import { fetchWikiSummary } from '../services/wikipedia.js';
 import { gradeAuto, gradeShort, gradeMulti, gradeCloze } from '../services/grader.js';
 import { sm2Next } from '../services/sm2.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
+
+// Returns the unit if it exists and the caller owns its course, else null.
+function ownedUnit(unitId, userId) {
+  const unit = getUnitById(unitId);
+  if (!unit) return null;
+  const course = getCourseById(unit.course_id);
+  if (!course || course.user_id !== userId) return null;
+  return unit;
+}
 
 // POST /api/quizzes/generate
 router.post('/quizzes/generate', requireAuth, async (req, res) => {
@@ -29,6 +39,25 @@ router.post('/quizzes/generate', requireAuth, async (req, res) => {
 
   const user = getUserById(userId);
   if (!user) return res.status(404).json({ error: 'User not found.' });
+
+  // Ownership: the caller must own every unit it pulls source material from.
+  // buildSourceContext reads each unit's documents with no user filter, so an
+  // unchecked unitId would expose another user's private content (see audit).
+  const ownedUnits = unitIds.map(id => ownedUnit(id, userId));
+  if (ownedUnits.some(u => !u)) {
+    return res.status(404).json({ error: 'One or more units were not found.' });
+  }
+  // courseId, when supplied, must also belong to the caller (it scopes mastery writes).
+  if (courseId) {
+    const course = getCourseById(courseId);
+    if (!course || course.user_id !== userId) {
+      return res.status(404).json({ error: 'Course not found.' });
+    }
+    // Every unit must actually live in that course.
+    if (ownedUnits.some(u => u.course_id !== courseId)) {
+      return res.status(400).json({ error: 'A unit does not belong to the given course.' });
+    }
+  }
 
   const { dailyCap, sourceTokenBudget } = getGenerationConfig(user.tier);
 

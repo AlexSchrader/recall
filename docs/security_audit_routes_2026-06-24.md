@@ -72,6 +72,10 @@ if any unit isn't owned by the caller. Belongs in the route, mirroring `flashcar
 routes (`flashcards.js`, `studyGuides.js`) already gate on `ownsUnit` before calling — so
 quiz generation is the *only* unguarded entry into `buildSourceContext`/`getUnitById`.
 
+**✅ Resolved** in the follow-up commit: `/quizzes/generate` now resolves every `unitId`
+through an `ownedUnit` (unit→course→`user_id`) check and rejects with 404 if any isn't
+owned; a supplied `courseId` must also be owned and must contain those units.
+
 ---
 
 ## Style observation (not a scoping gap)
