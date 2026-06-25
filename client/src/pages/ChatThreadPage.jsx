@@ -27,7 +27,7 @@ function PinModal({ onUnlock, onClose }) {
     <div className="pin-overlay" onClick={onClose}>
       <div className="pin-modal" onClick={e => e.stopPropagation()}>
         <h3>Voice unlock</h3>
-        <p style={{ color: 'var(--muted)', fontSize: '.875rem', marginBottom: '1rem' }}>Enter your PIN to enable Rappel's voice.</p>
+        <p style={{ color: 'var(--muted)', fontSize: '.875rem', marginBottom: '1rem' }}>Enter your PIN to enable Rappel&apos;s voice.</p>
         <form onSubmit={submit}>
           <input
             className="pin-input"
@@ -186,10 +186,6 @@ export default function ChatThreadPage() {
     setListening(true);
   };
 
-  const stopListening = () => {
-    recognitionRef.current?.stop();
-  };
-
   const sendMessage = async (e, overrideContent = null) => {
     if (e) e.preventDefault();
     const content = (overrideContent ?? input).trim();
@@ -217,6 +213,8 @@ export default function ChatThreadPage() {
       let buffer = '';
       let full = '';
 
+      // Standard Web Streams reader loop — runs until reader.read() reports done.
+      // eslint-disable-next-line no-constant-condition
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;

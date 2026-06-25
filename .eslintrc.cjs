@@ -11,6 +11,9 @@ module.exports = {
   settings: { react: { version: '18.3' } },
   rules: {
     'react/prop-types': 'off',
+    // Allow the `const { secret: _, ...safe } = obj` omit-idiom and intentionally
+    // ignored args/catch bindings prefixed with `_`.
+    'no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
   },
   ignorePatterns: ['node_modules/', 'client/dist/', 'server/data/'],
 };

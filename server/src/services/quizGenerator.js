@@ -1,3 +1,8 @@
+/* eslint-disable no-useless-escape */
+// The escaped quotes in buildSystemPrompt's JSON-schema description (e.g. \"A,C\")
+// are part of the Claude prompt — they show the model the exact output format.
+// We don't edit prompt strings to satisfy a lint rule, so the rule is disabled
+// for this file rather than the escapes removed. Model output format is sensitive.
 import { v4 as uuidv4 } from 'uuid';
 import { generate, getGenerationConfig } from './claude.js';
 import { listDueForReview } from '../db/topicMasteryDb.js';
@@ -78,9 +83,9 @@ export function buildUserPrompt({ questionCount, types, difficulty, reviewTopics
 
 export function extractJson(text) {
   const trimmed = text.trim();
-  try { return JSON.parse(trimmed); } catch {}
+  try { return JSON.parse(trimmed); } catch { /* not bare JSON — try to extract an array below */ }
   const match = trimmed.match(/\[[\s\S]*\]/);
-  if (match) { try { return JSON.parse(match[0]); } catch {} }
+  if (match) { try { return JSON.parse(match[0]); } catch { /* embedded array didn't parse */ } }
   return null;
 }
 
@@ -111,9 +116,9 @@ export function validateQuestion(q) {
  * @param {object} sourceContext - { text, imageBlocks } pre-resolved by the route
  * @param {object} preferences  - user prefs pre-resolved by the route
  */
-export async function generateQuiz({ config, sourceContext, preferences }) {
+export async function generateQuiz({ config, sourceContext }) {
   const {
-    userId, courseId, unitIds, title,
+    userId, unitIds, title,
     questionCount, reviewMix, types, difficulty, tier = 'free',
   } = config;
 

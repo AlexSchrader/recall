@@ -2,7 +2,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { getCard, updateCard } from '../db/flashcardsDb.js';
 import { getDeck } from '../db/flashcardsDb.js';
 import { getMastery, upsertMastery } from '../db/topicMasteryDb.js';
-import { getCourseById } from '../db/coursesDb.js';
 import { getUnitById } from '../db/unitsDb.js';
 
 const ALPHA = 0.2; // EMA smoothing factor

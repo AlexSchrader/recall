@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
 import { daysUntilExam, examCountdownLabel } from '../examCountdown.js';
 
@@ -18,7 +17,6 @@ function MasteryBar({ value }) {
 }
 
 export default function ProgressPage() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [stats, setStats] = useState(null);
@@ -159,7 +157,7 @@ export default function ProgressPage() {
         <section className="progress-section">
           <h2 className="section-title">Commonly missed questions</h2>
           <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginBottom: '.75rem' }}>
-            These are the questions you've gotten wrong most often. Rappel can walk you through any of them.
+            These are the questions you&apos;ve gotten wrong most often. Rappel can walk you through any of them.
           </p>
           <div className="weak-q-list">
             {data.weakQuestions.map(q => (

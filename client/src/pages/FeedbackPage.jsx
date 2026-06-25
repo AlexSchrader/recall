@@ -87,7 +87,7 @@ export default function FeedbackPage() {
         <div className="feedback-done">
           <div className="feedback-done-icon">✓</div>
           <h2>Thanks for the feedback!</h2>
-          <p>We read every submission. If you reported a bug, we'll look into it.</p>
+          <p>We read every submission. If you reported a bug, we&apos;ll look into it.</p>
           <button className="btn btn-primary" style={{ marginTop: '1.25rem' }} onClick={() => navigate(-1)}>
             Go back
           </button>

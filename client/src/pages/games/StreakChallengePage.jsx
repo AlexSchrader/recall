@@ -96,7 +96,7 @@ export default function StreakChallengePage() {
         <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🔥</p>
         <p><strong>No questions yet</strong></p>
         <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 280, margin: '.5rem auto 0' }}>
-          Streak Challenge needs at least one completed MCQ quiz. Generate a quiz with "Multiple choice" enabled first.
+          Streak Challenge needs at least one completed MCQ quiz. Generate a quiz with &quot;Multiple choice&quot; enabled first.
         </p>
         <div style={{ display: 'flex', gap: '.5rem', justifyContent: 'center', marginTop: '1rem', flexWrap: 'wrap' }}>
           <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm">← Back</Link>

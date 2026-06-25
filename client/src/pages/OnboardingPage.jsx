@@ -129,7 +129,7 @@ export default function OnboardingPage() {
             <div className="ob-emoji">📚</div>
             <h1 className="ob-title">Welcome to Recall</h1>
             <p className="ob-sub">Your adaptive AI study companion. Upload your notes, generate quizzes, and master any subject with spaced repetition.</p>
-            <button className="btn btn-primary ob-cta" onClick={() => setStep(2)}>Let's go →</button>
+            <button className="btn btn-primary ob-cta" onClick={() => setStep(2)}>Let&apos;s go →</button>
           </div>
         )}
 

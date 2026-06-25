@@ -48,8 +48,6 @@ export default function FlashcardsPage() {
 
   if (!unit || !course) return null;
 
-  const hasDocs = true; // server already checks; just let generate fail with a clear error
-
   return (
     <>
       <p className="breadcrumb">
