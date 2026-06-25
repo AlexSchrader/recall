@@ -1,3 +1,8 @@
+/* eslint-disable no-useless-escape */
+// The escaped quotes in buildSystemPrompt's JSON-schema description (e.g. \"A,C\")
+// are part of the Claude prompt — they show the model the exact output format.
+// We don't edit prompt strings to satisfy a lint rule, so the rule is disabled
+// for this file rather than the escapes removed. Model output format is sensitive.
 import { v4 as uuidv4 } from 'uuid';
 import { generate, getGenerationConfig } from './claude.js';
 import { listDueForReview } from '../db/topicMasteryDb.js';
