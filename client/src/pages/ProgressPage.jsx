@@ -3,15 +3,17 @@ import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { daysUntilExam, examCountdownLabel } from '../examCountdown.js';
 
+function masteryColor(pct) {
+  return pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
+}
+
 function MasteryBar({ value }) {
   const pct = Math.round((value ?? 0) * 100);
-  const color = pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
   return (
     <div className="mastery-bar-wrap" title={`${pct}% mastery`}>
       <div className="mastery-bar-bg">
-        <div className="mastery-bar-fill" style={{ width: `${pct}%`, background: color }} />
+        <div className="mastery-bar-fill" style={{ width: `${pct}%`, background: masteryColor(pct) }} />
       </div>
-      <span className="mastery-bar-pct" style={{ color }}>{pct}%</span>
     </div>
   );
 }
@@ -224,11 +226,18 @@ export default function ProgressPage() {
               </div>
             )}
             <div className="mastery-list">
-              {topics.map(t => (
+              {topics.map(t => {
+                const pct = Math.round((t.mastery ?? 0) * 100);
+                return (
                 <div key={t.topic} className="mastery-row">
                   <div className="mastery-info">
                     <span className="mastery-topic">{t.topic}</span>
                     <MasteryBar value={t.mastery} />
+                    <span
+                      className="mastery-pct-badge"
+                      style={{ color: masteryColor(pct), borderColor: masteryColor(pct) }}
+                      title={`${pct}% mastery`}
+                    >{pct}%</span>
                   </div>
                   <div className="mastery-actions">
                     <button
@@ -247,7 +256,8 @@ export default function ProgressPage() {
                     </button>
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )
