@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
 
@@ -8,6 +8,7 @@ export default function StreakChallengePage() {
   const [searchParams] = useSearchParams();
   const unitId   = searchParams.get('unitId');
 
+  const seenIds = useRef(new Set()); // question IDs already shown this session — no repeats
   const [phase, setPhase]       = useState('loading');
   const [questions, setQuestions] = useState([]);
   const [idx, setIdx]           = useState(0);
@@ -24,6 +25,7 @@ export default function StreakChallengePage() {
     api.get(`/games/questions?${params}`)
       .then(qs => {
         if (!qs.length) { setPhase('error'); return; }
+        seenIds.current = new Set();
         setQuestions(qs);
         setIdx(0);
         setStreak(0);
@@ -49,6 +51,7 @@ export default function StreakChallengePage() {
     const q = questions[idx];
     // options are "A) ...", "B) ..." etc.; correct_answer is just the letter.
     const correct = opt[0] === q.correct_answer;
+    seenIds.current.add(q.id);
     setSelected(opt);
     setTotal(t => t + 1);
     setGameResults(prev => [...prev, { questionId: q.id, correct }]);
@@ -61,14 +64,18 @@ export default function StreakChallengePage() {
       const newStreak = streak + 1;
       setStreak(newStreak);
       setBest(b => Math.max(b, newStreak));
-      const next = idx + 1;
+      // Skip any already-seen questions left in the current batch.
+      let next = idx + 1;
+      while (next < questions.length && seenIds.current.has(questions[next].id)) next++;
       if (next >= questions.length) {
-        // refetch more questions seamlessly
+        // refetch more questions seamlessly, dropping ones already seen this session
         setTransitioning(true);
         const params = new URLSearchParams({ limit: BATCH });
         if (unitId) params.set('unitId', unitId);
         api.get(`/games/questions?${params}`).then(qs => {
-          setQuestions(qs);
+          const fresh = qs.filter(x => !seenIds.current.has(x.id));
+          if (!fresh.length) { setPhase('done'); return; } // exhausted the pool — end on a high note
+          setQuestions(fresh);
           setIdx(0);
           setSelected(null);
           setTransitioning(false);

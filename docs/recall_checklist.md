@@ -108,7 +108,7 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [x] Match It — up to 8 pairs per round from any deck with ≥4 cards, two-column shuffled layout (terms left, definitions right), tap-to-select with green-lock / red-shake feedback, live timer + mistake counter HUD, entry from DeckPage as "Match It 🃏" card — DONE 2026-06-22 (CC)
 - [x] Mini-games feed topic mastery — `POST /api/games/results` groups answers by topic+course, computes a quality score, upserts `topic_mastery` via the same SM-2 engine. Both Speed Round and Streak Challenge submit on game-over — DONE 2026-06-22, commit `7fc570f` (CC)
 - [x] **Mini-game empty state:** both Speed Round and Streak Challenge show emoji + bold heading + clear "MCQ first" instruction + "Go generate a quiz →" CTA when unitId is set — DONE 2026-06-23, commit `0c443fc` (CC)
-- [ ] Streak Challenge can repeat a question within a single long streak (refetches re-randomize, no dedupe). Acceptable for now; revisit if a user reports it. Fix would be a seen-this-session set on the client. (CC)
+- [x] Streak Challenge no longer repeats a question within a session — client tracks a `seenIds` set, skips already-seen questions in the current batch and filters them out of refetches; if the pool is exhausted mid-streak the game ends on the high note instead of recycling — DONE 2026-06-24 (CC)
 - [x] HomePage "Quick Study" shuffle button — "🎲 Surprise me" randomly navigates to Speed Round or Streak Challenge — DONE 2026-06-23, commit `0c443fc` (CC)
 
 ## Phase 4.7 — Study-mode expansion & UX polish *(2026-06-25 session)*
@@ -175,7 +175,7 @@ You're paying for every Claude + ElevenLabs call. Need to see the spend before i
 - [x] Admin PIN gate — `/admin` shows a lock screen on every new session; enter `VOICE_PIN` to unlock; all admin data routes require `req.session.adminUnlocked`; non-admins still can't get past `requireAdmin` regardless — DONE 2026-06-23 (CC)
 - [x] Admin Feedback tab — lists all in-app feedback submissions with type badge, submitter, date, message, and inline screenshot (base64); each item has "Open as GitHub issue →" link pre-filled with title + body + label — DONE 2026-06-23 (CC)
 - [x] Admin delete user — Users tab has per-row Delete button with inline confirm; `DELETE /api/admin/users/:id` kills active sessions then cascades-deletes all user data; self-delete blocked server-side — DONE 2026-06-23 (CC)
-- [ ] **Setup task:** add your user ID to Railway env var `ADMIN_USER_IDS` (one-time: `SELECT id FROM users WHERE display_name = 'YourName'`, paste the id into Railway) (Alex)
+- [x] **Setup task:** `ADMIN_USER_IDS` set in Railway — Alex confirmed 2026-06-24 (Alex)
 - [x] ElevenLabs character usage logged — TTS calls log to `usage_log` with `feature='tts'`, `model='eleven_turbo_v2_5'`, `output_tokens=char_count`; admin pricing table includes ElevenLabs at $500/1M chars; admin feature label shows 'Voice (chars)' — DONE 2026-06-23, commit `576f70a` (CC)
 - [ ] Anthropic billing alert configured outside the app (verify) (Alex)
 - [ ] ElevenLabs character-quota alert configured (verify) (Alex)
