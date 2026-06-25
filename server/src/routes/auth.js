@@ -11,7 +11,8 @@ import { sendPasswordReset } from '../services/email.js';
 import { countAttemptsByUser, listWeakQuestions } from '../db/attemptsDb.js';
 import { listMasteryByUser, listMasteryByCourse } from '../db/topicMasteryDb.js';
 import { listCoursesByUser } from '../db/coursesDb.js';
-import db from '../db/index.js';
+import { countCompletedQuizzesByUser, listQuizzesWithQuestions } from '../db/quizzesDb.js';
+import { countCardReviewsByUser, listFlashcardReviewsByUser } from '../db/flashcardsDb.js';
 
 const router = Router();
 const SALT_ROUNDS = 10;
@@ -178,15 +179,9 @@ router.get('/me/stats', requireAuth, (req, res) => {
   const user = getUserById(uid);
   if (!user) return res.status(401).json({ error: 'User not found.' });
 
-  const quizzesCompleted = db.prepare(
-    `SELECT COUNT(*) AS n FROM quizzes WHERE user_id = ? AND status = 'completed'`
-  ).get(uid).n;
-
+  const quizzesCompleted = countCompletedQuizzesByUser(uid);
   const questionsAnswered = countAttemptsByUser(uid);
-
-  const cardsReviewed = db.prepare(
-    `SELECT COALESCE(SUM(repetitions), 0) AS n FROM flashcards WHERE user_id = ?`
-  ).get(uid).n;
+  const cardsReviewed = countCardReviewsByUser(uid);
 
   res.json({
     quizzesCompleted,
@@ -216,30 +211,8 @@ router.get('/me/export', requireAuth, (req, res) => {
   const courses = listCoursesByUser(uid);
   const mastery = listMasteryByUser(uid);
   const weakQuestions = listWeakQuestions(uid, 50);
-
-  const quizzes = db.prepare(
-    `SELECT q.id, q.title, q.score, q.status, q.created_at, q.completed_at,
-            json_group_array(json_object(
-              'prompt', qn.prompt,
-              'type',   qn.type,
-              'topic',  qn.topic,
-              'correct_answer', qn.correct_answer
-            )) AS questions
-     FROM quizzes q
-     LEFT JOIN questions qn ON qn.quiz_id = q.id
-     WHERE q.user_id = ?
-     GROUP BY q.id
-     ORDER BY q.created_at DESC`
-  ).all(uid);
-
-  const flashcardReviews = db.prepare(
-    `SELECT f.front, f.back, f.topic, f.mastery, f.repetitions, f.due_at, f.last_reviewed_at,
-            fd.name AS deck
-     FROM flashcards f
-     JOIN flashcard_decks fd ON fd.id = f.deck_id
-     WHERE f.user_id = ?
-     ORDER BY f.last_reviewed_at DESC NULLS LAST`
-  ).all(uid);
+  const quizzes = listQuizzesWithQuestions(uid);
+  const flashcardReviews = listFlashcardReviewsByUser(uid);
 
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', 'attachment; filename="recall-export.json"');
@@ -249,7 +222,7 @@ router.get('/me/export', requireAuth, (req, res) => {
     courses,
     topicMastery: mastery,
     weakQuestions,
-    quizzes: quizzes.map(q => ({ ...q, questions: JSON.parse(q.questions ?? '[]') })),
+    quizzes,
     flashcardReviews,
   });
 });

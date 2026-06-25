@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { requireAuth } from '../middleware/auth.js';
-import db from '../db/index.js';
+import { listGameQuestions, getQuestionCourseAndTopic } from '../db/questionsDb.js';
 import { getMastery, upsertMastery } from '../db/topicMasteryDb.js';
 import { sm2Next } from '../services/sm2.js';
 
@@ -15,20 +15,7 @@ router.get('/games/questions', requireAuth, (req, res) => {
   const uid = req.session.userId;
   const { unitId, courseId, limit = 10 } = req.query;
 
-  const rows = db.prepare(`
-    SELECT DISTINCT q.id, q.prompt, q.options_json, q.correct_answer, q.topic, q.explanation, q.difficulty
-    FROM questions q
-    JOIN quizzes qz ON qz.id = q.quiz_id
-    JOIN json_each(qz.source_unit_ids) AS unit_ref ON 1=1
-    JOIN units u ON u.id = unit_ref.value
-    WHERE qz.user_id = ?
-      AND qz.status = 'completed'
-      AND q.type = 'mcq'
-      AND (? IS NULL OR unit_ref.value = ?)
-      AND (? IS NULL OR u.course_id = ?)
-    ORDER BY RANDOM()
-    LIMIT ?
-  `).all(uid, unitId ?? null, unitId ?? null, courseId ?? null, courseId ?? null, Number(limit));
+  const rows = listGameQuestions(uid, { unitId: unitId ?? null, courseId: courseId ?? null, limit });
 
   res.json(rows.map(r => ({
     ...r,
@@ -43,21 +30,11 @@ router.post('/games/results', requireAuth, (req, res) => {
   const { results } = req.body ?? {};
   if (!Array.isArray(results) || !results.length) return res.json({ ok: true });
 
-  const lookupStmt = db.prepare(`
-    SELECT q.topic, u.course_id
-    FROM questions q
-    JOIN quizzes qz ON qz.id = q.quiz_id
-    JOIN json_each(qz.source_unit_ids) AS unit_ref ON 1=1
-    JOIN units u ON u.id = unit_ref.value
-    WHERE q.id = ? AND qz.user_id = ?
-    LIMIT 1
-  `);
-
   const now = new Date().toISOString();
   const byKey = {}; // `courseId::topic` → { scoreSum, total, courseId, topic }
 
   for (const { questionId, correct } of results) {
-    const row = lookupStmt.get(questionId, uid);
+    const row = getQuestionCourseAndTopic(questionId, uid);
     if (!row) continue;
     const key = `${row.course_id}::${row.topic}`;
     if (!byKey[key]) byKey[key] = { scoreSum: 0, total: 0, courseId: row.course_id, topic: row.topic };

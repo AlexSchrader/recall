@@ -68,6 +68,17 @@ const stmts = {
        SUM(CASE WHEN repetitions = 0 THEN 1 ELSE 0 END) AS new
      FROM flashcards WHERE deck_id = ?`
   ),
+  countReviews: db.prepare(
+    `SELECT COALESCE(SUM(repetitions), 0) AS n FROM flashcards WHERE user_id = ?`
+  ),
+  listReviews: db.prepare(
+    `SELECT f.front, f.back, f.topic, f.ease, f.interval_days, f.repetitions, f.due_at, f.last_reviewed_at,
+            fd.name AS deck
+     FROM flashcards f
+     JOIN flashcard_decks fd ON fd.id = f.deck_id
+     WHERE f.user_id = ?
+     ORDER BY f.last_reviewed_at DESC NULLS LAST`
+  ),
 };
 
 // ── Decks ────────────────────────────────────────────────────────────────────
@@ -125,4 +136,12 @@ export function getCardCounts(deckId) {
   const now = new Date().toISOString();
   const row = stmts.countCards.get(now, deckId);
   return { total: row.total ?? 0, due: row.due ?? 0, new: row.new ?? 0 };
+}
+
+export function countCardReviewsByUser(userId) {
+  return stmts.countReviews.get(userId).n;
+}
+
+export function listFlashcardReviewsByUser(userId) {
+  return stmts.listReviews.all(userId);
 }

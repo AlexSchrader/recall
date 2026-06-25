@@ -27,6 +27,23 @@ const stmts = {
     `SELECT COUNT(*) AS count FROM quizzes WHERE user_id = ? AND created_at >= ?`
   ),
   delete: db.prepare('DELETE FROM quizzes WHERE id = ? AND user_id = ?'),
+  countCompleted: db.prepare(
+    `SELECT COUNT(*) AS n FROM quizzes WHERE user_id = ? AND status = 'completed'`
+  ),
+  listWithQuestions: db.prepare(
+    `SELECT q.id, q.title, q.score, q.status, q.created_at, q.completed_at,
+            json_group_array(json_object(
+              'prompt', qn.prompt,
+              'type',   qn.type,
+              'topic',  qn.topic,
+              'correct_answer', qn.correct_answer
+            )) AS questions
+     FROM quizzes q
+     LEFT JOIN questions qn ON qn.quiz_id = q.id
+     WHERE q.user_id = ?
+     GROUP BY q.id
+     ORDER BY q.created_at DESC`
+  ),
 };
 
 export function createQuiz(data) {
@@ -60,4 +77,15 @@ export function deleteQuiz(id, userId) {
 export function countTodayByUser(userId) {
   const todayUtc = new Date().toISOString().slice(0, 10) + 'T00:00:00.000Z';
   return stmts.countToday.get(userId, todayUtc).count;
+}
+
+export function countCompletedQuizzesByUser(userId) {
+  return stmts.countCompleted.get(userId).n;
+}
+
+export function listQuizzesWithQuestions(userId) {
+  return stmts.listWithQuestions.all(userId).map(q => ({
+    ...q,
+    questions: JSON.parse(q.questions ?? '[]'),
+  }));
 }
