@@ -25,7 +25,7 @@ Alex is the supervisor and the product brain, not the second pair of hands. Defa
 - **Source-of-truth docs in this repo:**
   - `docs/Recall_Spec_v1.pdf` — full product specification
   - `docs/recall_checklist.md` — living build checklist (CC maintains this)
-  - `docs/Recall_Build_Prompts.md`, `docs/Rappel_Build_Prompts.md`, `docs/Recall_Study_Modes.md`, `docs/Recall_Grading_Fix.md` — sequenced build prompts
+  - `docs/Recall_Build_Prompts.md`, `docs/Rappel_Build_Prompts.md`, `docs/Recall_Study_Modes.md`, `docs/Recall_Grading_Fix.md`, `docs/Recall_Phase7_Prompts.md` — sequenced build prompts
   - `brand/README.md` — palette, asset usage, manifest snippet
 
 ---

@@ -182,17 +182,23 @@ You're paying for every Claude + ElevenLabs call. Need to see the spend before i
 - [x] **Route-level integration test harness** — supertest + fresh in-memory SQLite per file, external boundaries mocked (claude/rappel/wikipedia/email); seed helpers; 44 integration tests across documents, quizzes (incl. body-id trust), flashcards, study guides, chat, courses/units/bulk-import, games, admin gating, preferences, voice. Suite total 84 (44 integration + 40 unit), deterministic, `pool: 'forks'` to dodge the better-sqlite3 teardown segfault — DONE 2026-06-24 (CC)
 - [x] **CI now actually runs the test suite** — fixed the workflow trigger (push + PR to `main`/`dev`, was PR-to-`dev` only) and cleared the 36 pre-existing `eslint` errors in three scoped commits (mechanical / logic / prompt-string). `npm run lint` exits 0, so CI reaches the 84-test suite. Branch `chore/ci-green`, 2026-06-25 (CC)
 
-## Phase 7 — Pre-publish polish *(deferred until production-solid)*
+## Phase 7 — Subscriptions, tiers & founding members *(deferred until production-solid)*
 
-These don't need to happen for you and your friends — they unlock public/paid use.
+Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prompts.md`** — paste one prompt (P1–P5) at a time, commit between each. Run the supertest harness after every prompt (must stay green).
 
-- [ ] Final tier prices (Plus, Pro) decided (Alex)
-- [ ] Stripe integration — checkout, webhook flips `users.tier`, billing portal (CC)
-- [ ] Public sign-up (currently owner-gated `POST /api/users`) (CC)
-- [ ] Custom domain attached to Railway (Alex)
-- [ ] Privacy note final wording in Settings → About (Alex/Claude)
-- [ ] Marketing landing page (separate from the app) (CC/Claude)
-- [ ] Terms of service + privacy policy (Alex/Claude)
+**Decisions locked in:** Free $0 (Haiku) · Plus **$3.99/mo or $29/yr** (Sonnet) · Pro **$7.99/mo or $59/yr** (Opus). First **10** users after `LAUNCH_DATE` get **lifetime Pro** (founding members, never downgraded). Grace period = 3 days on failed payment.
+
+**Prerequisites before P3 (Alex):** Stripe account verified; Plus + Pro products with monthly/yearly prices created (note the 4 `price_…` IDs); webhook endpoint added pointing at `/api/webhook/stripe`.
+
+- [ ] **P1 — DB schema** (CC) — `users` cols (`stripe_customer_id`, `subscription_id/_status/_current_period_end/_cancel_at_period_end`, `founding_member`, `grace_period_until`); append-only `subscription_events` table (idempotency via unique `stripe_event_id`); `subscriptionsDb.js`; idempotent-migration test. *Schema only — no Stripe SDK yet.*
+- [ ] **P2 — Effective-tier resolver** (CC) — `services/tier.js`: `resolveEffectiveTier` (founding → active/trialing → grace → free), `tierLimits`, `canAffordOp`; per-tier caps in `tiers.js`; refactor every direct `user.tier` read (model selection, gen cap, voice/export/bulk) to go through it; 4 resolver tests. *Behavior unchanged for current users.*
+- [ ] **P3 — Stripe checkout + webhook + portal** (CC) — `services/stripe.js`, `routes/billing.js` (`/checkout`, `/portal`, raw-body `/webhook/stripe`); handle the 5 event types; founding-member auto-flag on `POST /api/users` (after `LAUNCH_DATE`, under `FOUNDING_MEMBER_LIMIT`); public `GET /api/founding-members/status`; Stripe service mocked in harness. **Adds `stripe` dependency — check in.**
+- [ ] **P4 — Cap enforcement + upgrade UX** (CC) — server returns **402 `limit_reached`** before metered ops (generation/voice/export/bulk/active-docs) without consuming the cap; client `<LimitPrompt />` modal (no-guilt/no-FOMO copy), `UpgradePage`, billing-portal entry, Settings "Plan & limits" + "Manage billing" rows; per-cap tests.
+- [ ] **P5 — Landing + pricing + install nudges** (CC) — `LandingPage` with founding-member counter, public `PricingPage` at `/pricing`, iOS "Add to Home Screen" help, `beforeinstallprompt` button, footer, placeholder Privacy + Terms pages.
+
+**Owner setup after P1–P5 land (Alex):** Stripe env vars in Railway (keys, 4 price IDs, `LAUNCH_DATE`, `FOUNDING_MEMBER_LIMIT=10`); webhook signing secret; custom domain + HTTPS; test→live flip with one real test purchase; Stripe revenue alert. (Full checklist at the bottom of the prompts doc.)
+
+**Guardrails to preserve forever** (from the prompts doc): founding members never downgrade; keep the 3-day grace period; never truncate `subscription_events`; every Stripe handler keeps the "duplicate `stripe_event_id` = no-op" idempotency check.
 
 ## Phase 8 — Future ideas *(deferred / optional)*
 
