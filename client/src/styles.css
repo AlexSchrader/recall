@@ -28,6 +28,9 @@
 [data-theme="dark"] .btn-ghost:hover:not(:disabled) { background: rgba(99,102,241,.15); }
 [data-theme="dark"] .auth-card { background: var(--surface); }
 
+/* Disable browser pull-to-refresh / overscroll chaining so dragging down at the
+   top doesn't reload the app — the page stays anchored. */
+html, body { overscroll-behavior-y: contain; }
 body { font-family: system-ui, sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
 
 a { color: var(--primary); text-decoration: none; }
