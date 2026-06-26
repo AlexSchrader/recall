@@ -491,6 +491,30 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .game-card-title { font-size: 1.05rem; font-weight: 700; }
 .game-card-desc { font-size: .82rem; color: var(--muted); }
 
+/* Boss Battle — picker */
+.boss-list { display: flex; flex-direction: column; gap: .6rem; }
+.boss-pick {
+  display: flex; align-items: center; gap: .85rem; padding: .85rem 1rem;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+  color: var(--text); transition: border-color .15s, transform .15s;
+}
+.boss-pick:hover { border-color: var(--danger); transform: translateY(-2px); }
+.boss-pick-emoji { font-size: 1.6rem; flex-shrink: 0; }
+.boss-pick-info { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.boss-pick-topic { font-weight: 700; }
+.boss-pick-course { font-size: .78rem; color: var(--muted); }
+.boss-pick-go { font-size: .85rem; font-weight: 600; color: var(--danger); flex-shrink: 0; }
+
+/* Boss Battle — HUD */
+.boss-hud { margin-bottom: 1.5rem; }
+.boss-hud-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .4rem; }
+.boss-name { font-weight: 700; }
+.boss-hearts { font-size: 1rem; letter-spacing: .1em; flex-shrink: 0; }
+.boss-hp-bar { height: 10px; background: var(--border); border-radius: 99px; overflow: hidden; }
+.boss-hp-fill { height: 100%; background: var(--danger); border-radius: 99px; transition: width .4s ease; }
+.boss-hud-counter { display: block; margin-top: .35rem; font-size: .75rem; color: var(--muted); text-align: right; }
+.boss-result { text-align: center; }
+
 /* Countdown */
 .game-countdown { text-align: center; }
 .game-countdown-num { font-size: 6rem; font-weight: 800; color: var(--primary); display: block; line-height: 1; }

@@ -26,6 +26,7 @@ import GamesPage from './pages/GamesPage.jsx';
 import SpeedRoundPage from './pages/games/SpeedRoundPage.jsx';
 import StreakChallengePage from './pages/games/StreakChallengePage.jsx';
 import MatchItPage from './pages/games/MatchItPage.jsx';
+import BossBattlePage from './pages/games/BossBattlePage.jsx';
 
 function AppRoutes() {
   const { user, prefs } = useAuth();
@@ -68,6 +69,7 @@ function AppRoutes() {
           <Route path="/games/speed-round" element={<div className="page"><SpeedRoundPage /></div>} />
           <Route path="/games/streak" element={<div className="page"><StreakChallengePage /></div>} />
           <Route path="/games/match" element={<div className="page"><MatchItPage /></div>} />
+          <Route path="/games/boss" element={<div className="page"><BossBattlePage /></div>} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

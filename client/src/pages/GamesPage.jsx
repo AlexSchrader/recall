@@ -23,6 +23,12 @@ export default function GamesPage() {
           <span className="game-card-desc">Answer until you miss one — how long can you go?</span>
         </Link>
 
+        <Link to="/games/boss" className="game-card">
+          <span className="game-card-emoji">👾</span>
+          <span className="game-card-title">Boss Battle</span>
+          <span className="game-card-desc">Fight a gauntlet on a weak topic — 3 hearts, survive to win.</span>
+        </Link>
+
         <button
           type="button"
           className="game-card"

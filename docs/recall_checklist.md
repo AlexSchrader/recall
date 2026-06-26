@@ -110,6 +110,8 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [x] **Mini-game empty state:** both Speed Round and Streak Challenge show emoji + bold heading + clear "MCQ first" instruction + "Go generate a quiz →" CTA when unitId is set — DONE 2026-06-23, commit `0c443fc` (CC)
 - [x] Streak Challenge no longer repeats a question within a session — client tracks a `seenIds` set, skips already-seen questions in the current batch and filters them out of refetches; if the pool is exhausted mid-streak the game ends on the high note instead of recycling — DONE 2026-06-24 (CC)
 - [x] HomePage "Quick Study" shuffle button — "🎲 Surprise me" randomly navigates to Speed Round or Streak Challenge — DONE 2026-06-23, commit `0c443fc` (CC)
+- [x] **Games hub tab** — top nav is now Courses · Rappel · Games · Progress; `/games` page lists Speed Round, Streak Challenge, Boss Battle, Surprise me (Match It noted as deck-launched) — DONE 2026-06-25 (CC)
+- [x] **Boss Battle** (`/games/boss`) — pick a weak topic (mastery < 70%) from a picker, fight a ≤10-question gauntlet of *that topic's* MCQs with 3 hearts (lose one per wrong answer); boss HP bar drains as you fight through, survive to win; feeds topic mastery via `/games/results`. Server: `topic` filter added to `listGameQuestions` / `/games/questions` — DONE 2026-06-25 (CC)
 
 ## Phase 4.7 — Study-mode expansion & UX polish *(2026-06-25 session)*
 

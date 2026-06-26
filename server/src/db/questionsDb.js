@@ -32,6 +32,7 @@ const stmts = {
        AND q.type = 'mcq'
        AND (? IS NULL OR unit_ref.value = ?)
        AND (? IS NULL OR u.course_id = ?)
+       AND (? IS NULL OR q.topic = ?)
      ORDER BY RANDOM()
      LIMIT ?`
   ),
@@ -54,8 +55,8 @@ export function listQuestionsByQuiz(quizId) {
   return stmts.listByQuiz.all(quizId);
 }
 
-export function listGameQuestions(userId, { unitId = null, courseId = null, limit = 10 } = {}) {
-  return stmts.listGame.all(userId, unitId, unitId, courseId, courseId, Number(limit));
+export function listGameQuestions(userId, { unitId = null, courseId = null, topic = null, limit = 10 } = {}) {
+  return stmts.listGame.all(userId, unitId, unitId, courseId, courseId, topic, topic, Number(limit));
 }
 
 export function getQuestionCourseAndTopic(questionId, userId) {

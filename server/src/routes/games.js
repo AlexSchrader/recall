@@ -7,15 +7,16 @@ import { sm2Next } from '../services/sm2.js';
 
 const router = Router();
 
-// GET /api/games/questions?unitId=X&courseId=X&limit=10
+// GET /api/games/questions?unitId=X&courseId=X&topic=Y&limit=10
 // unitId → questions only from that unit's quizzes
 // courseId → questions from any unit in that course
-// neither  → all of the user's MCQ questions
+// topic   → questions on a single topic (used by Boss Battle)
+// none    → all of the user's MCQ questions
 router.get('/games/questions', requireAuth, (req, res) => {
   const uid = req.session.userId;
-  const { unitId, courseId, limit = 10 } = req.query;
+  const { unitId, courseId, topic, limit = 10 } = req.query;
 
-  const rows = listGameQuestions(uid, { unitId: unitId ?? null, courseId: courseId ?? null, limit });
+  const rows = listGameQuestions(uid, { unitId: unitId ?? null, courseId: courseId ?? null, topic: topic ?? null, limit });
 
   res.json(rows.map(r => ({
     ...r,
