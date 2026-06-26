@@ -212,7 +212,7 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
 - [x] **Mock exam mode** — CoursePage "📝 Mock exam" panel: pick which units to include (checkboxes, defaults to units with docs), set count (10/20/30) · difficulty · types, then generates one cross-unit quiz via the existing `POST /quizzes/generate` (`reviewMix: 0` — fresh assessment). Reuses the quiz player + grading + mastery; no server change needed since generate already takes a `unitIds` array. *Not timed — deferred unless asked.* — DONE 2026-06-25 (CC)
 - [x] **Exam countdown** — shipped 2026-06-24 as a per-course feature (see Phase 4.7 "Study planning"). (CC)
 - [ ] Postgres migration (if user count outgrows SQLite + one Railway service)
-- [ ] Per-topic confidence self-ratings to refine SM-2 scheduling
+- [x] **Confidence-weighted answers** — quiz player shows a per-question "How sure?" picker (😰 Guess / 🤔 Unsure / 😎 Confident); confidence rides along in the submit payload and weights the SM-2 quality per answer via a central `qualityFromAnswer(score, confidence)` in `sm2.js` (right-but-guessed → quality 3 lowers ease so it returns sooner; confident-correct → 5 earns the full boost). Optional + backward-compatible (no confidence → neutral defaults). Engine not forked; 5 sm2 unit tests added (94 total) — DONE 2026-06-25 (CC)
 - [ ] Full-duplex voice call mode for Rappel (ElevenLabs Conversational AI / custom LLM endpoint)
 
 ---

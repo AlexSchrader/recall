@@ -13,7 +13,7 @@ import { getUnitById } from '../db/unitsDb.js';
 import { getCourseById } from '../db/coursesDb.js';
 import { fetchWikiSummary } from '../services/wikipedia.js';
 import { gradeAuto, gradeShort, gradeMulti, gradeCloze } from '../services/grader.js';
-import { sm2Next } from '../services/sm2.js';
+import { sm2Next, qualityFromAnswer } from '../services/sm2.js';
 import { requireAuth } from '../middleware/auth.js';
 
 const router = Router();
@@ -113,7 +113,9 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
   const userId = req.session.userId;
 
   for (const q of questions) {
-    const given = (answers.find(a => a.questionId === q.id)?.answer ?? '').trim();
+    const a = answers.find(x => x.questionId === q.id);
+    const given = (a?.answer ?? '').trim();
+    const confidence = a?.confidence ?? null; // 'guess' | 'unsure' | 'confident' | null
     const score = q.type === 'short'
       ? await gradeShort(q, given, userId)
       : q.type === 'multi'
@@ -121,7 +123,7 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
         : q.type === 'cloze'
           ? gradeCloze(q, given)
           : gradeAuto(q, given);
-    results.push({ question: q, given, score });
+    results.push({ question: q, given, score, confidence });
   }
 
   // Persist attempts (binary: partial counts as incorrect in history)
@@ -135,23 +137,23 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
     answered_at: now,
   })));
 
-  // Update topic mastery (SM-2) per topic using float score
+  // Update topic mastery (SM-2) per topic, weighting each answer's quality by
+  // the student's stated confidence (right-but-guessed reinforces less).
   if (courseId) {
     const byTopic = {};
-    for (const { question: q, score } of results) {
-      if (!byTopic[q.topic]) byTopic[q.topic] = { scoreSum: 0, total: 0 };
+    for (const { question: q, score, confidence } of results) {
+      if (!byTopic[q.topic]) byTopic[q.topic] = { qSum: 0, total: 0 };
+      byTopic[q.topic].qSum += qualityFromAnswer(score, confidence);
       byTopic[q.topic].total += 1;
-      byTopic[q.topic].scoreSum += score;
     }
 
-    for (const [topic, { scoreSum, total }] of Object.entries(byTopic)) {
+    for (const [topic, { qSum, total }] of Object.entries(byTopic)) {
       const existing = getMastery(req.session.userId, courseId, topic) ?? {
         id: uuidv4(), user_id: req.session.userId, course_id: courseId, topic,
         ease: 2.5, interval_days: 1, repetitions: 0, mastery: 0.0,
         due_at: now, last_seen_at: null,
       };
-      const avg = scoreSum / total;
-      const quality = avg >= 0.9 ? 5 : avg >= 0.7 ? 4 : avg >= 0.4 ? 3 : avg > 0 ? 2 : 1;
+      const quality = Math.round(qSum / total);
       const next = sm2Next(existing, quality);
       upsertMastery({ ...existing, ...next, last_seen_at: now });
     }

@@ -54,12 +54,37 @@ function TrueFalseOptions({ questionId, value, onChange }) {
   );
 }
 
+const CONFIDENCE_LEVELS = [
+  { value: 'guess',     label: '😰 Guess' },
+  { value: 'unsure',    label: '🤔 Unsure' },
+  { value: 'confident', label: '😎 Confident' },
+];
+
+function ConfidencePicker({ value, onChange }) {
+  return (
+    <div className="confidence-picker">
+      <span className="confidence-label">How sure?</span>
+      {CONFIDENCE_LEVELS.map(c => (
+        <button
+          key={c.value}
+          type="button"
+          className={`confidence-btn ${value === c.value ? 'confidence-btn--on' : ''}`}
+          onClick={() => onChange(value === c.value ? null : c.value)}
+        >
+          {c.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function QuizPage() {
   const { quizId } = useParams();
   const navigate = useNavigate();
   const { refreshUser } = useAuth();
   const [quiz, setQuiz] = useState(null);
   const [answers, setAnswers] = useState({});
+  const [confidence, setConfidence] = useState({});
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -79,13 +104,14 @@ export default function QuizPage() {
   }, [quizId]);
 
   const setAnswer = (questionId, val) => setAnswers(prev => ({ ...prev, [questionId]: val }));
+  const setConf = (questionId, val) => setConfidence(prev => ({ ...prev, [questionId]: val }));
 
   const submit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
     try {
-      const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer }));
+      const payload = Object.entries(answers).map(([questionId, answer]) => ({ questionId, answer, confidence: confidence[questionId] ?? null }));
       const results = await api.post(`/quizzes/${quizId}/submit`, { answers: payload });
       refreshUser().catch(() => {});
       navigate(`/quizzes/${quizId}/results`, { state: { results } });
@@ -150,6 +176,8 @@ export default function QuizPage() {
                 style={{ width: '100%', marginTop: '.25rem' }}
               />
             )}
+
+            <ConfidencePicker value={confidence[q.id] ?? null} onChange={v => setConf(q.id, v)} />
           </div>
         ))}
 
