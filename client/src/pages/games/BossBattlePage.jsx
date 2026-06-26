@@ -3,6 +3,7 @@ import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api.js';
 
 const MAX_QUESTIONS = 10;
+const MIN_QUESTIONS = 4; // a real gauntlet — below this the battle isn't meaningful
 const START_HEARTS = 3;
 
 export default function BossBattlePage() {
@@ -88,7 +89,7 @@ function Battle({ topic, courseId, navigate }) {
     if (courseId) params.set('courseId', courseId);
     api.get(`/games/questions?${params}`)
       .then(qs => {
-        if (!qs.length) { setPhase('error'); return; }
+        if (qs.length < MIN_QUESTIONS) { setPhase('error'); return; }
         setQuestions(qs);
         setPhase('playing');
       })
@@ -131,9 +132,9 @@ function Battle({ topic, courseId, navigate }) {
     <div className="page game-page">
       <div className="empty" style={{ marginTop: '3rem' }}>
         <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>👾</p>
-        <p><strong>No questions for “{topic}”</strong></p>
-        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 300, margin: '.5rem auto 0' }}>
-          Boss Battle needs completed MCQ questions on this topic. Generate a quiz with Multiple choice covering it first.
+        <p><strong>Not enough questions for “{topic}”</strong></p>
+        <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 320, margin: '.5rem auto 0' }}>
+          A boss needs at least {MIN_QUESTIONS} completed MCQ questions on this topic. Take a few more quizzes (with Multiple choice) covering it, then come back.
         </p>
         <Link to="/games/boss" className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Pick another boss</Link>
       </div>
@@ -143,12 +144,15 @@ function Battle({ topic, courseId, navigate }) {
   if (phase === 'won' || phase === 'lost') {
     const correct = results.filter(r => r.correct).length;
     const won = phase === 'won';
+    const flawless = won && correct === results.length;
+    const emoji = !won ? '💀' : flawless ? '🏆' : '🛡️';
+    const headline = !won ? 'The boss won' : flawless ? 'Flawless victory!' : 'You survived!';
     return (
       <div className="page game-page game-page--centered">
         <div className="boss-result">
-          <div style={{ fontSize: '3rem', marginBottom: '.5rem' }}>{won ? '🏆' : '💀'}</div>
+          <div style={{ fontSize: '3rem', marginBottom: '.5rem' }}>{emoji}</div>
           <h1 className="game-result-score" style={{ color: won ? 'var(--success)' : 'var(--danger)' }}>
-            {won ? 'Boss defeated!' : 'The boss won'}
+            {headline}
           </h1>
           <p className="game-result-msg">
             {correct}/{results.length} correct on <strong>{topic}</strong>
@@ -166,7 +170,9 @@ function Battle({ topic, courseId, navigate }) {
   // Playing
   const q = questions[idx];
   const options = q.options ?? [];
-  const bossHpPct = 100 * (1 - idx / questions.length);
+  // Boss HP drains with each CORRECT answer (landed hit), not just progress.
+  const correctSoFar = results.filter(r => r.correct).length;
+  const bossHpPct = 100 * (1 - correctSoFar / questions.length);
 
   return (
     <div className="page game-page">
