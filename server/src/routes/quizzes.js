@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { getUserById, updateStreak } from '../db/usersDb.js';
 import { getPreferences } from '../db/preferencesDb.js';
-import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz, deleteQuiz } from '../db/quizzesDb.js';
+import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz, deleteQuiz, setQuizShareToken } from '../db/quizzesDb.js';
 import { listQuestionsByQuiz } from '../db/questionsDb.js';
 import { bulkCreateAttempts } from '../db/attemptsDb.js';
 import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
@@ -205,6 +205,23 @@ router.delete('/quizzes/:id', requireAuth, (req, res) => {
   const quiz = getQuizById(req.params.id);
   if (!quiz || quiz.user_id !== req.session.userId) return res.status(404).json({ error: 'Not found.' });
   deleteQuiz(req.params.id, req.session.userId);
+  res.status(204).end();
+});
+
+// POST /api/quizzes/:id/share — enable public sharing, return the token (idempotent)
+router.post('/quizzes/:id/share', requireAuth, (req, res) => {
+  const quiz = getQuizById(req.params.id);
+  if (!quiz || quiz.user_id !== req.session.userId) return res.status(404).json({ error: 'Quiz not found.' });
+  const token = quiz.share_token ?? uuidv4().replace(/-/g, '').slice(0, 12);
+  if (!quiz.share_token) setQuizShareToken(quiz.id, req.session.userId, token);
+  res.json({ shareToken: token });
+});
+
+// DELETE /api/quizzes/:id/share — stop sharing
+router.delete('/quizzes/:id/share', requireAuth, (req, res) => {
+  const quiz = getQuizById(req.params.id);
+  if (!quiz || quiz.user_id !== req.session.userId) return res.status(404).json({ error: 'Quiz not found.' });
+  setQuizShareToken(quiz.id, req.session.userId, null);
   res.status(204).end();
 });
 

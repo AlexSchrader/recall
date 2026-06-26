@@ -17,6 +17,7 @@ import studyGuidesRouter from './routes/studyGuides.js';
 import feedbackRouter from './routes/feedback.js';
 import adminRouter from './routes/admin.js';
 import gamesRouter from './routes/games.js';
+import sharedRouter from './routes/shared.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -101,6 +102,7 @@ app.use('/api', studyGuidesRouter);
 app.use('/api', feedbackRouter);
 app.use('/api', adminRouter);
 app.use('/api', gamesRouter);
+app.use('/api', sharedRouter);
 
 // ── Static / SPA fallback ─────────────────────────────────────────────────────
 if (process.env.NODE_ENV === 'production') {

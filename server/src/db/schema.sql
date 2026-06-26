@@ -45,6 +45,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
   score           REAL,
   status          TEXT NOT NULL DEFAULT 'generated',
   model           TEXT NOT NULL,
+  share_token     TEXT,
   created_at      TEXT NOT NULL,
   completed_at    TEXT
 );

@@ -13,12 +13,38 @@ export default function QuizResultPage() {
   const [retaking, setRetaking] = useState(false);
   const [retakeErr, setRetakeErr] = useState('');
   const [locking, setLocking] = useState(false);
+  const [shareToken, setShareToken] = useState(null);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    api.get(`/quizzes/${quizId}`).then(setQuiz).catch(() => navigate('/'));
+    api.get(`/quizzes/${quizId}`).then(q => { setQuiz(q); setShareToken(q.share_token ?? null); }).catch(() => navigate('/'));
   }, [quizId]);
 
   if (!quiz) return null;
+
+  const shareUrl = shareToken ? `${window.location.origin}/s/${shareToken}` : null;
+
+  const enableShare = async () => {
+    setShareBusy(true);
+    try {
+      const { shareToken: token } = await api.post(`/quizzes/${quizId}/share`, {});
+      setShareToken(token);
+    } catch { /* ignore */ } finally { setShareBusy(false); }
+  };
+
+  const disableShare = async () => {
+    setShareBusy(true);
+    try {
+      await api.delete(`/quizzes/${quizId}/share`);
+      setShareToken(null);
+      setCopied(false);
+    } catch { /* ignore */ } finally { setShareBusy(false); }
+  };
+
+  const copyShare = async () => {
+    try { await navigator.clipboard.writeText(shareUrl); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch { /* ignore */ }
+  };
 
   const score = results?.score ?? quiz.score ?? 0;
   const pct = Math.round(score * 100);
@@ -183,6 +209,25 @@ export default function QuizResultPage() {
           ))}
         </>
       )}
+
+      <div className="share-box">
+        {!shareToken ? (
+          <button className="btn btn-ghost btn-sm" onClick={enableShare} disabled={shareBusy}>
+            {shareBusy ? 'Creating link…' : '🔗 Share this quiz'}
+          </button>
+        ) : (
+          <>
+            <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginBottom: '.4rem' }}>
+              Anyone with this link can take the quiz — no account needed, nothing saved.
+            </p>
+            <div className="share-row">
+              <input className="share-url" readOnly value={shareUrl} onFocus={e => e.target.select()} />
+              <button className="btn btn-primary btn-sm" onClick={copyShare}>{copied ? 'Copied!' : 'Copy'}</button>
+              <button className="btn btn-sm" onClick={disableShare} disabled={shareBusy}>Stop sharing</button>
+            </div>
+          </>
+        )}
+      </div>
 
       {retakeErr && <p className="error-msg" style={{ marginTop: '1rem' }}>{retakeErr}</p>}
       <div style={{ display: 'flex', gap: '.75rem', marginTop: '1rem', flexWrap: 'wrap' }}>

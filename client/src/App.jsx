@@ -22,6 +22,7 @@ import ProgressPage from './pages/ProgressPage.jsx';
 import FeedbackPage from './pages/FeedbackPage.jsx';
 import AdminPage from './pages/AdminPage.jsx';
 import OnboardingPage from './pages/OnboardingPage.jsx';
+import SharedQuizPage from './pages/SharedQuizPage.jsx';
 import GamesPage from './pages/GamesPage.jsx';
 import SpeedRoundPage from './pages/games/SpeedRoundPage.jsx';
 import StreakChallengePage from './pages/games/StreakChallengePage.jsx';
@@ -47,6 +48,7 @@ function AppRoutes() {
       <Route path="/register" element={user ? <Navigate to="/" replace /> : <RegisterPage />} />
       <Route path="/forgot-password" element={user ? <Navigate to="/" replace /> : <ForgotPasswordPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
+      <Route path="/s/:token" element={<SharedQuizPage />} />
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route path="/" element={<div className="page"><HomePage /></div>} />

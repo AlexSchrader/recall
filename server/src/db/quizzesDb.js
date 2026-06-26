@@ -27,6 +27,8 @@ const stmts = {
     `SELECT COUNT(*) AS count FROM quizzes WHERE user_id = ? AND created_at >= ?`
   ),
   delete: db.prepare('DELETE FROM quizzes WHERE id = ? AND user_id = ?'),
+  setShare: db.prepare('UPDATE quizzes SET share_token = @token WHERE id = @id AND user_id = @user_id'),
+  findByShareToken: db.prepare('SELECT * FROM quizzes WHERE share_token = ?'),
   countCompleted: db.prepare(
     `SELECT COUNT(*) AS n FROM quizzes WHERE user_id = ? AND status = 'completed'`
   ),
@@ -72,6 +74,15 @@ export function completeQuiz(id, { score, completed_at }) {
 
 export function deleteQuiz(id, userId) {
   return stmts.delete.run(id, userId);
+}
+
+// Set (or clear, with token=null) a quiz's public share token. Scoped to owner.
+export function setQuizShareToken(id, userId, token) {
+  return stmts.setShare.run({ id, user_id: userId, token });
+}
+
+export function getQuizByShareToken(token) {
+  return stmts.findByShareToken.get(token) ?? null;
 }
 
 export function countTodayByUser(userId) {

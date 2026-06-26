@@ -46,5 +46,12 @@ if (!courseCols.includes('exam_date')) {
   db.exec('ALTER TABLE courses ADD COLUMN exam_date TEXT');
 }
 
+// Migration: optional public share token per quiz (powers shareable quizzes)
+const quizCols = db.prepare('PRAGMA table_info(quizzes)').all().map(c => c.name);
+if (!quizCols.includes('share_token')) {
+  db.exec('ALTER TABLE quizzes ADD COLUMN share_token TEXT');
+  db.exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_quizzes_share ON quizzes(share_token) WHERE share_token IS NOT NULL');
+}
+
 export { DB_PATH };
 export default db;

@@ -522,6 +522,19 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .boss-hud-counter { display: block; margin-top: .35rem; font-size: .75rem; color: var(--muted); text-align: right; }
 .boss-result { text-align: center; }
 
+/* Shareable quiz — owner share box */
+.share-box { margin-top: 1.5rem; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.share-row { display: flex; gap: .5rem; flex-wrap: wrap; align-items: center; }
+.share-url { flex: 1; min-width: 180px; padding: .45rem .6rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg); color: var(--text); font-size: .8rem; }
+
+/* Shareable quiz — public taker page */
+.shared-wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+.shared-header { margin-bottom: 1.5rem; }
+.shared-opt { display: flex; align-items: center; gap: .6rem; padding: .5rem .65rem; border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: .4rem; cursor: pointer; font-size: .9rem; }
+.shared-opt input { width: auto; flex-shrink: 0; }
+.shared-text { width: 100%; padding: .5rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+.shared-footer { margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: .82rem; color: var(--muted); text-align: center; }
+
 /* Countdown */
 .game-countdown { text-align: center; }
 .game-countdown-num { font-size: 6rem; font-weight: 800; color: var(--primary); display: block; line-height: 1; }
