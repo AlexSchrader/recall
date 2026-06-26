@@ -209,7 +209,7 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
   - **While I was in there (fire fix):** the document routes (`POST /units/:id/documents`, `GET /units/:id/documents`, `GET`/`DELETE /documents/:id`) had **no `requireAuth` and no ownership check** — any caller could upload to, read, or delete any unit/document by guessing an id (cross-user data access + credit burn on parse). Added `requireAuth` + an `ownedUnit` guard (unit → course → `user_id`) to all of them. (CC)
 - [ ] Shareable quiz (export a quiz as a static link)
 - [x] "Teach it back" mode (Feynman-style — Rappel asks you to explain, gives feedback) — DONE 2026-06-25 as "Explain it back" on QuizResultPage, commit `7be61ba` (CC)
-- [ ] Mock exam mode (longer, mixed-format, timed, cross-unit)
+- [x] **Mock exam mode** — CoursePage "📝 Mock exam" panel: pick which units to include (checkboxes, defaults to units with docs), set count (10/20/30) · difficulty · types, then generates one cross-unit quiz via the existing `POST /quizzes/generate` (`reviewMix: 0` — fresh assessment). Reuses the quiz player + grading + mastery; no server change needed since generate already takes a `unitIds` array. *Not timed — deferred unless asked.* — DONE 2026-06-25 (CC)
 - [x] **Exam countdown** — shipped 2026-06-24 as a per-course feature (see Phase 4.7 "Study planning"). (CC)
 - [ ] Postgres migration (if user count outgrows SQLite + one Railway service)
 - [ ] Per-topic confidence self-ratings to refine SM-2 scheduling

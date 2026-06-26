@@ -3,6 +3,14 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { api, bulkImportUnits } from '../api.js';
 import { examCountdownLabel, examUrgency } from '../examCountdown.js';
 
+const EXAM_TYPES = [
+  { value: 'mcq', label: 'Multiple choice' },
+  { value: 'true_false', label: 'True / False' },
+  { value: 'short', label: 'Short answer' },
+];
+const EXAM_COUNTS = [10, 20, 30];
+const EXAM_DIFFICULTIES = ['easy', 'medium', 'hard', 'mixed'];
+
 export default function CoursePage() {
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -24,6 +32,16 @@ export default function CoursePage() {
   const [bulkBusy, setBulkBusy] = useState(false);
   const [bulkMsg, setBulkMsg] = useState('');
   const bulkRef = useRef(null);
+
+  // Mock exam (multi-unit quiz across the course)
+  const [mockOpen, setMockOpen] = useState(false);
+  const [mockTitle, setMockTitle] = useState('');
+  const [mockUnitIds, setMockUnitIds] = useState([]);
+  const [mockCount, setMockCount] = useState(20);
+  const [mockDifficulty, setMockDifficulty] = useState('mixed');
+  const [mockTypes, setMockTypes] = useState(['mcq', 'true_false', 'short']);
+  const [mockBusy, setMockBusy] = useState(false);
+  const [mockError, setMockError] = useState('');
 
   useEffect(() => {
     api.get(`/courses/${courseId}`).then(setCourse).catch(() => navigate('/'));
@@ -136,6 +154,46 @@ export default function CoursePage() {
     navigate('/');
   };
 
+  const openMock = () => {
+    if (!mockOpen) {
+      // Default to units that actually have documents (otherwise nothing to generate from).
+      const withDocs = units.filter(u => (u.documentCount ?? 0) > 0).map(u => u.id);
+      setMockUnitIds(withDocs.length ? withDocs : units.map(u => u.id));
+      setMockTitle(`${course.name} exam`);
+      setMockError('');
+    }
+    setMockOpen(v => !v);
+  };
+
+  const toggleMockUnit = (id) => {
+    setMockUnitIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  };
+
+  const toggleMockType = (t) => {
+    setMockTypes(prev => prev.includes(t) ? (prev.length > 1 ? prev.filter(x => x !== t) : prev) : [...prev, t]);
+  };
+
+  const generateMock = async () => {
+    if (!mockUnitIds.length) { setMockError('Pick at least one unit to include.'); return; }
+    setMockBusy(true);
+    setMockError('');
+    try {
+      const result = await api.post('/quizzes/generate', {
+        courseId,
+        unitIds: mockUnitIds,
+        title: mockTitle.trim() || `${course.name} exam`,
+        questionCount: Number(mockCount),
+        reviewMix: 0, // an exam is a fresh assessment, not weighted toward review
+        types: mockTypes,
+        difficulty: mockDifficulty,
+      });
+      navigate(`/quizzes/${result.quizId}`);
+    } catch (err) {
+      setMockError(err.message);
+      setMockBusy(false);
+    }
+  };
+
   if (!course) return null;
 
   return (
@@ -170,7 +228,83 @@ export default function CoursePage() {
             disabled={bulkBusy}
           />
         </label>
+        {units.length > 0 && (
+          <button className="btn btn-primary btn-sm" onClick={openMock}>
+            {mockOpen ? 'Cancel' : '📝 Mock exam'}
+          </button>
+        )}
       </div>
+
+      {mockOpen && (
+        <div className="card" style={{ marginBottom: '1rem' }}>
+          <p className="section-title">Mock exam</p>
+          <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginBottom: '1rem' }}>
+            Generate one test drawing from every unit you select across this course.
+          </p>
+
+          <div className="form-group">
+            <label>Exam title</label>
+            <input value={mockTitle} onChange={e => setMockTitle(e.target.value)} />
+          </div>
+
+          <div className="form-group">
+            <label>Units to include</label>
+            <div className="exam-unit-list">
+              {units.map(u => {
+                const noDocs = (u.documentCount ?? 0) === 0;
+                return (
+                  <label key={u.id} className={`exam-unit ${noDocs ? 'exam-unit--empty' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={mockUnitIds.includes(u.id)}
+                      onChange={() => toggleMockUnit(u.id)}
+                    />
+                    <span>{u.name}</span>
+                    <span className="exam-unit-meta">{u.documentCount ?? 0} doc{u.documentCount !== 1 ? 's' : ''}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="row" style={{ marginBottom: '1rem' }}>
+            <div className="form-group">
+              <label>Questions</label>
+              <div style={{ display: 'flex', gap: '.4rem' }}>
+                {EXAM_COUNTS.map(n => (
+                  <button key={n} type="button" className={`btn btn-sm ${mockCount === n ? 'btn-primary' : 'btn-ghost'}`} onClick={() => setMockCount(n)}>{n}</button>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Difficulty</label>
+              <select value={mockDifficulty} onChange={e => setMockDifficulty(e.target.value)}>
+                {EXAM_DIFFICULTIES.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Question types</label>
+            <div className="type-checks">
+              {EXAM_TYPES.map(t => (
+                <div key={t.value} className="type-check-row">
+                  <span>{t.label}</span>
+                  <label className="toggle-switch">
+                    <input type="checkbox" checked={mockTypes.includes(t.value)} onChange={() => toggleMockType(t.value)} />
+                    <span className="toggle-slider" />
+                  </label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {mockError && <p className="error-msg">{mockError}</p>}
+          <button className="btn btn-primary" style={{ marginTop: '.75rem' }} disabled={mockBusy} onClick={generateMock}>
+            {mockBusy ? 'Building your exam…' : '⚡ Generate exam'}
+          </button>
+        </div>
+      )}
 
       {bulkMsg && (
         <p className="success-msg" style={{ marginBottom: '.75rem' }}>{bulkMsg}</p>
