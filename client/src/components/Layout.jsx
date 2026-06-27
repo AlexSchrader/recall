@@ -34,10 +34,10 @@ export default function Layout() {
       <nav ref={navRef} className="topnav">
         <Link to="/" className="brand">Recall</Link>
         <div className="nav-links">
-          <NavLink to="/" end>Courses</NavLink>
-          <NavLink to="/chat">Rappel</NavLink>
-          <NavLink to="/games">Games</NavLink>
-          <NavLink to="/progress">Progress</NavLink>
+          <NavLink to="/" end data-tour="nav-courses">Courses</NavLink>
+          <NavLink to="/chat" data-tour="nav-rappel">Rappel</NavLink>
+          <NavLink to="/games" data-tour="nav-games">Games</NavLink>
+          <NavLink to="/progress" data-tour="nav-progress">Progress</NavLink>
           {user?.streak > 0 && (
             <span className="streak-badge" title={`${user.streak}-day study streak!`}>
               🔥 {user.streak}
@@ -45,7 +45,7 @@ export default function Layout() {
           )}
         </div>
         <OfflineIndicator />
-        <Link to="/settings" className="nav-username" title="Settings">
+        <Link to="/settings" className="nav-username" title="Settings" data-tour="nav-settings">
           <span className="nav-gear" aria-hidden>⚙️</span>
           <span className="nav-username-text">{user?.display_name}</span>
         </Link>

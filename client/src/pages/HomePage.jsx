@@ -5,6 +5,18 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { examCountdownLabel, examUrgency } from '../examCountdown.js';
 import InstallGuide from '../components/InstallGuide.jsx';
 import { isStandalone } from '../installPrompt.js';
+import Tour from '../components/Tour.jsx';
+
+const TOUR_STEPS = [
+  { title: 'Welcome to Recall 👋', body: "Here's a quick 30-second tour of where everything lives. You can skip anytime." },
+  { selector: '[data-tour="nav-courses"]', title: 'Courses', body: 'Your courses live here. Organize by class, add units inside, and upload your notes (PDF, Word, images…).' },
+  { selector: '[data-tour="new-course"]', title: 'Start here', body: 'Tap “+ New course” to make your first one — then add a unit, upload material, and generate a quiz.' },
+  { selector: '[data-tour="nav-rappel"]', title: 'Rappel, your tutor', body: 'Chat or talk out loud with Rappel — an AI study tutor who knows your courses and weak spots.' },
+  { selector: '[data-tour="nav-games"]', title: 'Study games', body: 'Speed Round, Streak Challenge, and Boss Battle turn your questions into quick, fun practice.' },
+  { selector: '[data-tour="nav-progress"]', title: 'Progress', body: 'Track mastery per topic, your streak, a study-activity heatmap, and achievements you unlock.' },
+  { selector: '[data-tour="nav-settings"]', title: 'Settings', body: 'Voices, study preferences, “Add to Home Screen,” and your account live here.' },
+  { title: "You're all set! 🎉", body: 'Create your first course and your first quiz is minutes away. Bonne chance!' },
+];
 
 async function searchBooks(q) {
   if (!q.trim()) return [];
@@ -70,6 +82,12 @@ export default function HomePage() {
       setAdding(true);
       setSearchParams({}, { replace: true });
     }
+  }, []);
+
+  // ?tour=1 (from onboarding or the Settings "Replay tour" button) → run the tour.
+  const [tourOn, setTourOn] = useState(searchParams.get('tour') === '1');
+  useEffect(() => {
+    if (searchParams.get('tour') === '1') { setTourOn(true); setSearchParams({}, { replace: true }); }
   }, []);
 
   const onBookQuery = (val) => {
@@ -155,6 +173,7 @@ export default function HomePage() {
 
   return (
     <>
+      {tourOn && <Tour steps={TOUR_STEPS} onClose={() => setTourOn(false)} />}
       {showInstall && <InstallGuide onClose={() => setShowInstall(false)} />}
       {installNudge && (
         <div className="install-nudge">
@@ -190,7 +209,7 @@ export default function HomePage() {
       )}
       <div className="page-header">
         <h1>My Courses</h1>
-        <button className="btn btn-primary" onClick={() => setAdding(v => !v)}>
+        <button className="btn btn-primary" data-tour="new-course" onClick={() => setAdding(v => !v)}>
           {adding ? 'Cancel' : '+ New course'}
         </button>
       </div>

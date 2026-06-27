@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
 import InstallGuide from '../components/InstallGuide.jsx';
@@ -26,6 +26,7 @@ const TYPE_OPTIONS = [
 
 export default function SettingsPage() {
   const { user, setUser } = useAuth();
+  const navigate = useNavigate();
   const [showInstall, setShowInstall] = useState(false);
 
   // ── Stats ──
@@ -496,6 +497,15 @@ export default function SettingsPage() {
           <button className="btn btn-primary btn-sm" onClick={() => setShowInstall(true)}>📱 Add to Home Screen</button>
         </section>
       )}
+
+      {/* ── Getting started ── */}
+      <section className="settings-section">
+        <h2>Getting started</h2>
+        <p style={{ fontSize: '.9rem', marginBottom: '.75rem' }}>
+          New here, or want a refresher? Replay the guided tour of the app.
+        </p>
+        <button className="btn btn-ghost btn-sm" onClick={() => navigate('/?tour=1')}>↻ Replay app tour</button>
+      </section>
 
       {/* ── Support ── */}
       <section className="settings-section">

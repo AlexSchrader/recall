@@ -106,10 +106,9 @@ export default function OnboardingPage() {
       await api.put('/preferences', updated);
       setPrefs(updated);
     } catch { /* non-fatal */ }
-    // Land them straight in the "create your first course" flow rather than a
-    // bare home page — the activation step of onboarding is getting real
-    // material in, so open that form for them.
-    navigate('/?start=1', { replace: true });
+    // Hand off to the in-app spotlight tour, which walks them through the nav
+    // and ends by pointing at "+ New course".
+    navigate('/?tour=1', { replace: true });
   };
 
   return (
