@@ -133,6 +133,9 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [x] HomePage "Quick Study" shuffle button — "🎲 Surprise me" randomly navigates to Speed Round or Streak Challenge — DONE 2026-06-23, commit `0c443fc` (CC)
 - [x] **Games hub tab** — top nav is now Courses · Rappel · Games · Progress; `/games` page lists Speed Round, Streak Challenge, Boss Battle, Surprise me (Match It noted as deck-launched) — DONE 2026-06-25 (CC)
 - [x] **Boss Battle** (`/games/boss`) — pick a weak topic (mastery < 70%) from a picker, fight a ≤10-question gauntlet of *that topic's* MCQs with 3 hearts (lose one per wrong answer); boss HP bar drains as you fight through, survive to win; feeds topic mastery via `/games/results`. Server: `topic` filter added to `listGameQuestions` / `/games/questions` — DONE 2026-06-25 (CC)
+- [x] **Time Attack** (`/games/time-attack`) — one 60-second global timer, answer as many MCQs as you can; dedupes within a run, feeds mastery (`source: 'time_attack'`) — DONE 2026-06-27 (CC)
+- [x] **Survival** (`/games/survival`) — 3 lives, endless MCQs, lose a heart per wrong answer, game over at zero; feeds mastery (`source: 'survival'`) — DONE 2026-06-27 (CC)
+- [x] **Games hub → full-width row list** — Games page now lists every mode as wide rows (emoji · title · description · ›) so it fills the page, with Surprise me picking a random run — DONE 2026-06-27 (CC)
 
 ## Phase 4.7 — Study-mode expansion & UX polish *(2026-06-25 session)*
 
