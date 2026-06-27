@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import { getCard, updateCard } from '../db/flashcardsDb.js';
 import { getDeck } from '../db/flashcardsDb.js';
-import { getMastery, upsertMastery } from '../db/topicMasteryDb.js';
+import { getMastery, updateMastery } from '../db/topicMasteryDb.js';
 import { getUnitById } from '../db/unitsDb.js';
 
 const ALPHA = 0.2; // EMA smoothing factor
@@ -83,7 +83,7 @@ export async function reviewCard({ userId, cardId, rating }) {
     const currentMastery = existing?.mastery ?? 0;
     const newMastery = emaToward(currentMastery, RATING_TARGETS[rating]);
 
-    upsertMastery({
+    updateMastery({
       id: existing?.id ?? uuidv4(),
       user_id: userId,
       course_id: unit.course_id,
@@ -94,7 +94,7 @@ export async function reviewCard({ userId, cardId, rating }) {
       mastery: newMastery,
       due_at,
       last_seen_at: now,
-    });
+    }, 'flashcard');
   }
 
   return { ...card, ease, interval_days, repetitions, due_at, last_reviewed_at: now };

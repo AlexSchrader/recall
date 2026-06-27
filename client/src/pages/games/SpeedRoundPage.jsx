@@ -70,6 +70,7 @@ export default function SpeedRoundPage() {
     if (phase !== 'done' || !answers.length) return;
     api.post('/games/results', {
       results: answers.map(a => ({ questionId: a.questionId, correct: a.correct })),
+      source: 'speed_round',
     }).catch(() => {});
   }, [phase]);
 

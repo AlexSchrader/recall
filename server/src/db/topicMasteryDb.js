@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import db from './index.js';
 
 const stmts = {
@@ -29,6 +30,12 @@ const stmts = {
        due_at        = excluded.due_at,
        last_seen_at  = excluded.last_seen_at`
   ),
+  insertHistory: db.prepare(
+    `INSERT INTO mastery_history
+     (id, user_id, course_id, topic, mastery_score, ease, interval_days, repetitions, source, changed_at)
+     VALUES
+     (@id, @user_id, @course_id, @topic, @mastery_score, @ease, @interval_days, @repetitions, @source, @changed_at)`
+  ),
 };
 
 export function getMastery(userId, courseId, topic) {
@@ -37,6 +44,29 @@ export function getMastery(userId, courseId, topic) {
 
 export function upsertMastery(data) {
   return stmts.upsert.run(data);
+}
+
+// Update the live topic_mastery row, then append an immutable history row so
+// future trend visualizations have data to draw on. `source` records what drove
+// the change ('quiz' | 'flashcard' | 'speed_round' | 'streak' | 'match_it' | 'boss').
+const logHistory = db.transaction((data, source) => {
+  stmts.upsert.run(data);
+  stmts.insertHistory.run({
+    id: uuidv4(),
+    user_id: data.user_id,
+    course_id: data.course_id,
+    topic: data.topic,
+    mastery_score: data.mastery,
+    ease: data.ease,
+    interval_days: data.interval_days,
+    repetitions: data.repetitions,
+    source: source ?? 'unknown',
+    changed_at: data.last_seen_at ?? new Date().toISOString(),
+  });
+});
+
+export function updateMastery(data, source) {
+  return logHistory(data, source);
 }
 
 export function listMasteryByUser(userId) {

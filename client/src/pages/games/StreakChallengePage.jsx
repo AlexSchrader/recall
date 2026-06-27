@@ -43,7 +43,7 @@ export default function StreakChallengePage() {
 
   useEffect(() => {
     if (phase !== 'done' || !gameResults.length) return;
-    api.post('/games/results', { results: gameResults }).catch(() => {});
+    api.post('/games/results', { results: gameResults, source: 'streak' }).catch(() => {});
   }, [phase]);
 
   const answer = useCallback((opt) => {

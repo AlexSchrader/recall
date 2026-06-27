@@ -104,7 +104,8 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] **Study activity heatmap** — 12-week contribution grid on Progress from `GET /me/activity` (attempts grouped by day) — DONE 2026-06-27 (CC)
 - [x] **Achievements & badges** — 10 tiles on Progress derived from existing stats + mastery; earned tiles light up, locked show progress — DONE 2026-06-27 (CC)
 - [x] Settings quiz-delete uses inline confirm + inline error (dropped native `confirm()`/`alert()`) — DONE 2026-06-27 (CC)
-- [ ] Per-topic mastery **trend arrows** (improving/declining) on Progress — deferred: needs a `mastery_history` table (we only store current mastery), useful only going forward. (CC)
+- [x] **`mastery_history` write-only log** — every `updateMastery()` (quiz / flashcard / speed_round / streak / boss) appends an immutable row (mastery_score, ease, interval_days, repetitions, source, changed_at) after updating the live `topic_mastery` row. No read endpoints / UI yet. 2 harness tests (one update → exactly one row; append-only) — DONE 2026-06-27 (CC)
+- [ ] Per-topic mastery **trend arrows** (improving/declining) on Progress — now unblocked: `mastery_history` is recording as of 2026-06-27, so trend data accrues from that moment. Build the read endpoint + arrows once there's enough history to be meaningful. (CC)
 
 ## Phase 4.6 — Mini-games *(complete)*
 

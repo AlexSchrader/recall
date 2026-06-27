@@ -5,7 +5,7 @@ import { getPreferences } from '../db/preferencesDb.js';
 import { getQuizById, listQuizzesByUser, countTodayByUser, completeQuiz, deleteQuiz, setQuizShareToken } from '../db/quizzesDb.js';
 import { listQuestionsByQuiz } from '../db/questionsDb.js';
 import { bulkCreateAttempts } from '../db/attemptsDb.js';
-import { upsertMastery, getMastery } from '../db/topicMasteryDb.js';
+import { updateMastery, getMastery } from '../db/topicMasteryDb.js';
 import { getGenerationConfig, ClaudeError } from '../services/claude.js';
 import { generateQuiz, GenerationError } from '../services/quizGenerator.js';
 import { buildSourceContext } from '../ingestion/sourceContext.js';
@@ -155,7 +155,7 @@ router.post('/quizzes/:id/submit', requireAuth, async (req, res) => {
       };
       const quality = Math.round(qSum / total);
       const next = sm2Next(existing, quality);
-      upsertMastery({ ...existing, ...next, last_seen_at: now });
+      updateMastery({ ...existing, ...next, last_seen_at: now }, 'quiz');
     }
   }
 

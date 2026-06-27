@@ -101,7 +101,7 @@ function Battle({ topic, courseId, navigate }) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if ((phase === 'won' || phase === 'lost') && results.length) {
-      api.post('/games/results', { results }).catch(() => {});
+      api.post('/games/results', { results, source: 'boss' }).catch(() => {});
     }
   }, [phase]);
 

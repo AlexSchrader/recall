@@ -89,6 +89,23 @@ CREATE TABLE IF NOT EXISTS topic_mastery (
   UNIQUE(user_id, topic, course_id)
 );
 
+-- Append-only log of every change to a topic's mastery (write-only for now;
+-- powers future trend visualizations). No FKs: it's a forensic log that should
+-- outlive individual rows and never block a write.
+CREATE TABLE IF NOT EXISTS mastery_history (
+  id            TEXT PRIMARY KEY,
+  user_id       TEXT NOT NULL,
+  course_id     TEXT NOT NULL,
+  topic         TEXT NOT NULL,
+  mastery_score REAL    NOT NULL,
+  ease          REAL    NOT NULL,
+  interval_days INTEGER NOT NULL,
+  repetitions   INTEGER NOT NULL,
+  source        TEXT    NOT NULL,   -- 'quiz' | 'flashcard' | 'speed_round' | 'streak' | 'match_it' (+ 'boss')
+  changed_at    TEXT    NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_mastery_history ON mastery_history(user_id, topic, changed_at);
+
 CREATE TABLE IF NOT EXISTS preferences (
   user_id    TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
   prefs_json TEXT NOT NULL,
