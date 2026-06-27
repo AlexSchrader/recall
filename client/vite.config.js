@@ -50,6 +50,18 @@ export default defineConfig({
             },
           },
           {
+            // Navigation data (course/unit lists, stats, progress, prefs) so the
+            // pages you reach cached study content *through* also work offline.
+            urlPattern: /\/api\/(courses|units|me|preferences)/,
+            method: 'GET',
+            handler: 'StaleWhileRevalidate',
+            options: {
+              cacheName: 'recall-nav-api',
+              expiration: { maxEntries: 200, maxAgeSeconds: 7 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             // Icons / images.
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',

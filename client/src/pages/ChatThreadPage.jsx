@@ -95,6 +95,7 @@ export default function ChatThreadPage() {
 
   const playTTS = async (text) => {
     if (!voiceEnabled || !voiceUnlocked) return;
+    if (navigator.onLine === false) return; // voice needs the network; stay quiet offline
     try {
       setPlayingTTS(true);
       const res = await fetch('/api/voice/tts', {
@@ -190,6 +191,17 @@ export default function ChatThreadPage() {
     if (e) e.preventDefault();
     const content = (overrideContent ?? input).trim();
     if (!content || streaming) return;
+
+    // Chat needs the network. Offline, keep the message in the box and tell the user.
+    if (navigator.onLine === false) {
+      setMessages(prev => [...prev, {
+        id: `offline-${Date.now()}`, role: 'assistant',
+        content: "⚠️ You're offline — Rappel needs a connection to reply. Your past chats are still here to read.",
+        created_at: new Date().toISOString(),
+      }]);
+      if (!overrideContent) setInput('');
+      return;
+    }
 
     const optimisticUser = { id: `tmp-${Date.now()}`, role: 'user', content, created_at: new Date().toISOString() };
     setMessages(prev => [...prev, optimisticUser]);
