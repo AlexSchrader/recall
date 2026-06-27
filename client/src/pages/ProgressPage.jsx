@@ -63,6 +63,42 @@ function ActivityHeatmap({ activity }) {
   );
 }
 
+// Achievements derived from existing stats + mastery — no extra tracking.
+const ACHIEVEMENTS = [
+  { id: 'first',     emoji: '🎯', title: 'First Steps',  desc: 'Complete your first quiz',     goal: 1,    metric: m => m.quizzesCompleted },
+  { id: 'bookworm',  emoji: '📚', title: 'Bookworm',     desc: 'Complete 10 quizzes',           goal: 10,   metric: m => m.quizzesCompleted },
+  { id: 'scholar',   emoji: '🎓', title: 'Scholar',      desc: 'Complete 50 quizzes',           goal: 50,   metric: m => m.quizzesCompleted },
+  { id: 'century',   emoji: '💯', title: 'Century',      desc: 'Answer 100 questions',          goal: 100,  metric: m => m.questionsAnswered },
+  { id: 'marathon',  emoji: '🏃', title: 'Marathoner',   desc: 'Answer 1,000 questions',        goal: 1000, metric: m => m.questionsAnswered },
+  { id: 'week',      emoji: '🔥', title: 'Week Warrior',  desc: 'Reach a 7-day streak',          goal: 7,    metric: m => m.bestStreak },
+  { id: 'month',     emoji: '⚡', title: 'Unstoppable',   desc: 'Reach a 30-day streak',         goal: 30,   metric: m => m.bestStreak },
+  { id: 'cards',     emoji: '🃏', title: 'Card Shark',    desc: 'Review 100 flashcards',         goal: 100,  metric: m => m.cardsReviewed },
+  { id: 'master1',   emoji: '🧠', title: 'Topic Master',  desc: 'Master a topic (80%+)',         goal: 1,    metric: m => m.masteredCount },
+  { id: 'polymath',  emoji: '👑', title: 'Polymath',      desc: 'Master 10 topics',              goal: 10,   metric: m => m.masteredCount },
+];
+
+function Achievements({ metrics }) {
+  const earned = ACHIEVEMENTS.filter(a => a.metric(metrics) >= a.goal).length;
+  return (
+    <section className="progress-section">
+      <h2 className="section-title">Achievements <span style={{ fontWeight: 400, color: 'var(--muted)' }}>({earned}/{ACHIEVEMENTS.length})</span></h2>
+      <div className="badge-grid">
+        {ACHIEVEMENTS.map(a => {
+          const cur = a.metric(metrics);
+          const done = cur >= a.goal;
+          return (
+            <div key={a.id} className={`badge-tile ${done ? 'badge-tile--earned' : ''}`} title={a.desc}>
+              <span className="badge-emoji">{a.emoji}</span>
+              <span className="badge-title">{a.title}</span>
+              <span className="badge-desc">{done ? '✓ Earned' : `${Math.min(cur, a.goal)} / ${a.goal}`}</span>
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export default function ProgressPage() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
@@ -311,6 +347,16 @@ export default function ProgressPage() {
       {/* Per-course empty state — has courses but no activity in this one */}
       {data?.progress?.filter(({ topics }) => topics.length === 0).length > 0 &&
        data?.progress?.some(({ topics }) => topics.length > 0) === false && null}
+
+      {stats && (
+        <Achievements metrics={{
+          quizzesCompleted: stats.quizzesCompleted,
+          questionsAnswered: stats.questionsAnswered,
+          cardsReviewed: stats.cardsReviewed,
+          bestStreak: stats.bestStreak,
+          masteredCount: (data?.progress ?? []).flatMap(p => p.topics ?? []).filter(t => (t.mastery ?? 0) >= 0.8).length,
+        }} />
+      )}
     </div>
   );
 }
