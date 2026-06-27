@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
+import './installPrompt.js'; // register beforeinstallprompt capture early
 import App from './App.jsx';
 
 if ('serviceWorker' in navigator) {

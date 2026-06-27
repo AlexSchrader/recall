@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
 import { examCountdownLabel, examUrgency } from '../examCountdown.js';
+import InstallGuide from '../components/InstallGuide.jsx';
+import { isStandalone } from '../installPrompt.js';
 
 async function searchBooks(q) {
   if (!q.trim()) return [];
@@ -38,6 +40,15 @@ export default function HomePage() {
   const [editBusy, setEditBusy] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [selectedId, setSelectedId] = useState(null);
+  const [showInstall, setShowInstall] = useState(false);
+  const [installNudge, setInstallNudge] = useState(
+    !isStandalone() && localStorage.getItem('installNudgeDismissed') !== '1'
+  );
+
+  const dismissInstall = () => {
+    localStorage.setItem('installNudgeDismissed', '1');
+    setInstallNudge(false);
+  };
 
   useEffect(() => {
     api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
@@ -144,6 +155,16 @@ export default function HomePage() {
 
   return (
     <>
+      {showInstall && <InstallGuide onClose={() => setShowInstall(false)} />}
+      {installNudge && (
+        <div className="install-nudge">
+          <span>📱 Add Recall to your home screen for quick, app-like access.</span>
+          <span style={{ display: 'flex', gap: '.4rem', flexShrink: 0 }}>
+            <button className="btn btn-primary btn-sm" onClick={() => setShowInstall(true)}>Show me how</button>
+            <button className="btn btn-sm" onClick={dismissInstall}>Dismiss</button>
+          </span>
+        </div>
+      )}
       {(user?.streak > 0 || dueCount > 0 || weakest) && (
         <div className="today-card">
           <p className="today-title">Today</p>

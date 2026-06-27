@@ -307,6 +307,14 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .ob-back { background: none; border: none; color: var(--muted); font-size: .85rem; cursor: pointer; margin-top: 1rem; padding: 0; display: block; width: 100%; text-align: center; }
 .ob-back:hover { color: var(--text); }
 
+/* ── Install guide ── */
+.install-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: color-mix(in srgb, var(--primary) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border)); border-radius: var(--radius); padding: .65rem 1rem; margin-bottom: 1rem; font-size: .875rem; }
+.install-modal { position: relative; width: 100%; max-width: 400px; background: var(--surface); border-radius: var(--radius); padding: 1.75rem 1.5rem 1.5rem; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,.25); }
+.install-close { position: absolute; top: .6rem; right: .75rem; background: none; border: none; color: var(--muted); font-size: 1.1rem; cursor: pointer; }
+.install-icon { font-size: 2.5rem; margin-bottom: .25rem; }
+.install-steps { text-align: left; margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: .6rem; font-size: .9rem; }
+.install-steps li { line-height: 1.45; }
+
 /* ── Today dashboard (Home) ── */
 .today-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
 .today-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .6rem; }

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../api.js';
+import InstallGuide from '../components/InstallGuide.jsx';
+import { isStandalone } from '../installPrompt.js';
 
 function useDebounce(value, delay) {
   const [debounced, setDebounced] = useState(value);
@@ -24,6 +26,7 @@ const TYPE_OPTIONS = [
 
 export default function SettingsPage() {
   const { user, setUser } = useAuth();
+  const [showInstall, setShowInstall] = useState(false);
 
   // ── Stats ──
   const [stats, setStats] = useState(null);
@@ -198,6 +201,7 @@ export default function SettingsPage() {
 
   return (
     <div className="settings-page">
+      {showInstall && <InstallGuide onClose={() => setShowInstall(false)} />}
       <h1 style={{ fontSize: '1.5rem', fontWeight: 700 }}>Settings</h1>
 
       {/* ── Stats ── */}
@@ -476,6 +480,17 @@ export default function SettingsPage() {
           </a>
         </div>
       </section>
+
+      {/* ── Install ── */}
+      {!isStandalone() && (
+        <section className="settings-section">
+          <h2>Install</h2>
+          <p style={{ fontSize: '.9rem', marginBottom: '.75rem' }}>
+            Add Recall to your home screen for an app icon and full-screen experience.
+          </p>
+          <button className="btn btn-primary btn-sm" onClick={() => setShowInstall(true)}>📱 Add to Home Screen</button>
+        </section>
+      )}
 
       {/* ── Support ── */}
       <section className="settings-section">
