@@ -21,6 +21,7 @@ export default function HomePage() {
   const [courses, setCourses] = useState([]);
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [dueCount, setDueCount] = useState(0);
+  const [weakest, setWeakest] = useState(null);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#4f46e5');
   const [adding, setAdding] = useState(false);
@@ -42,6 +43,13 @@ export default function HomePage() {
     api.get('/courses').then(c => { setCourses(c); setLoading(false); }).catch(() => setLoading(false));
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
     api.get('/flashcards/due?limit=50').then(c => setDueCount(c.length)).catch(() => {});
+    api.get('/me/progress').then(data => {
+      const topics = (data.progress ?? [])
+        .flatMap(p => (p.topics ?? []).map(t => ({ topic: t.topic, mastery: t.mastery ?? 0, courseId: p.course.id })))
+        .filter(t => t.mastery < 0.7)
+        .sort((a, b) => a.mastery - b.mastery);
+      setWeakest(topics[0] ?? null);
+    }).catch(() => {});
   }, [user.id]);
 
   // Coming straight from onboarding (?start=1): open the create-course form so
@@ -136,16 +144,27 @@ export default function HomePage() {
 
   return (
     <>
-      {streakDue && (
-        <div className="streak-nudge">
-          <span>Your <strong>{user.streak}-day streak</strong> is on the line — study something today to keep it going!</span>
-          <Link to="/progress" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Study now</Link>
-        </div>
-      )}
-      {dueCount > 0 && (
-        <div className="card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '.75rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
-          <span>🗓️ <strong>{dueCount}{dueCount >= 50 ? '+' : ''} card{dueCount !== 1 ? 's' : ''}</strong> due across your decks</span>
-          <Link to="/flashcards/daily" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Daily Review →</Link>
+      {(user?.streak > 0 || dueCount > 0 || weakest) && (
+        <div className="today-card">
+          <p className="today-title">Today</p>
+          {user?.streak > 0 && (
+            <div className="today-row">
+              <span>🔥 <strong>{user.streak}-day streak</strong>{streakDue ? ' — study today to keep it alive' : ' — you studied today, nice!'}</span>
+              {streakDue && <Link to="/progress" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Study now</Link>}
+            </div>
+          )}
+          {dueCount > 0 && (
+            <div className="today-row">
+              <span>🗓️ <strong>{dueCount}{dueCount >= 50 ? '+' : ''} card{dueCount !== 1 ? 's' : ''}</strong> due across your decks</span>
+              <Link to="/flashcards/daily" className="btn btn-primary btn-sm" style={{ flexShrink: 0 }}>Review →</Link>
+            </div>
+          )}
+          {weakest && (
+            <div className="today-row">
+              <span>🎯 Weakest: <strong>{weakest.topic}</strong> ({Math.round(weakest.mastery * 100)}%)</span>
+              <Link to="/progress" className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>Drill →</Link>
+            </div>
+          )}
         </div>
       )}
       <div className="page-header">

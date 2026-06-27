@@ -307,6 +307,12 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .ob-back { background: none; border: none; color: var(--muted); font-size: .85rem; cursor: pointer; margin-top: 1rem; padding: 0; display: block; width: 100%; text-align: center; }
 .ob-back:hover { color: var(--text); }
 
+/* ── Today dashboard (Home) ── */
+.today-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
+.today-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .6rem; }
+.today-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; font-size: .9rem; padding: .35rem 0; }
+.today-row + .today-row { border-top: 1px solid var(--border); }
+
 /* ── Streak nudge ── */
 .streak-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; color: #92400e; }
 [data-theme="dark"] .streak-nudge { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
