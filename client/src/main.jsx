@@ -2,13 +2,10 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './styles.css';
 import './installPrompt.js'; // register beforeinstallprompt capture early
+import { initPWA } from './pwa.js';
 import App from './App.jsx';
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(r => r.unregister());
-  });
-}
+initPWA(); // register the service worker (precache shell + offline study data)
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

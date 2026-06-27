@@ -1,6 +1,8 @@
 import { Outlet, Link, NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useEffect, useRef } from 'react';
+import OfflineIndicator from './OfflineIndicator.jsx';
+import UpdatePrompt from './UpdatePrompt.jsx';
 
 export default function Layout() {
   const { user, logout } = useAuth();
@@ -42,12 +44,14 @@ export default function Layout() {
             </span>
           )}
         </div>
+        <OfflineIndicator />
         <Link to="/settings" className="nav-username" title="Settings">
           <span className="nav-gear" aria-hidden>⚙️</span>
           <span className="nav-username-text">{user?.display_name}</span>
         </Link>
         <button className="btn btn-ghost btn-sm" onClick={handleLogout}>Log out</button>
       </nav>
+      <UpdatePrompt />
       <main>
         <Outlet />
       </main>

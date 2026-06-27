@@ -1,6 +1,16 @@
 const BASE = '/api';
 
 async function request(method, path, body) {
+  // Mutations can't work offline. Fail fast with a friendly message rather than a
+  // raw network error. GETs still go through — the service worker serves cached
+  // quizzes / flashcards / chats.
+  if (method !== 'GET' && typeof navigator !== 'undefined' && navigator.onLine === false) {
+    const e = new Error("You're offline. New quizzes and changes need a connection — but your past quizzes, flashcards and chats still work.");
+    e.status = 0;
+    e.offline = true;
+    throw e;
+  }
+
   const opts = { method, credentials: 'include' };
   if (body !== undefined) {
     opts.headers = { 'Content-Type': 'application/json' };
