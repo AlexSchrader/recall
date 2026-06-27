@@ -171,6 +171,7 @@ export default function SettingsPage() {
   const [quizzes, setQuizzes] = useState(null);
   const [quizErr, setQuizErr] = useState('');
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmQuizId, setConfirmQuizId] = useState(null);
 
   useEffect(() => {
     api.get(`/users/${user.id}/quizzes?limit=100`)
@@ -179,13 +180,14 @@ export default function SettingsPage() {
   }, [user.id]);
 
   const deleteQuiz = async (id) => {
-    if (!confirm('Delete this quiz? This cannot be undone.')) return;
     setDeletingId(id);
+    setQuizErr('');
     try {
       await api.delete(`/quizzes/${id}`);
       setQuizzes(q => q.filter(x => x.id !== id));
+      setConfirmQuizId(null);
     } catch {
-      alert('Could not delete quiz.');
+      setQuizErr('Could not delete quiz.');
     } finally {
       setDeletingId(null);
     }
@@ -403,13 +405,16 @@ export default function SettingsPage() {
                     {` · ${q.status}`}
                   </div>
                 </div>
-                <button
-                  className="btn btn-danger btn-sm"
-                  disabled={deletingId === q.id}
-                  onClick={() => deleteQuiz(q.id)}
-                >
-                  {deletingId === q.id ? '…' : 'Delete'}
-                </button>
+                {confirmQuizId === q.id ? (
+                  <span style={{ display: 'flex', gap: '.4rem', flexShrink: 0 }}>
+                    <button className="btn btn-danger btn-sm" disabled={deletingId === q.id} onClick={() => deleteQuiz(q.id)}>
+                      {deletingId === q.id ? '…' : 'Delete'}
+                    </button>
+                    <button className="btn btn-sm" onClick={() => setConfirmQuizId(null)}>Cancel</button>
+                  </span>
+                ) : (
+                  <button className="btn btn-danger btn-sm" style={{ flexShrink: 0 }} onClick={() => setConfirmQuizId(q.id)}>Delete</button>
+                )}
               </div>
             ))}
           </div>
