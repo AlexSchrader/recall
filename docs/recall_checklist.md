@@ -98,6 +98,14 @@ Drop-in improvements that don't belong to a feature phase. New items land here a
 - [x] Dynamic `--nav-h` CSS variable — `ResizeObserver` on `<nav>` writes the actual nav height to `:root` so the chat area starts exactly below it (fixes mobile two-row nav overlap from old hardcoded `57px`) — DONE 2026-06-21 (CC)
 - [x] Retake title disambiguation — retake button strips any existing " (retake)" suffix then appends it, so repeated retakes stay clean instead of stacking — DONE 2026-06-23, commit `576f70a` (CC)
 
+**Engagement batch (2026-06-27)** — built while payments stayed parked:
+- [x] **Home "Today" dashboard** — one card consolidating streak status + cards-due + weakest-topic, so opening the app always shows the obvious next action — DONE 2026-06-27 (CC)
+- [x] **Add to Home Screen install guide** — platform-aware modal (iOS Share steps / Android+desktop one-tap via `beforeinstallprompt` or manual menu), from a Settings "Install" section + a dismissible Home nudge; hidden when standalone (`installPrompt.js`, `InstallGuide.jsx`). Covers the Phase 7 P5 install-help item early — DONE 2026-06-27 (CC)
+- [x] **Study activity heatmap** — 12-week contribution grid on Progress from `GET /me/activity` (attempts grouped by day) — DONE 2026-06-27 (CC)
+- [x] **Achievements & badges** — 10 tiles on Progress derived from existing stats + mastery; earned tiles light up, locked show progress — DONE 2026-06-27 (CC)
+- [x] Settings quiz-delete uses inline confirm + inline error (dropped native `confirm()`/`alert()`) — DONE 2026-06-27 (CC)
+- [ ] Per-topic mastery **trend arrows** (improving/declining) on Progress — deferred: needs a `mastery_history` table (we only store current mastery), useful only going forward. (CC)
+
 ## Phase 4.6 — Mini-games *(complete)*
 
 Lightweight study modes built on the existing `questions` table (and flashcard decks for Match It). Live on each unit page under "Quick games" and on DeckPage — no new nav tab.
