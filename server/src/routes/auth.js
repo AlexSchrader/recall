@@ -8,7 +8,7 @@ import {
 } from '../db/usersDb.js';
 import { requireAuth } from '../middleware/auth.js';
 import { sendPasswordReset } from '../services/email.js';
-import { countAttemptsByUser, listWeakQuestions } from '../db/attemptsDb.js';
+import { countAttemptsByUser, listWeakQuestions, listDailyActivity } from '../db/attemptsDb.js';
 import { listMasteryByUser, listMasteryByCourse } from '../db/topicMasteryDb.js';
 import { listCoursesByUser } from '../db/coursesDb.js';
 import { countCompletedQuizzesByUser, listQuizzesWithQuestions } from '../db/quizzesDb.js';
@@ -190,6 +190,13 @@ router.get('/me/stats', requireAuth, (req, res) => {
     streak: user.streak ?? 0,
     bestStreak: user.best_streak ?? 0,
   });
+});
+
+// GET /api/me/activity  — daily questions-answered counts for the activity heatmap
+router.get('/me/activity', requireAuth, (req, res) => {
+  const days = Math.min(370, Math.max(7, Number(req.query.days) || 84));
+  const since = new Date(Date.now() - days * 86_400_000).toISOString().slice(0, 10);
+  res.json({ since, days, activity: listDailyActivity(req.session.userId, since) });
 });
 
 // GET /api/me/progress  — mastery by course + weak questions

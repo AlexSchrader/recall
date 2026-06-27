@@ -18,14 +18,61 @@ function MasteryBar({ value }) {
   );
 }
 
+const WEEKS = 12;
+const MS_DAY = 86_400_000;
+
+function ActivityHeatmap({ activity }) {
+  const counts = Object.fromEntries((activity ?? []).map(a => [a.day, a.count]));
+  const now = new Date();
+  const todayMid = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const dow = new Date(todayMid).getUTCDay(); // 0=Sun
+  const startMs = todayMid - ((WEEKS - 1) * 7 + dow) * MS_DAY;
+
+  const cells = [];
+  for (let i = 0; i < WEEKS * 7; i++) {
+    const ms = startMs + i * MS_DAY;
+    const key = new Date(ms).toISOString().slice(0, 10);
+    cells.push({ key, count: counts[key] ?? 0, future: ms > todayMid });
+  }
+  const weeks = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  const level = c => c === 0 ? 0 : c < 5 ? 1 : c < 15 ? 2 : c < 30 ? 3 : 4;
+  const activeDays = cells.filter(c => !c.future && c.count > 0).length;
+
+  return (
+    <section className="progress-section">
+      <h2 className="section-title">Study activity</h2>
+      <p style={{ fontSize: '.8rem', color: 'var(--muted)', marginBottom: '.6rem' }}>
+        {activeDays} active day{activeDays !== 1 ? 's' : ''} in the last 12 weeks
+      </p>
+      <div className="heatmap">
+        {weeks.map((week, wi) => (
+          <div key={wi} className="heatmap-week">
+            {week.map(cell => (
+              <div
+                key={cell.key}
+                className={`heatmap-cell heatmap-l${cell.future ? 0 : level(cell.count)}`}
+                style={cell.future ? { visibility: 'hidden' } : undefined}
+                title={`${cell.count} answered · ${cell.key}`}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export default function ProgressPage() {
   const navigate = useNavigate();
   const [data, setData] = useState(null);
   const [stats, setStats] = useState(null);
+  const [activity, setActivity] = useState(null);
 
   useEffect(() => {
     api.get('/me/progress').then(setData).catch(console.error);
     api.get('/me/stats').then(setStats).catch(console.error);
+    api.get('/me/activity?days=84').then(setActivity).catch(() => {});
   }, []);
 
   const askRappelAbout = async (topic) => {
@@ -126,6 +173,8 @@ export default function ProgressPage() {
           </div>
         </div>
       )}
+
+      {activity && <ActivityHeatmap activity={activity.activity} />}
 
       {/* ── Exam soon nudge (soonest upcoming exam within 14 days) ── */}
       {(() => {

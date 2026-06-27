@@ -315,6 +315,16 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .install-steps { text-align: left; margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: .6rem; font-size: .9rem; }
 .install-steps li { line-height: 1.45; }
 
+/* ── Activity heatmap (Progress) ── */
+.heatmap { display: flex; gap: 3px; overflow-x: auto; padding-bottom: .25rem; }
+.heatmap-week { display: flex; flex-direction: column; gap: 3px; }
+.heatmap-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--border); }
+.heatmap-l0 { background: var(--border); }
+.heatmap-l1 { background: color-mix(in srgb, var(--primary) 30%, var(--border)); }
+.heatmap-l2 { background: color-mix(in srgb, var(--primary) 55%, transparent); }
+.heatmap-l3 { background: color-mix(in srgb, var(--primary) 80%, transparent); }
+.heatmap-l4 { background: var(--primary); }
+
 /* ── Today dashboard (Home) ── */
 .today-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; }
 .today-title { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: .6rem; }

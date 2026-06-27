@@ -19,6 +19,12 @@ const stmts = {
      ORDER BY a.answered_at DESC`
   ),
   countByUser: db.prepare('SELECT COUNT(*) AS total FROM attempts WHERE user_id = ?'),
+  dailyActivity: db.prepare(
+    `SELECT substr(answered_at, 1, 10) AS day, COUNT(*) AS count
+     FROM attempts
+     WHERE user_id = ? AND answered_at >= ?
+     GROUP BY day ORDER BY day`
+  ),
   weakQuestions: db.prepare(
     `SELECT q.id, q.prompt, q.topic, q.correct_answer, q.explanation,
             COUNT(*) AS miss_count
@@ -57,4 +63,9 @@ export function countAttemptsByUser(userId) {
 
 export function listWeakQuestions(userId, limit = 10) {
   return stmts.weakQuestions.all(userId, limit);
+}
+
+// [{ day: 'YYYY-MM-DD', count }] of questions answered since `sinceIso`. Powers the activity heatmap.
+export function listDailyActivity(userId, sinceIso) {
+  return stmts.dailyActivity.all(userId, sinceIso);
 }
