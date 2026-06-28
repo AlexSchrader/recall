@@ -36,6 +36,24 @@ const stmts = {
      VALUES
      (@id, @user_id, @course_id, @topic, @mastery_score, @ease, @interval_days, @repetitions, @source, @changed_at)`
   ),
+  // Baseline mastery per topic for trend arrows: the score as of `cutoff`
+  // (newest history row at/before the cutoff). For a topic first seen *after*
+  // the cutoff, fall back to its earliest recorded score, so a brand-new topic
+  // still shows movement since it started.
+  baselines: db.prepare(
+    `WITH ranked AS (
+       SELECT course_id, topic, mastery_score,
+              ROW_NUMBER() OVER (
+                PARTITION BY course_id, topic
+                ORDER BY (changed_at <= @cutoff) DESC,
+                         CASE WHEN changed_at <= @cutoff THEN changed_at END DESC,
+                         changed_at ASC
+              ) AS rn
+       FROM mastery_history
+       WHERE user_id = @user_id
+     )
+     SELECT course_id, topic, mastery_score AS baseline FROM ranked WHERE rn = 1`
+  ),
 };
 
 export function getMastery(userId, courseId, topic) {
@@ -79,4 +97,13 @@ export function listMasteryByCourse(userId, courseId) {
 
 export function listDueForReview(userId, limit = 10) {
   return stmts.listDue.all(userId, new Date().toISOString(), limit);
+}
+
+// Map of `${course_id}::${topic}` → baseline mastery score as of `cutoff` (ISO).
+// Used to compute trend deltas without a second pass over history.
+export function getMasteryBaselines(userId, cutoff) {
+  const rows = stmts.baselines.all({ user_id: userId, cutoff });
+  const map = new Map();
+  for (const r of rows) map.set(`${r.course_id}::${r.topic}`, r.baseline);
+  return map;
 }

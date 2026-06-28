@@ -7,6 +7,21 @@ function masteryColor(pct) {
   return pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
 }
 
+// Trend over the last 7 days, in percentage points. Hidden when flat or when
+// there's no history to compare against yet.
+function TrendArrow({ delta }) {
+  if (delta == null || delta === 0) return null;
+  const up = delta > 0;
+  return (
+    <span
+      className={`mastery-trend ${up ? 'mastery-trend--up' : 'mastery-trend--down'}`}
+      title={`${up ? 'Up' : 'Down'} ${Math.abs(delta)} points in the last 7 days`}
+    >
+      {up ? '▲' : '▼'} {Math.abs(delta)}%
+    </span>
+  );
+}
+
 function MasteryBar({ value }) {
   const pct = Math.round((value ?? 0) * 100);
   return (
@@ -315,6 +330,7 @@ export default function ProgressPage() {
                       style={{ color: masteryColor(pct), borderColor: masteryColor(pct) }}
                       title={`${pct}% mastery`}
                     >{pct}%</span>
+                    <TrendArrow delta={t.trend} />
                   </div>
                   <div className="mastery-actions">
                     <button

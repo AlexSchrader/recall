@@ -540,6 +540,11 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   min-width: 46px; text-align: center; padding: .2rem .45rem;
   border: 1px solid currentColor; border-radius: 99px;
 }
+/* 7-day mastery trend, sits just right of the percentage pill. */
+.mastery-trend { flex-shrink: 0; font-size: .72rem; font-weight: 700; line-height: 1; white-space: nowrap; }
+.mastery-trend--up { color: var(--success); }
+.mastery-trend--down { color: var(--danger); }
+
 .weak-q-list { display: flex; flex-direction: column; gap: .6rem; }
 .weak-q-row { display: flex; align-items: flex-start; gap: .75rem; padding: .75rem; border: 1px solid var(--border); border-radius: var(--radius); }
 .weak-q-body { flex: 1; }

@@ -59,3 +59,56 @@ describe('mastery history logging', () => {
     expect(rows.map(r => r.source).sort()).toEqual(['flashcard', 'speed_round']);
   });
 });
+
+const daysAgo = (n) => new Date(Date.now() - n * 86_400_000).toISOString();
+
+describe('mastery trend on /me/progress', () => {
+  const topicTrend = (body, topic) =>
+    body.progress.flatMap(p => p.topics).find(t => t.topic === topic)?.trend;
+
+  it('computes the 7-day delta against the baseline at the cutoff', async () => {
+    const { user, agent } = await createTestUser();
+    const course = await createCourseFor(agent);
+    const topic = 'Thermodynamics';
+    const base = {
+      id: uuidv4(), user_id: user.id, course_id: course.id, topic,
+      ease: 2.5, interval_days: 1, repetitions: 1, due_at: daysAgo(0),
+    };
+    // Old baseline (outside the 7-day window) then a recent improvement.
+    updateMastery({ ...base, mastery: 0.2, last_seen_at: daysAgo(10) }, 'quiz');
+    updateMastery({ ...base, mastery: 0.6, last_seen_at: daysAgo(0) }, 'quiz');
+
+    const res = await agent.get('/api/me/progress');
+    expect(res.status).toBe(200);
+    expect(topicTrend(res.body, topic)).toBe(40); // 0.6 - 0.2 = +40 pts
+  });
+
+  it('falls back to the earliest score for a topic first seen within the window', async () => {
+    const { user, agent } = await createTestUser();
+    const course = await createCourseFor(agent);
+    const topic = 'Kinematics';
+    const base = {
+      id: uuidv4(), user_id: user.id, course_id: course.id, topic,
+      ease: 2.5, interval_days: 1, repetitions: 1, due_at: daysAgo(0),
+    };
+    updateMastery({ ...base, mastery: 0.3, last_seen_at: daysAgo(3) }, 'quiz');
+    updateMastery({ ...base, mastery: 0.5, last_seen_at: daysAgo(0) }, 'quiz');
+
+    const res = await agent.get('/api/me/progress');
+    expect(topicTrend(res.body, topic)).toBe(20); // 0.5 - 0.3 = +20 pts
+  });
+
+  it('reports null trend for a topic with no history', async () => {
+    const { user, agent } = await createTestUser();
+    const course = await createCourseFor(agent);
+    const topic = 'Optics';
+    // Write the live row only, bypassing the history log.
+    db.prepare(
+      `INSERT INTO topic_mastery (id, user_id, course_id, topic, ease, interval_days, repetitions, mastery, due_at, last_seen_at)
+       VALUES (?, ?, ?, ?, 2.5, 1, 1, 0.4, ?, ?)`
+    ).run(uuidv4(), user.id, course.id, topic, daysAgo(0), daysAgo(0));
+
+    const res = await agent.get('/api/me/progress');
+    expect(topicTrend(res.body, topic)).toBeNull();
+  });
+});

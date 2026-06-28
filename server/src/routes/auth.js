@@ -9,7 +9,7 @@ import {
 import { requireAuth } from '../middleware/auth.js';
 import { sendPasswordReset } from '../services/email.js';
 import { countAttemptsByUser, listWeakQuestions, listDailyActivity } from '../db/attemptsDb.js';
-import { listMasteryByUser, listMasteryByCourse } from '../db/topicMasteryDb.js';
+import { listMasteryByUser, listMasteryByCourse, getMasteryBaselines } from '../db/topicMasteryDb.js';
 import { listCoursesByUser } from '../db/coursesDb.js';
 import { countCompletedQuizzesByUser, listQuizzesWithQuestions } from '../db/quizzesDb.js';
 import { countCardReviewsByUser, listFlashcardReviewsByUser } from '../db/flashcardsDb.js';
@@ -202,10 +202,18 @@ router.get('/me/activity', requireAuth, (req, res) => {
 // GET /api/me/progress  — mastery by course + weak questions
 router.get('/me/progress', requireAuth, (req, res) => {
   const uid = req.session.userId;
+  // Trend window: mastery change over the last 7 days, in percentage points.
+  const cutoff = new Date(Date.now() - 7 * 86_400_000).toISOString();
+  const baselines = getMasteryBaselines(uid, cutoff);
   const courses = listCoursesByUser(uid);
   const progress = courses.map(c => ({
     course: c,
-    topics: listMasteryByCourse(uid, c.id),
+    topics: listMasteryByCourse(uid, c.id).map(t => {
+      const base = baselines.get(`${c.id}::${t.topic}`);
+      // null when there's no history yet (e.g. data predating mastery_history)
+      const trend = base == null ? null : Math.round(((t.mastery ?? 0) - base) * 100);
+      return { ...t, trend };
+    }),
   }));
   const weakQuestions = listWeakQuestions(uid, 15);
   res.json({ progress, weakQuestions });
