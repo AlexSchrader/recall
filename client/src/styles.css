@@ -557,9 +557,10 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
   display: flex; align-items: center; gap: .9rem; width: 100%; text-align: left;
   padding: 1rem 1.1rem; border: 1px solid var(--border); border-radius: var(--radius);
   background: var(--surface); color: var(--text); cursor: pointer; font: inherit;
+  text-decoration: none;
   transition: border-color .15s, transform .15s, box-shadow .15s;
 }
-.game-row:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+.game-row:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); text-decoration: none; }
 .game-row-emoji { font-size: 1.7rem; flex-shrink: 0; width: 2rem; text-align: center; }
 .game-row-text { display: flex; flex-direction: column; gap: .15rem; flex: 1; min-width: 0; }
 .game-row-title { font-size: 1.02rem; font-weight: 700; }
