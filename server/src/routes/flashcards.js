@@ -6,7 +6,7 @@ import { getCourseById } from '../db/coursesDb.js';
 import { generateDeck } from '../services/flashcardGenerator.js';
 import { reviewCard } from '../services/flashcardReview.js';
 import {
-  getDeck, listDecksForUnit, deleteDeck,
+  getDeck, listDecksForUnit, listDecksForUser, deleteDeck,
   getCardsForDeck, getDueCards, getCardCounts,
   editCardFields, deleteCard, getCard,
 } from '../db/flashcardsDb.js';
@@ -53,6 +53,12 @@ router.post('/flashcards/decks/:deckId/regenerate', requireAuth, async (req, res
 });
 
 // ── Decks ─────────────────────────────────────────────────────────────────────
+
+// All of the user's decks with course/unit context + card count — used by the
+// Games-hub Match It deck picker. Card count comes from the joined query.
+router.get('/flashcards/decks', requireAuth, (req, res) => {
+  res.json(listDecksForUser(req.session.userId));
+});
 
 router.get('/units/:unitId/flashcards/decks', requireAuth, (req, res) => {
   if (!ownsUnit(req.params.unitId, req.session.userId)) {

@@ -6,6 +6,7 @@ const GAMES = [
   { to: '/games/streak',      emoji: '🔥', title: 'Streak Challenge', desc: 'Answer until you miss one — how long can you go?' },
   { to: '/games/survival',    emoji: '❤️', title: 'Survival',         desc: '3 lives, and the clock tightens each level. How far can you go?' },
   { to: '/games/boss',        emoji: '👾', title: 'Boss Battle',      desc: 'Fight a gauntlet on one of your weak topics.' },
+  { to: '/games/match',       emoji: '🃏', title: 'Match It',         desc: 'Pair terms with definitions from a flashcard deck.' },
 ];
 
 const RANDOM_POOL = ['/games/speed-round', '/games/time-attack', '/games/streak', '/games/survival'];
@@ -45,10 +46,6 @@ export default function GamesPage() {
           <span className="game-row-go">›</span>
         </button>
       </div>
-
-      <p style={{ color: 'var(--muted)', fontSize: '.85rem', marginTop: '1.25rem' }}>
-        🃏 <strong>Match It</strong> lives on each flashcard deck — open a deck to pair terms with definitions.
-      </p>
     </>
   );
 }

@@ -19,8 +19,72 @@ function formatTime(s) {
 
 export default function MatchItPage() {
   const [searchParams] = useSearchParams();
-  const deckId   = searchParams.get('deckId');
+  const deckId = searchParams.get('deckId');
 
+  // No deck in scope (launched from the Games hub) → let the player pick one.
+  if (!deckId) return <MatchPicker />;
+  return <MatchGame deckId={deckId} />;
+}
+
+function MatchPicker() {
+  const [decks, setDecks] = useState(null);
+
+  useEffect(() => {
+    api.get('/flashcards/decks').then(setDecks).catch(() => setDecks([]));
+  }, []);
+
+  const playable = (decks ?? []).filter(d => (d.card_count ?? 0) >= 4);
+
+  return (
+    <div className="page">
+      <div className="page-header"><h1>🃏 Match It</h1></div>
+      <p style={{ color: 'var(--muted)', marginBottom: '1.25rem' }}>
+        Pair each term with its definition as fast as you can. Pick a deck to play.
+      </p>
+
+      {decks === null && <p className="empty">Loading your decks…</p>}
+
+      {decks?.length > 0 && playable.length === 0 && (
+        <div className="empty" style={{ marginTop: '2rem' }}>
+          <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🃏</p>
+          <p><strong>No decks big enough yet</strong></p>
+          <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 300, margin: '.5rem auto 0' }}>
+            Match It needs a deck with at least 4 cards. Add more cards or generate a bigger deck, then come back.
+          </p>
+          <Link to="/games" className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Games</Link>
+        </div>
+      )}
+
+      {decks?.length === 0 && (
+        <div className="empty" style={{ marginTop: '2rem' }}>
+          <p style={{ fontSize: '1.5rem', marginBottom: '.5rem' }}>🃏</p>
+          <p><strong>No flashcard decks yet</strong></p>
+          <p style={{ fontSize: '.85rem', color: 'var(--muted)', marginTop: '.5rem', maxWidth: 300, margin: '.5rem auto 0' }}>
+            Open a unit and generate a flashcard deck first — then you can play Match It with it.
+          </p>
+          <Link to="/games" className="btn btn-ghost btn-sm" style={{ marginTop: '1rem' }}>← Games</Link>
+        </div>
+      )}
+
+      {playable.length > 0 && (
+        <div className="boss-list">
+          {playable.map(d => (
+            <Link key={d.id} to={`/games/match?deckId=${d.id}`} className="boss-pick">
+              <span className="boss-pick-emoji">🃏</span>
+              <div className="boss-pick-info">
+                <span className="boss-pick-topic">{d.name}</span>
+                <span className="boss-pick-course">{d.course_name} · {d.unit_name} · {d.card_count} cards</span>
+              </div>
+              <span className="boss-pick-go">Play →</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MatchGame({ deckId }) {
   const [phase, setPhase]         = useState('loading'); // loading | error | playing | done
   const [fronts, setFronts]       = useState([]);  // [{id, text}] shuffled
   const [backs, setBacks]         = useState([]);  // [{id, text}] shuffled

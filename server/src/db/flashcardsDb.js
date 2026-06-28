@@ -12,6 +12,20 @@ const stmts = {
   listDecksForUnit: db.prepare(
     `SELECT * FROM flashcard_decks WHERE unit_id = ? AND user_id = ? ORDER BY created_at DESC`
   ),
+  // Every deck for a user, with course/unit context and card count — for the
+  // Games-hub Match It deck picker (no single unit in scope there).
+  listDecksForUser: db.prepare(
+    `SELECT d.id, d.name, d.unit_id,
+            u.name AS unit_name,
+            c.id   AS course_id,
+            c.name AS course_name,
+            (SELECT COUNT(*) FROM flashcards f WHERE f.deck_id = d.id) AS card_count
+     FROM flashcard_decks d
+     JOIN units   u ON u.id = d.unit_id
+     JOIN courses c ON c.id = u.course_id
+     WHERE d.user_id = ?
+     ORDER BY c.name, u.name, d.created_at DESC`
+  ),
   deleteDeck: db.prepare(
     `DELETE FROM flashcard_decks WHERE id = ? AND user_id = ?`
   ),
@@ -94,6 +108,10 @@ export function getDeck(id, userId) {
 
 export function listDecksForUnit(unitId, userId) {
   return stmts.listDecksForUnit.all(unitId, userId);
+}
+
+export function listDecksForUser(userId) {
+  return stmts.listDecksForUser.all(userId);
 }
 
 export function deleteDeck(id, userId) {

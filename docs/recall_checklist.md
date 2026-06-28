@@ -137,6 +137,7 @@ Lightweight study modes built on the existing `questions` table (and flashcard d
 - [x] **Survival** (`/games/survival`) — 3 lives, endless MCQs; escalating difficulty: per-question clock that tightens each level (15s → 5s floor, −2s per 5 correct), timing out costs a heart; HUD shows level pill + per-question timer bar; result shows best level reached; feeds mastery (`source: 'survival'`) — DONE 2026-06-27 (CC). Escalation added to distinguish it from Boss Battle (focused single-topic gauntlet vs. endless mixed pressure).
 - [x] **Games hub → full-width row list** — Games page now lists every mode as wide rows (emoji · title · description · ›) so it fills the page, with Surprise me picking a random run — DONE 2026-06-27 (CC)
 - [x] **Games hub polish** — fixed hover underline leaking from global `a:hover` onto game rows (anchors); pinned `text-decoration:none` on `.game-row` — DONE 2026-06-27 (CC)
+- [x] **Match It in the Games hub** — Match It is now a first-class hub game, not deck-only. Launched from `/games/match` with no `deckId`, it shows a **deck picker** (`GET /flashcards/decks` → `listDecksForUser`, joins course/unit + card count; only decks with ≥4 cards are playable). Picking a deck deep-links to the existing game; deck-page launch still works unchanged. `MatchItPage` split into `MatchPicker` / `MatchGame` (Boss Battle pattern). 3 harness tests (owner list w/ context+count, anon 401, cross-user isolation) — DONE 2026-06-28 (CC)
 
 ## Phase 4.7 — Study-mode expansion & UX polish *(2026-06-25 session)*
 

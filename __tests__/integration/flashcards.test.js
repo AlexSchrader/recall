@@ -11,6 +11,7 @@ describe('flashcards — auth', () => {
     const anon = anonAgent();
     expect((await anon.post('/api/units/x/flashcards/generate').send({})).status).toBe(401);
     expect((await anon.get('/api/units/x/flashcards/decks')).status).toBe(401);
+    expect((await anon.get('/api/flashcards/decks')).status).toBe(401);
     expect((await anon.get('/api/flashcards/decks/x')).status).toBe(401);
     expect((await anon.get('/api/flashcards/decks/x/cards')).status).toBe(401);
     expect((await anon.get('/api/flashcards/due')).status).toBe(401);
@@ -39,6 +40,33 @@ describe('flashcards — happy path (owner)', () => {
     expect((await agent.get('/api/flashcards/due')).status).toBe(200);
     expect((await agent.delete(`/api/flashcards/cards/${cardId}`)).status).toBe(204);
     expect((await agent.delete(`/api/flashcards/decks/${deckId}`)).status).toBe(204);
+  });
+});
+
+describe('flashcards — all-decks list (Match It picker)', () => {
+  it('returns the owner\'s decks with course/unit context + card count', async () => {
+    const { agent } = await createTestUser({ tier: 'pro' });
+    const { unit } = await seedCourseUnitDoc(agent);
+    const { deckId } = await createDeckFor(agent, unit.id);
+
+    const res = await agent.get('/api/flashcards/decks');
+    expect(res.status).toBe(200);
+    const deck = res.body.find(d => d.id === deckId);
+    expect(deck).toBeTruthy();
+    expect(deck.course_name).toBeTruthy();
+    expect(deck.unit_name).toBe(unit.name);
+    expect(deck.card_count).toBeGreaterThan(0);
+  });
+
+  it("never lists another user's decks", async () => {
+    const { agent: a } = await createTestUser({ displayName: 'Decks Alice', tier: 'pro' });
+    const { agent: b } = await createTestUser({ displayName: 'Decks Bob', tier: 'pro' });
+    const { unit } = await seedCourseUnitDoc(a);
+    const { deckId } = await createDeckFor(a, unit.id);
+
+    const res = await b.get('/api/flashcards/decks');
+    expect(res.status).toBe(200);
+    expect(res.body.find(d => d.id === deckId)).toBeUndefined();
   });
 });
 
