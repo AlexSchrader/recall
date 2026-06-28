@@ -4,7 +4,7 @@ const GAMES = [
   { to: '/games/speed-round', emoji: '🏃', title: 'Speed Round',     desc: '10 questions, 15 seconds each — beat the clock.' },
   { to: '/games/time-attack', emoji: '⏱️', title: 'Time Attack',     desc: 'As many as you can in 60 seconds.' },
   { to: '/games/streak',      emoji: '🔥', title: 'Streak Challenge', desc: 'Answer until you miss one — how long can you go?' },
-  { to: '/games/survival',    emoji: '❤️', title: 'Survival',         desc: '3 lives. Keep going until they run out.' },
+  { to: '/games/survival',    emoji: '❤️', title: 'Survival',         desc: '3 lives, and the clock tightens each level. How far can you go?' },
   { to: '/games/boss',        emoji: '👾', title: 'Boss Battle',      desc: 'Fight a gauntlet on one of your weak topics.' },
 ];
 
