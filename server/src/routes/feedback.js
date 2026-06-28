@@ -41,11 +41,14 @@ router.post('/feedback', requireAuth, async (req, res) => {
   // Fire email async — don't block the response
   res.json({ ok: true });
 
+  // Build the admin deep-link from the request origin (same approach as password reset)
+  const origin = req.headers.origin || `${req.protocol}://${req.headers.host}`;
   sendFeedback({
     displayName: user.display_name,
     type,
     message: message.trim(),
     screenshotBase64,
+    adminUrl: `${origin}/admin`,
   }).catch(err => console.error('[feedback] email failed:', err.message));
 });
 

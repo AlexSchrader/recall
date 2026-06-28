@@ -2,9 +2,11 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.FROM_EMAIL || 'onboarding@resend.dev';
+// The support inbox the owner monitors directly; an Apps Script also turns these
+// into GitHub Issues. Every feedback submission emails here.
 const SUPPORT_EMAIL = 'recallstudyapp.support@gmail.com';
 
-export async function sendFeedback({ displayName, type, message, screenshotBase64 }) {
+export async function sendFeedback({ displayName, type, message, screenshotBase64, adminUrl }) {
   const label = { bug: 'Bug report', feature: 'Feature request', general: 'General feedback' }[type] ?? type;
   const attachments = screenshotBase64
     ? [{ filename: 'screenshot.jpg', content: Buffer.from(screenshotBase64, 'base64') }]
@@ -20,6 +22,7 @@ export async function sendFeedback({ displayName, type, message, screenshotBase6
         <p><strong>From:</strong> ${displayName}</p>
         <div style="background:#f5f5f7;border-radius:8px;padding:1rem;margin:1rem 0;white-space:pre-wrap;font-size:.95rem">${message}</div>
         ${screenshotBase64 ? '<p><strong>Screenshot attached.</strong></p>' : ''}
+        ${adminUrl ? `<p style="margin-top:1rem"><a href="${adminUrl}" style="display:inline-block;padding:.6rem 1.25rem;background:#4f46e5;color:#fff;border-radius:6px;text-decoration:none;font-weight:600">Open Admin → Feedback</a></p>` : ''}
       </div>
     `,
     attachments,
