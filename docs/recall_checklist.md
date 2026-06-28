@@ -192,7 +192,7 @@ R1–R5 are merged; this phase covers iteration based on real use.
 - [x] Dark mode input text fix — `color: var(--text)` added to `.form-group` inputs/textareas, `.chat-input`, `.edit-inline-input`, `.pin-input`; was rendering black text on dark surface — DONE 2026-06-23, commit `576f70a` (CC)
 - [x] Screenshot storage in feedback — `screenshot TEXT` column added to feedback table via migration; route now persists base64; admin Feedback tab renders the image inline — DONE 2026-06-23, commit `576f70a` (CC)
 - [x] Feedback → email → GitHub pipeline — in-app feedback hits Resend (`RESEND_API_KEY` in Railway), lands in `recallstudyapp.support@gmail.com` (the inbox Alex monitors directly); Google Apps Script polls every 5min and opens GitHub issues with `bug`/`enhancement`/`feedback` label; script lives in the support Google account — DONE 2026-06-23 (Alex/CC)
-- [x] Feedback email **"Open Admin → Feedback" button** — every feedback email now includes a one-tap CTA to `/admin` (admin URL derived from the request origin, same approach as password reset), so the notification leads straight to the in-app Feedback tab. Added a feedback route integration test (auth, validation, email fired with admin link) — the route was previously untested — DONE 2026-06-28 (CC)
+- [x] Feedback route integration test — auth, validation, and email-fired coverage; the route was previously untested — DONE 2026-06-28 (CC). (A short-lived "Open Admin → Feedback" email button was added then removed at Alex's request — feedback already lands in both the inbox and the admin tab, so the link was redundant.)
 
 ## Phase 6 — Cost guardrails & observability
 

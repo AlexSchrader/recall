@@ -19,7 +19,7 @@ describe('feedback', () => {
     expect((await agent.post('/api/feedback').send({ type: 'bug', message: 'a'.repeat(4001) })).status).toBe(400);
   });
 
-  it('accepts valid feedback and fires the email with an /admin link', async () => {
+  it('accepts valid feedback and fires the notification email', async () => {
     const { agent } = await createTestUser();
     const res = await agent.post('/api/feedback').send({ type: 'feature', message: 'Add dark mode to games' });
     expect(res.status).toBe(200);
@@ -29,6 +29,5 @@ describe('feedback', () => {
     const arg = sendFeedback.mock.calls[0][0];
     expect(arg.type).toBe('feature');
     expect(arg.message).toBe('Add dark mode to games');
-    expect(arg.adminUrl).toMatch(/\/admin$/);
   });
 });
