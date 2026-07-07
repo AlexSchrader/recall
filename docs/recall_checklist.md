@@ -271,6 +271,12 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
 
 ---
 
+## QA findings (QA Officer CC ↔ Development CC)
+
+Adversarial findings from **QA Officer CC**. `[ ]` open (include repro + severity + suspected file), `[x]` fixed (commit hash + who). Confirmed root causes graduate to **Dead ends & gotchas**. See the "two hats" section in `CLAUDE.md`.
+
+- [ ] **[SEV-1 · confirmed] Feedback emails never deliver — Resend returns 403 Forbidden on every `/emails` POST.** Feedback is saved to SQLite and the admin tab, but `services/email.js` sends from `onboarding@resend.dev` with no verified domain, so Resend refuses delivery to `recallstudyapp.support@gmail.com` (testing mode only allows sending to the Resend account's own signup address). The route swallows the error (`.catch(console.error)`), so it looks silently successful. **Repro:** submit feedback → check Resend Logs → 403 on the send; no email arrives, no GitHub issue created. **Fix paths:** (a) *account/config, Alex:* verify a domain in Resend (then Dev sets a real `FROM_EMAIL`), OR re-register the Resend account under the destination inbox; (b) *app hardening, Dev:* stop swallowing send failures silently — surface the Resend status (log the id/error, consider recording send-status on the feedback row) so this can never masquerade as success again. Diagnosed 2026-06-28.
+
 ## Dead ends & gotchas (don't re-walk these)
 
 - **Vercel can't host Recall** — SQLite needs a real filesystem, Vercel functions are stateless. Railway with a `/data` volume is the only sensible host for this stack. Don't reconsider unless you migrate to Postgres.
