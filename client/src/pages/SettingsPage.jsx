@@ -36,7 +36,7 @@ export default function SettingsPage() {
   }, []);
 
   // ── Study preferences ──
-  const [prefs, setPrefs] = useState({ questionCount: 10, difficulty: 'mixed', types: ['mcq'], reviewMix: 0.2 });
+  const [prefs, setPrefs] = useState({ questionCount: 10, difficulty: 'mixed', types: ['mcq'], reviewMix: 0.2, dailyGoal: 20 });
   const [prefsSaved, setPrefsSaved] = useState(false);
   useEffect(() => {
     api.get('/preferences').then(p => {
@@ -381,6 +381,19 @@ export default function SettingsPage() {
           />
           <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', color: 'var(--muted)', maxWidth: 300 }}>
             <span>All new</span><span>50% review</span>
+          </div>
+        </div>
+        <div className="form-group" style={{ marginTop: '.75rem' }}>
+          <label>Daily goal — {prefs.dailyGoal ?? 20} questions/cards a day</label>
+          <input
+            type="range"
+            min="5" max="50" step="5"
+            value={prefs.dailyGoal ?? 20}
+            onChange={e => setPrefs(p => ({ ...p, dailyGoal: Number(e.target.value) }))}
+            style={{ width: '100%', maxWidth: 300 }}
+          />
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '.75rem', color: 'var(--muted)', maxWidth: 300 }}>
+            <span>5</span><span>50</span>
           </div>
         </div>
         <button className="btn btn-primary btn-sm" style={{ marginTop: '.5rem' }} onClick={savePrefs}>

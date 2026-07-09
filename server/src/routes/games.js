@@ -4,7 +4,7 @@ import { requireAuth } from '../middleware/auth.js';
 import { listGameQuestions, getQuestionCourseAndTopic } from '../db/questionsDb.js';
 import { getMastery, updateMastery } from '../db/topicMasteryDb.js';
 
-const GAME_SOURCES = new Set(['speed_round', 'streak', 'match_it', 'boss', 'time_attack', 'survival']);
+const GAME_SOURCES = new Set(['speed_round', 'streak', 'match_it', 'boss', 'time_attack', 'survival', 'daily_mix']);
 import { sm2Next } from '../services/sm2.js';
 
 const router = Router();
