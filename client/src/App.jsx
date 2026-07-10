@@ -30,6 +30,7 @@ import MatchItPage from './pages/games/MatchItPage.jsx';
 import BossBattlePage from './pages/games/BossBattlePage.jsx';
 import TimeAttackPage from './pages/games/TimeAttackPage.jsx';
 import SurvivalPage from './pages/games/SurvivalPage.jsx';
+import DailyMixPage from './pages/DailyMixPage.jsx';
 
 function AppRoutes() {
   const { user, prefs } = useAuth();
@@ -64,6 +65,7 @@ function AppRoutes() {
           <Route path="/flashcards/decks/:deckId" element={<div className="page"><DeckPage /></div>} />
           <Route path="/flashcards/decks/:deckId/review" element={<div className="page"><ReviewPage /></div>} />
           <Route path="/flashcards/daily" element={<div className="page"><ReviewPage daily /></div>} />
+          <Route path="/study/mix" element={<div className="page"><DailyMixPage /></div>} />
           <Route path="/units/:unitId/study-guide" element={<div className="page"><StudyGuidePage /></div>} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/progress" element={<div className="page"><ProgressPage /></div>} />
