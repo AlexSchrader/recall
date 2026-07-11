@@ -5,7 +5,7 @@ import { listGameQuestions, getQuestionCourseAndTopic } from '../db/questionsDb.
 import { getMastery, updateMastery } from '../db/topicMasteryDb.js';
 import { getPreferences, upsertPreferences } from '../db/preferencesDb.js';
 
-const GAME_SOURCES = new Set(['speed_round', 'streak', 'match_it', 'boss', 'time_attack', 'survival']);
+const GAME_SOURCES = new Set(['speed_round', 'streak', 'match_it', 'boss', 'time_attack', 'survival', 'daily_mix']);
 // Games whose score is "higher is better" and worth tracking a personal best for.
 const BEST_GAMES = new Set(['speed_round', 'time_attack', 'streak', 'survival']);
 import { sm2Next } from '../services/sm2.js';

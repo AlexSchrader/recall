@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../api.js';
 import { daysUntilExam, examCountdownLabel } from '../examCountdown.js';
+import { courseReadiness, readinessColor, readinessLabel } from '../readiness.js';
+import ProgressRing from '../components/ProgressRing.jsx';
 
 function masteryColor(pct) {
   return pct >= 70 ? 'var(--success)' : pct >= 40 ? 'var(--warning)' : 'var(--danger)';
@@ -281,9 +283,22 @@ export default function ProgressPage() {
         topics.length > 0 && (
           <section key={course.id} className="progress-section">
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '.5rem', marginBottom: '.5rem' }}>
-              <h2 className="section-title" style={{ margin: 0 }}>
-                <Link to={`/courses/${course.id}`}>{course.name}</Link>
-              </h2>
+              {(() => {
+                const { score } = courseReadiness(topics);
+                return (
+                  <h2 className="section-title" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+                    <ProgressRing
+                      value={score} size={38} stroke={5}
+                      color={readinessColor(score)}
+                      label={`${Math.round(score * 100)}`}
+                    />
+                    <span style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.15 }}>
+                      <Link to={`/courses/${course.id}`}>{course.name}</Link>
+                      <span style={{ fontSize: '.72rem', fontWeight: 400, color: readinessColor(score) }}>{readinessLabel(score)}</span>
+                    </span>
+                  </h2>
+                );
+              })()}
               {topics.some(t => t.mastery < 0.7) && (
                 <button
                   className="btn btn-primary btn-sm"

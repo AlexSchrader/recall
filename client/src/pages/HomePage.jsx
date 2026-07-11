@@ -2,10 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { api } from '../api.js';
 import { useAuth } from '../context/AuthContext.jsx';
-import { examCountdownLabel, examUrgency } from '../examCountdown.js';
+import { examCountdownLabel, examUrgency, daysUntilExam } from '../examCountdown.js';
+import { courseReadiness, readinessColor, readinessLabel } from '../readiness.js';
 import InstallGuide from '../components/InstallGuide.jsx';
+import ProgressRing from '../components/ProgressRing.jsx';
 import { isStandalone } from '../installPrompt.js';
 import Tour from '../components/Tour.jsx';
+
+const DEFAULT_GOAL = 20;
+const todayKey = () => new Date().toISOString().slice(0, 10);
 
 const TOUR_STEPS = [
   { title: 'Welcome to Recall 👋', body: "Here's a quick 30-second tour of where everything lives. You can skip anytime." },
@@ -36,6 +41,9 @@ export default function HomePage() {
   const [recentQuizzes, setRecentQuizzes] = useState([]);
   const [dueCount, setDueCount] = useState(0);
   const [weakest, setWeakest] = useState(null);
+  const [dailyGoal, setDailyGoal] = useState(DEFAULT_GOAL);
+  const [todayCount, setTodayCount] = useState(0);
+  const [examReady, setExamReady] = useState(null); // { course, days, score } | null
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState('#4f46e5');
   const [adding, setAdding] = useState(false);
@@ -67,11 +75,25 @@ export default function HomePage() {
     api.get(`/users/${user.id}/quizzes?limit=5`).then(setRecentQuizzes).catch(console.error);
     api.get('/flashcards/due?limit=50').then(c => setDueCount(c.length)).catch(() => {});
     api.get('/me/progress').then(data => {
-      const topics = (data.progress ?? [])
+      const progress = data.progress ?? [];
+      const topics = progress
         .flatMap(p => (p.topics ?? []).map(t => ({ topic: t.topic, mastery: t.mastery ?? 0, courseId: p.course.id })))
         .filter(t => t.mastery < 0.7)
         .sort((a, b) => a.mastery - b.mastery);
       setWeakest(topics[0] ?? null);
+
+      // Exam readiness for the soonest upcoming exam within 30 days.
+      const upcoming = progress
+        .map(p => ({ course: p.course, days: daysUntilExam(p.course?.exam_date), ...courseReadiness(p.topics) }))
+        .filter(x => x.days !== null && x.days >= 0 && x.days <= 30 && x.seenCount > 0)
+        .sort((a, b) => a.days - b.days)[0];
+      setExamReady(upcoming ?? null);
+    }).catch(() => {});
+
+    api.get('/preferences').then(p => { if (p?.dailyGoal) setDailyGoal(p.dailyGoal); }).catch(() => {});
+    api.get('/me/activity?days=7').then(a => {
+      const today = (a.activity ?? []).find(d => d.day === todayKey());
+      setTodayCount(today?.count ?? 0);
     }).catch(() => {});
   }, [user.id]);
 
@@ -184,9 +206,46 @@ export default function HomePage() {
           </span>
         </div>
       )}
-      {(user?.streak > 0 || dueCount > 0 || weakest) && (
+      {courses.length > 0 && (
+        <div className="daily-hero">
+          <ProgressRing
+            value={dailyGoal ? Math.min(1, todayCount / dailyGoal) : 0}
+            size={72} stroke={7}
+            color={todayCount >= dailyGoal ? 'var(--success)' : 'var(--primary)'}
+            label={`${todayCount}`}
+            sublabel={`/ ${dailyGoal}`}
+          />
+          <div className="daily-hero-body">
+            <p className="daily-hero-title">
+              {todayCount >= dailyGoal
+                ? '🎉 Daily goal hit — nice work!'
+                : `${Math.max(0, dailyGoal - todayCount)} to go on today's goal`}
+            </p>
+            <p className="daily-hero-sub">A quick mix of due cards and questions from across your courses.</p>
+          </div>
+          <button className="btn btn-primary" style={{ flexShrink: 0 }} onClick={() => navigate('/study/mix')}>
+            ▶ Daily Mix
+          </button>
+        </div>
+      )}
+      {(user?.streak > 0 || dueCount > 0 || weakest || examReady) && (
         <div className="today-card">
           <p className="today-title">Today</p>
+          {examReady && (
+            <div className="today-row">
+              <span style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+                <ProgressRing
+                  value={examReady.score} size={40} stroke={5}
+                  color={readinessColor(examReady.score)}
+                  label={`${Math.round(examReady.score * 100)}`}
+                />
+                <span>
+                  <strong>{examReady.course.name}</strong> — {readinessLabel(examReady.score)} for your exam ({examCountdownLabel(examReady.course.exam_date)})
+                </span>
+              </span>
+              <Link to={`/courses/${examReady.course.id}`} className="btn btn-ghost btn-sm" style={{ flexShrink: 0 }}>Open →</Link>
+            </div>
+          )}
           {user?.streak > 0 && (
             <div className="today-row">
               <span>🔥 <strong>{user.streak}-day streak</strong>{streakDue ? ' — study today to keep it alive' : ' — you studied today, nice!'}</span>
