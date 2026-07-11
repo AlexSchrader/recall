@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
 
 const QUESTION_TIME = 15;
 const TOTAL = 10;
@@ -90,6 +91,8 @@ export default function SpeedRoundPage() {
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, [phase, idx, transitioning]);
+
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning, questions[idx]?.options ?? [], advance);
 
   const score = answers.filter(a => a.correct).length;
 
@@ -191,6 +194,7 @@ export default function SpeedRoundPage() {
           );
         })}
       </div>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }

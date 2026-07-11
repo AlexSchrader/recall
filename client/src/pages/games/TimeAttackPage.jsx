@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
 
 const DURATION = 60;
 const BATCH = 20;
@@ -85,6 +86,8 @@ export default function TimeAttackPage() {
     fetchBatch().then(qs => { if (!qs.length) { setPhase('error'); return; } setQuestions(qs); setPhase('countdown'); }).catch(() => setPhase('error'));
   };
 
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning.current, questions[idx]?.options ?? [], answer);
+
   if (phase === 'loading') return <div className="page game-page"><p className="empty">Loading…</p></div>;
 
   if (phase === 'error') return (
@@ -158,6 +161,7 @@ export default function TimeAttackPage() {
           );
         })}
       </div>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }
