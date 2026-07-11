@@ -231,10 +231,16 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
 
 ## Phase 8 — Future ideas *(deferred / optional)*
 
-### Engagement Branch 1 — Habit & "why come back" *(2026-07-08, `feat/branch-1-habit`)*
+### Engagement Branch 1 — Habit & "why come back" *(2026-07-08, `feat/branch-1-habit`, PR #8 merged)*
 - [x] **Daily Mix** (`/study/mix`) — one-tap blended session that interleaves due flashcards with MCQs from your quizzes (reuses `/flashcards/due` + `/games/questions`; MCQ answers feed mastery via `/games/results` source `daily_mix`). Keyboard: Space flips, 1–4 rate/answer. Confetti + summary (cards, questions, accuracy) on finish. Launch button in a new **Daily Mix hero** on Home. Confetti extracted to a shared `components/Confetti.jsx` — DONE 2026-07-08 (CC)
 - [x] **Exam Readiness score** — `readiness.js` (pure): mean mastery across *seen* topics per course → a % + label (Not started → Exam-ready) + color. Rendered as a `ProgressRing` on the Progress per-course headers and in the Home "Today" card for the soonest exam within 30 days. 6 unit tests — DONE 2026-07-08 (CC)
 - [x] **Daily goal + progress ring** — `dailyGoal` stored in preferences (JSON, no schema); Home shows a ring of today's answered count (from `/me/activity`) vs goal, turns green + 🎉 on hit; adjustable slider (5–50) in Settings → Study preferences — DONE 2026-07-08 (CC)
+
+### Engagement Branch 2 — Learning quality *(2026-07-11, `feat/branch-2-learning`)*
+- [x] **Redo my mistakes** (`/quizzes/:id/redo`) — QuizResultPage gets a "🔁 Redo my mistakes (N)" button that re-drills *only* the missed questions while they're fresh. Fully client-side (no regeneration/grading credits): MCQ + true/false re-answered with instant feedback, other types flip to reveal the correct answer + explanation. Full question objects passed via router state (`quiz.questions` filtered by missed ids). Confetti on a perfect cleanup — DONE 2026-07-11 (CC)
+- [x] **Personal bests** — `POST /api/games/best {game,score}` stores a per-game best in preferences JSON (`bests`, no schema); returns `{best,isNewBest}` so the game can celebrate. Wired into Speed Round / Time Attack / Streak / Survival result screens (🏆 New personal best! / Personal best: N) and shown as a `🏆 PB N` badge on the Games hub rows. 3 integration tests (record/improve-only/validation, auth, cross-user isolation) — DONE 2026-07-11 (CC)
+- [ ] **New flashcard types (cloze / image occlusion)** — Branch 2's third idea; **needs check-in** (real schema change: card `type` + cloze/occlusion data, plus generation + player UI). Deferred pending Alex's go-ahead.
+
 - [ ] Streak + reminder notifications (web push, opt-in) — **Branch 1, needs check-in:** new opt-in table + `web-push` dep + VAPID keys (deferred pending Alex's go-ahead)
 
 ### Engagement Branch 3 — Polish *(2026-07-11, `feat/branch-3-polish`)*

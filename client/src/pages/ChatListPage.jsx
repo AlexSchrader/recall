@@ -12,6 +12,24 @@ function timeAgo(iso) {
   return `${Math.floor(h / 24)}d ago`;
 }
 
+// One-tap ways to start a session with Rappel. Each opens a fresh thread with a
+// preset opener; Rappel already knows the user's courses + weak topics via the
+// persona's {{USER_CONTEXT}} injection, so the prompts can stay general.
+const QUICK_STARTS = [
+  {
+    emoji: '🎯', label: 'Quiz me', title: 'Quiz me',
+    init: "Quiz me on my weakest topics. Ask me one question at a time, wait for my answer, then tell me whether I'm right and why before the next one. Do 5 questions, then give me a quick recap of how I did.",
+  },
+  {
+    emoji: '🧠', label: 'Explain a weak topic', title: 'Explain a topic',
+    init: 'Pick one of my weakest topics and explain it to me simply, with a concrete example. Then ask me one question to check I understood it.',
+  },
+  {
+    emoji: '📋', label: 'Plan my study', title: 'Study plan',
+    init: 'Based on my weak topics and any upcoming exams, make me a short, prioritised study plan for today. Keep it to a few concrete steps.',
+  },
+];
+
 export default function ChatListPage() {
   const navigate = useNavigate();
   const [threads, setThreads] = useState([]);
@@ -28,6 +46,16 @@ export default function ChatListPage() {
       const thread = await api.post('/chat/threads', { title: 'New chat' });
       navigate(`/chat/${thread.id}`);
     } finally {
+      setBusy(false);
+    }
+  };
+
+  const startQuick = async (qs) => {
+    setBusy(true);
+    try {
+      const thread = await api.post('/chat/threads', { title: qs.title });
+      navigate(`/chat/${thread.id}?init=${encodeURIComponent(qs.init)}`);
+    } catch {
       setBusy(false);
     }
   };
