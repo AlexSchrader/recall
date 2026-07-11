@@ -249,6 +249,10 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
 - [x] **Continue where you left off** — Home shows a "↩︎ Continue where you left off" card for the most recent unfinished quiz (status ≠ completed, no score) with a one-tap Resume — DONE 2026-07-11 (CC)
 - [x] **Dark-mode / token audit** — new engagement components (rings, daily-hero, resume-card, PB badges, trend arrows, kbd-hint) all built on theme tokens / `color-mix`, so they adapt in dark mode; resume-card + kbd-hint styled to match — DONE 2026-07-11 (CC)
 
+### Engagement Branch 4 — Rappel *(2026-07-11, `feat/branch-4-rappel`)*
+- [x] **"Quiz me" quick starts** — the Rappel landing (`ChatListPage`) now has one-tap quick starts — 🎯 **Quiz me** (Rappel quizzes you one question at a time on your weak topics), 🧠 **Explain a weak topic**, 📋 **Plan my study**. Each opens a fresh thread with a preset opener via the existing `?init=` flow; no backend change (Rappel already gets weak topics through the persona's `{{USER_CONTEXT}}`). Turns the tutor into an active driller — DONE 2026-07-11 (CC)
+- [ ] **Full-duplex voice call mode** — Branch 4's big idea; **needs check-in** (ElevenLabs Conversational AI / custom LLM endpoint — new dependency + infra). Deferred pending Alex's go-ahead.
+
 ### Engagement Branch 5 — Bugs *(2026-07-11, `feat/branch-5-bugs`)*
 - [x] **Match It no longer repeats cards across rounds** — `MatchGame` now tracks a `seenRef` of card ids shown in earlier rounds; each new round (incl. "Play again") prefers unseen cards and only recycles once the deck's unseen pool can't fill a round. Within-round cards were already unique — DONE 2026-07-11 (CC)
 - [x] **Feedback-email failures no longer silent (QA SEV-1 app-half)** — new `unwrapResend()` helper throws when the Resend SDK returns `{ error }` (it resolves instead of rejecting on a 403), so `sendFeedback` / `sendPasswordReset` propagate the real reason and the route logs it. 4 unit tests. See the QA finding below — the account/config half (verify a domain / re-register Resend) is still Alex's — DONE 2026-07-11 (CC)
