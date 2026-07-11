@@ -392,6 +392,19 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
   .daily-hero-body { flex-basis: 60%; }
 }
 
+/* Rappel quick-starts (Quiz me / Explain / Plan) */
+.quick-starts { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+.quick-start {
+  display: flex; align-items: center; gap: .5rem; flex: 1 1 auto; min-width: 140px;
+  padding: .7rem .9rem; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); cursor: pointer; font: inherit; font-weight: 600;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.quick-start:hover:not(:disabled) { border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow); }
+.quick-start:disabled { opacity: .6; cursor: default; }
+.quick-start-emoji { font-size: 1.3rem; flex-shrink: 0; }
+.quick-start-label { font-size: .9rem; }
+
 /* ── Streak nudge ── */
 .streak-nudge { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; background: #fff7ed; border: 1px solid #fed7aa; border-radius: var(--radius); padding: .75rem 1rem; margin-bottom: 1rem; font-size: .875rem; color: #92400e; }
 [data-theme="dark"] .streak-nudge { background: rgba(217,119,6,.12); border-color: rgba(217,119,6,.35); color: #fbbf24; }
