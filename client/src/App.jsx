@@ -30,6 +30,7 @@ import MatchItPage from './pages/games/MatchItPage.jsx';
 import BossBattlePage from './pages/games/BossBattlePage.jsx';
 import TimeAttackPage from './pages/games/TimeAttackPage.jsx';
 import SurvivalPage from './pages/games/SurvivalPage.jsx';
+import RedoPage from './pages/RedoPage.jsx';
 import DailyMixPage from './pages/DailyMixPage.jsx';
 
 function AppRoutes() {
@@ -59,6 +60,7 @@ function AppRoutes() {
           <Route path="/units/:unitId" element={<div className="page"><UnitPage /></div>} />
           <Route path="/quizzes/:quizId" element={<div className="page"><QuizPage /></div>} />
           <Route path="/quizzes/:quizId/results" element={<div className="page"><QuizResultPage /></div>} />
+          <Route path="/quizzes/:quizId/redo" element={<div className="page"><RedoPage /></div>} />
           <Route path="/chat" element={<div className="page"><ChatListPage /></div>} />
           <Route path="/chat/:threadId" element={<ChatThreadPage />} />
           <Route path="/units/:unitId/flashcards" element={<div className="page"><FlashcardsPage /></div>} />

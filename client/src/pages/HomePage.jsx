@@ -193,6 +193,9 @@ export default function HomePage() {
   const streakDue = user?.streak > 0 &&
     user?.streak_updated_at?.slice(0, 10) !== new Date().toISOString().slice(0, 10);
 
+  // Most recent quiz the user started but never finished — offer to resume it.
+  const resumeQuiz = recentQuizzes.find(q => q.status !== 'completed' && q.score == null);
+
   return (
     <>
       {tourOn && <Tour steps={TOUR_STEPS} onClose={() => setTourOn(false)} />}
@@ -204,6 +207,17 @@ export default function HomePage() {
             <button className="btn btn-primary btn-sm" onClick={() => setShowInstall(true)}>Show me how</button>
             <button className="btn btn-sm" onClick={dismissInstall}>Dismiss</button>
           </span>
+        </div>
+      )}
+      {resumeQuiz && (
+        <div className="resume-card">
+          <span className="resume-text">
+            <span className="resume-label">↩︎ Continue where you left off</span>
+            <span className="resume-title">{resumeQuiz.title}</span>
+          </span>
+          <button className="btn btn-primary btn-sm" style={{ flexShrink: 0 }} onClick={() => navigate(`/quizzes/${resumeQuiz.id}`)}>
+            Resume →
+          </button>
         </div>
       )}
       {courses.length > 0 && (

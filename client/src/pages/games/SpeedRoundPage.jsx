@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
+import { recordBest } from '../../bests.js';
 
 const QUESTION_TIME = 15;
 const TOTAL = 10;
@@ -17,6 +19,7 @@ export default function SpeedRoundPage() {
   const [selected, setSelected] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
   const [countdown, setCountdown] = useState(3);
+  const [bestInfo, setBestInfo] = useState(null);
   const timerRef = useRef(null);
 
   // Load questions
@@ -65,13 +68,14 @@ export default function SpeedRoundPage() {
     }, 900);
   }, [idx, questions, transitioning]);
 
-  // Submit mastery update when game finishes
+  // Submit mastery update + record personal best when game finishes
   useEffect(() => {
     if (phase !== 'done' || !answers.length) return;
     api.post('/games/results', {
       results: answers.map(a => ({ questionId: a.questionId, correct: a.correct })),
       source: 'speed_round',
     }).catch(() => {});
+    recordBest('speed_round', answers.filter(a => a.correct).length).then(setBestInfo);
   }, [phase]);
 
   // Per-question countdown timer
@@ -90,6 +94,8 @@ export default function SpeedRoundPage() {
     }, 1000);
     return () => clearInterval(timerRef.current);
   }, [phase, idx, transitioning]);
+
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning, questions[idx]?.options ?? [], advance);
 
   const score = answers.filter(a => a.correct).length;
 
@@ -128,6 +134,8 @@ export default function SpeedRoundPage() {
         <div className="game-result-header">
           <h1 className="game-result-score">{score}<span>/{answers.length}</span></h1>
           <p className="game-result-msg">{msg}</p>
+          {bestInfo?.isNewBest ? <p className="pb-new">🏆 New personal best!</p>
+            : bestInfo && <p className="pb-line">Personal best: {bestInfo.best}</p>}
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', marginTop: '1rem' }}>
             <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm">← Back</Link>
             <button className="btn btn-primary btn-sm" onClick={() => { setPhase('loading'); setIdx(0); setAnswers([]); setCountdown(3); setSelected(null); setTransitioning(false);
@@ -191,6 +199,7 @@ export default function SpeedRoundPage() {
           );
         })}
       </div>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }

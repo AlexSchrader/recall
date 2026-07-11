@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
+import { recordBest } from '../../bests.js';
 
 const BATCH = 20;
 const START_HEARTS = 3;
@@ -28,6 +30,7 @@ export default function SurvivalPage() {
   const [results, setResults]   = useState([]);
   const [timedOut, setTimedOut] = useState(false);
   const [bestLevel, setBestLevel] = useState(1);
+  const [bestInfo, setBestInfo] = useState(null);
 
   const level = Math.floor(score / LEVEL_EVERY) + 1;
   const limit = timeForLevel(level);
@@ -52,7 +55,12 @@ export default function SurvivalPage() {
   useEffect(() => { start(); }, [start]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (phase === 'done' && results.length) api.post('/games/results', { results, source: 'survival' }).catch(() => {}); }, [phase]);
+  useEffect(() => {
+    if (phase !== 'done') return;
+    if (results.length) api.post('/games/results', { results, source: 'survival' }).catch(() => {});
+    recordBest('survival', score).then(setBestInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   // advance to the next unseen question (or end), after a brief reveal
   const advance = useCallback((heartsLeft) => {
@@ -117,6 +125,8 @@ export default function SurvivalPage() {
     return () => clearInterval(tickRef.current);
   }, [phase, selected, idx, resolve]);
 
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning.current, questions[idx]?.options ?? [], answer);
+
   if (phase === 'loading') return <div className="page game-page"><p className="empty">Loading…</p></div>;
 
   if (phase === 'error') return (
@@ -140,6 +150,8 @@ export default function SurvivalPage() {
           <div style={{ fontSize: '2.5rem', marginBottom: '.25rem' }}>🖤</div>
           <h1 className="game-result-score">{score}<span> survived</span></h1>
           <p className="game-result-msg">{msg}</p>
+          {bestInfo?.isNewBest ? <p className="pb-new">🏆 New personal best!</p>
+            : bestInfo && <p className="pb-line">Personal best: {bestInfo.best}</p>}
           <p style={{ color: 'var(--muted)', fontSize: '.85rem' }}>Reached level {bestLevel} · {total} answered</p>
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', marginTop: '1.25rem', flexWrap: 'wrap' }}>
             <Link to="/games" className="btn btn-ghost btn-sm">← Games</Link>
@@ -190,6 +202,7 @@ export default function SurvivalPage() {
       <p className="streak-hint">
         {timedOut ? '⏱️ Out of time — heart lost!' : `${limit}s per question · ${toNext} more to level ${level + 1} (faster clock)`}
       </p>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { api } from '../api.js';
+import Confetti from '../components/Confetti.jsx';
 
 export default function QuizResultPage() {
   const { quizId } = useParams();
@@ -56,6 +57,14 @@ export default function QuizResultPage() {
   const missedTopics = results?.results
     ? [...new Set(results.results.filter(r => !r.isCorrect).map(r => r.topic))].slice(0, 5)
     : [];
+
+  // Full question objects for the ones missed this attempt — powers "Redo my
+  // mistakes" (client-side re-drill, no regeneration).
+  const missedQuestions = (() => {
+    if (!results?.results || !quiz.questions) return [];
+    const missedIds = new Set(results.results.filter(r => !r.isCorrect).map(r => r.questionId));
+    return quiz.questions.filter(q => missedIds.has(q.id));
+  })();
 
   const retake = async () => {
     setRetaking(true);
@@ -130,6 +139,7 @@ export default function QuizResultPage() {
 
   return (
     <>
+      {pct >= 90 && <Confetti />}
       <div className="page-header">
         <h1>{quiz.title}</h1>
       </div>
@@ -234,6 +244,14 @@ export default function QuizResultPage() {
         <button className="btn btn-primary" onClick={retake} disabled={retaking}>
           {retaking ? 'Generating…' : '↺ Retake'}
         </button>
+        {missedQuestions.length > 0 && (
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate(`/quizzes/${quizId}/redo`, { state: { questions: missedQuestions, title: quiz.title } })}
+          >
+            🔁 Redo my mistakes ({missedQuestions.length})
+          </button>
+        )}
         <button className="btn btn-ghost" onClick={startExplainBack} disabled={explaining}>
           {explaining ? 'Opening Rappel…' : '🗣️ Explain it back'}
         </button>

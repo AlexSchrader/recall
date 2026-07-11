@@ -1,10 +1,12 @@
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { fetchBests } from '../bests.js';
 
 const GAMES = [
-  { to: '/games/speed-round', emoji: '🏃', title: 'Speed Round',     desc: '10 questions, 15 seconds each — beat the clock.' },
-  { to: '/games/time-attack', emoji: '⏱️', title: 'Time Attack',     desc: 'As many as you can in 60 seconds.' },
-  { to: '/games/streak',      emoji: '🔥', title: 'Streak Challenge', desc: 'Answer until you miss one — how long can you go?' },
-  { to: '/games/survival',    emoji: '❤️', title: 'Survival',         desc: '3 lives, and the clock tightens each level. How far can you go?' },
+  { to: '/games/speed-round', emoji: '🏃', title: 'Speed Round',     desc: '10 questions, 15 seconds each — beat the clock.', best: 'speed_round' },
+  { to: '/games/time-attack', emoji: '⏱️', title: 'Time Attack',     desc: 'As many as you can in 60 seconds.',                best: 'time_attack' },
+  { to: '/games/streak',      emoji: '🔥', title: 'Streak Challenge', desc: 'Answer until you miss one — how long can you go?',  best: 'streak' },
+  { to: '/games/survival',    emoji: '❤️', title: 'Survival',         desc: '3 lives, and the clock tightens each level. How far can you go?', best: 'survival' },
   { to: '/games/boss',        emoji: '👾', title: 'Boss Battle',      desc: 'Fight a gauntlet on one of your weak topics.' },
   { to: '/games/match',       emoji: '🃏', title: 'Match It',         desc: 'Pair terms with definitions from a flashcard deck.' },
 ];
@@ -13,6 +15,9 @@ const RANDOM_POOL = ['/games/speed-round', '/games/time-attack', '/games/streak'
 
 export default function GamesPage() {
   const navigate = useNavigate();
+  const [bests, setBests] = useState({});
+
+  useEffect(() => { fetchBests().then(setBests); }, []);
 
   return (
     <>
@@ -26,7 +31,10 @@ export default function GamesPage() {
           <Link key={g.to} to={g.to} className="game-row">
             <span className="game-row-emoji">{g.emoji}</span>
             <span className="game-row-text">
-              <span className="game-row-title">{g.title}</span>
+              <span className="game-row-title">
+                {g.title}
+                {g.best && bests[g.best] > 0 && <span className="game-row-pb">🏆 PB {bests[g.best]}</span>}
+              </span>
               <span className="game-row-desc">{g.desc}</span>
             </span>
             <span className="game-row-go">›</span>
