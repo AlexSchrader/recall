@@ -1,6 +1,7 @@
 import { useParams, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { api } from '../api.js';
+import Confetti from '../components/Confetti.jsx';
 
 export default function QuizResultPage() {
   const { quizId } = useParams();
@@ -138,6 +139,7 @@ export default function QuizResultPage() {
 
   return (
     <>
+      {pct >= 90 && <Confetti />}
       <div className="page-header">
         <h1>{quiz.title}</h1>
       </div>

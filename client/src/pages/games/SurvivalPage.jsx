@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
 import { recordBest } from '../../bests.js';
 
 const BATCH = 20;
@@ -124,6 +125,8 @@ export default function SurvivalPage() {
     return () => clearInterval(tickRef.current);
   }, [phase, selected, idx, resolve]);
 
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning.current, questions[idx]?.options ?? [], answer);
+
   if (phase === 'loading') return <div className="page game-page"><p className="empty">Loading…</p></div>;
 
   if (phase === 'error') return (
@@ -199,6 +202,7 @@ export default function SurvivalPage() {
       <p className="streak-hint">
         {timedOut ? '⏱️ Out of time — heart lost!' : `${limit}s per question · ${toNext} more to level ${level + 1} (faster clock)`}
       </p>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }

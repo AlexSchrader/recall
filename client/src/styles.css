@@ -381,6 +381,17 @@ nav.topnav .nav-links a.active { background: color-mix(in srgb, var(--primary) 1
 .ring-label { font-weight: 800; font-size: .8rem; color: var(--text); }
 .ring-sublabel { font-size: .58rem; color: var(--muted); margin-top: 1px; }
 
+/* Continue where you left off */
+.resume-card { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: color-mix(in srgb, var(--primary) 8%, var(--surface)); border: 1px solid color-mix(in srgb, var(--primary) 30%, var(--border)); border-radius: var(--radius); padding: .85rem 1.1rem; margin-bottom: 1rem; }
+.resume-text { display: flex; flex-direction: column; gap: .15rem; min-width: 0; }
+.resume-label { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--primary); }
+.resume-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Keyboard hint chip for the drill games (desktop only — hidden on touch) */
+.kbd-hint { font-size: .72rem; color: var(--muted); text-align: center; margin-top: 1rem; }
+.kbd-hint kbd { display: inline-block; padding: 0 .35rem; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; background: var(--surface); font-family: inherit; font-size: .7rem; }
+@media (hover: none) { .kbd-hint { display: none; } }
+
 /* Daily Mix hero on Home */
 .daily-hero { display: flex; align-items: center; gap: 1rem; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
 .daily-hero-body { flex: 1; min-width: 0; }

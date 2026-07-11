@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
 import { recordBest } from '../../bests.js';
 
 const BATCH = 20; // fetch more than needed; served one at a time
@@ -92,6 +93,8 @@ export default function StreakChallengePage() {
     }, 700);
   }, [idx, questions, streak, transitioning, selected, unitId]);
 
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning, questions[idx]?.options ?? [], answer);
+
   if (phase === 'loading') return <div className="page game-page"><p className="empty">Loading…</p></div>;
 
   if (phase === 'error') return (
@@ -166,6 +169,7 @@ export default function StreakChallengePage() {
       </div>
 
       <p className="streak-hint">One wrong answer ends the round</p>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }

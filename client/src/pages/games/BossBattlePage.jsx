@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../../api.js';
+import { useOptionKeys } from '../../useOptionKeys.js';
 
 const MAX_QUESTIONS = 10;
 const MIN_QUESTIONS = 4; // a real gauntlet — below this the battle isn't meaningful
@@ -126,6 +127,8 @@ function Battle({ topic, courseId, navigate }) {
     }, 750);
   }, [idx, questions, hearts, transitioning, selected]);
 
+  useOptionKeys(phase === 'playing' && selected === null && !transitioning, questions[idx]?.options ?? [], answer);
+
   if (phase === 'loading') return <div className="page game-page"><p className="empty">Summoning the boss…</p></div>;
 
   if (phase === 'error') return (
@@ -206,6 +209,7 @@ function Battle({ topic, courseId, navigate }) {
       </div>
 
       <p className="streak-hint">Lose a ❤️ for every wrong answer — survive the gauntlet to win</p>
+      <p className="kbd-hint">Press <kbd>1</kbd>–<kbd>4</kbd> to answer</p>
     </div>
   );
 }
