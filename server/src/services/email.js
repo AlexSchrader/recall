@@ -1,4 +1,5 @@
 import { Resend } from 'resend';
+import { unwrapResend } from './resendResult.js';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const FROM = process.env.FROM_EMAIL || 'onboarding@resend.dev';
@@ -12,7 +13,7 @@ export async function sendFeedback({ displayName, type, message, screenshotBase6
     ? [{ filename: 'screenshot.jpg', content: Buffer.from(screenshotBase64, 'base64') }]
     : [];
 
-  await resend.emails.send({
+  return unwrapResend(await resend.emails.send({
     from: FROM,
     to: SUPPORT_EMAIL,
     subject: `[Recall Feedback] ${label} from ${displayName}`,
@@ -25,11 +26,11 @@ export async function sendFeedback({ displayName, type, message, screenshotBase6
       </div>
     `,
     attachments,
-  });
+  }));
 }
 
 export async function sendPasswordReset(toEmail, resetUrl) {
-  await resend.emails.send({
+  return unwrapResend(await resend.emails.send({
     from: FROM,
     to: toEmail,
     subject: 'Reset your Recall password',
@@ -43,5 +44,5 @@ export async function sendPasswordReset(toEmail, resetUrl) {
         <p style="color:#888;font-size:.85rem">If you didn't request this, ignore this email.</p>
       </div>
     `,
-  });
+  }));
 }

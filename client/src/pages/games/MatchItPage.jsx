@@ -96,9 +96,21 @@ function MatchGame({ deckId }) {
   const cardsRef   = useRef([]);
   const startRef   = useRef(null);
   const timerRef   = useRef(null);
+  const seenRef    = useRef(new Set()); // card ids shown in earlier rounds — avoid repeats
+
+  // Pick a fresh round, preferring cards not seen in previous rounds. Once the
+  // deck's unseen pool can't fill a round, start a new cycle from the whole deck.
+  const pickCards = (allCards) => {
+    const roundSize = Math.min(PAIR_COUNT, allCards.length);
+    let pool = allCards.filter(c => !seenRef.current.has(c.id));
+    if (pool.length < roundSize) { seenRef.current = new Set(); pool = allCards; }
+    const picked = shuffle(pool).slice(0, roundSize);
+    picked.forEach(c => seenRef.current.add(c.id));
+    return picked;
+  };
 
   const startGame = (allCards) => {
-    const picked = shuffle(allCards).slice(0, Math.min(PAIR_COUNT, allCards.length));
+    const picked = pickCards(allCards);
     cardsRef.current = picked;
     setFronts(shuffle(picked.map(c => ({ id: c.id, text: c.front }))));
     setBacks(shuffle(picked.map(c => ({ id: c.id, text: c.back }))));
