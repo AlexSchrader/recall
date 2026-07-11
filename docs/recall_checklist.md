@@ -231,6 +231,11 @@ Unlocks public/paid use. **Full sequenced build plan in `docs/Recall_Phase7_Prom
 
 ## Phase 8 — Future ideas *(deferred / optional)*
 
+### Engagement Branch 2 — Learning quality *(2026-07-11, `feat/branch-2-learning`)*
+- [x] **Redo my mistakes** (`/quizzes/:id/redo`) — QuizResultPage gets a "🔁 Redo my mistakes (N)" button that re-drills *only* the missed questions while they're fresh. Fully client-side (no regeneration/grading credits): MCQ + true/false re-answered with instant feedback, other types flip to reveal the correct answer + explanation. Full question objects passed via router state (`quiz.questions` filtered by missed ids). Confetti on a perfect cleanup — DONE 2026-07-11 (CC)
+- [x] **Personal bests** — `POST /api/games/best {game,score}` stores a per-game best in preferences JSON (`bests`, no schema); returns `{best,isNewBest}` so the game can celebrate. Wired into Speed Round / Time Attack / Streak / Survival result screens (🏆 New personal best! / Personal best: N) and shown as a `🏆 PB N` badge on the Games hub rows. 3 integration tests (record/improve-only/validation, auth, cross-user isolation) — DONE 2026-07-11 (CC)
+- [ ] **New flashcard types (cloze / image occlusion)** — Branch 2's third idea; **needs check-in** (real schema change: card `type` + cloze/occlusion data, plus generation + player UI). Deferred pending Alex's go-ahead.
+
 - [ ] Streak + reminder notifications (web push, opt-in)
 - [x] **Bulk unit import** — `POST /api/courses/:id/bulk-import` (multer array, ≤15 files) creates one unit per file named from the filename, parses each; CoursePage "⇪ Bulk import" button picks multiple files, shows progress + a summary (incl. parse failures) and refreshes the unit list — DONE 2026-06-24 (CC)
   - **While I was in there (fire fix):** the document routes (`POST /units/:id/documents`, `GET /units/:id/documents`, `GET`/`DELETE /documents/:id`) had **no `requireAuth` and no ownership check** — any caller could upload to, read, or delete any unit/document by guessing an id (cross-user data access + credit burn on parse). Added `requireAuth` + an `ownedUnit` guard (unit → course → `user_id`) to all of them. (CC)
