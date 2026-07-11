@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { recordBest } from '../../bests.js';
 
 const DURATION = 60;
 const BATCH = 20;
@@ -21,6 +22,7 @@ export default function TimeAttackPage() {
   const [selected, setSelected] = useState(null);
   const [countdown, setCountdown] = useState(3);
   const [results, setResults]   = useState([]);
+  const [bestInfo, setBestInfo] = useState(null);
 
   const fetchBatch = useCallback(() => {
     const params = new URLSearchParams({ limit: BATCH });
@@ -50,7 +52,12 @@ export default function TimeAttackPage() {
   }, [phase]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (phase === 'done' && results.length) api.post('/games/results', { results, source: 'time_attack' }).catch(() => {}); }, [phase]);
+  useEffect(() => {
+    if (phase !== 'done') return;
+    if (results.length) api.post('/games/results', { results, source: 'time_attack' }).catch(() => {});
+    recordBest('time_attack', score).then(setBestInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   const answer = (opt) => {
     if (transitioning.current || selected !== null || phase !== 'playing') return;
@@ -117,6 +124,8 @@ export default function TimeAttackPage() {
         <div className="game-result-header">
           <h1 className="game-result-score">{score}<span> correct</span></h1>
           <p className="game-result-msg">{msg}</p>
+          {bestInfo?.isNewBest ? <p className="pb-new">🏆 New personal best!</p>
+            : bestInfo && <p className="pb-line">Personal best: {bestInfo.best}</p>}
           <p style={{ color: 'var(--muted)', fontSize: '.85rem' }}>{total} answered · {pct}% accuracy</p>
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', marginTop: '1.25rem', flexWrap: 'wrap' }}>
             <Link to="/games" className="btn btn-ghost btn-sm">← Games</Link>

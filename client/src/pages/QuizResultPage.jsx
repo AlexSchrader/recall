@@ -57,6 +57,14 @@ export default function QuizResultPage() {
     ? [...new Set(results.results.filter(r => !r.isCorrect).map(r => r.topic))].slice(0, 5)
     : [];
 
+  // Full question objects for the ones missed this attempt — powers "Redo my
+  // mistakes" (client-side re-drill, no regeneration).
+  const missedQuestions = (() => {
+    if (!results?.results || !quiz.questions) return [];
+    const missedIds = new Set(results.results.filter(r => !r.isCorrect).map(r => r.questionId));
+    return quiz.questions.filter(q => missedIds.has(q.id));
+  })();
+
   const retake = async () => {
     setRetaking(true);
     setRetakeErr('');
@@ -234,6 +242,14 @@ export default function QuizResultPage() {
         <button className="btn btn-primary" onClick={retake} disabled={retaking}>
           {retaking ? 'Generating…' : '↺ Retake'}
         </button>
+        {missedQuestions.length > 0 && (
+          <button
+            className="btn btn-ghost"
+            onClick={() => navigate(`/quizzes/${quizId}/redo`, { state: { questions: missedQuestions, title: quiz.title } })}
+          >
+            🔁 Redo my mistakes ({missedQuestions.length})
+          </button>
+        )}
         <button className="btn btn-ghost" onClick={startExplainBack} disabled={explaining}>
           {explaining ? 'Opening Rappel…' : '🗣️ Explain it back'}
         </button>

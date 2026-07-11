@@ -591,6 +591,19 @@ hr { border: none; border-top: 1px solid var(--border); margin: 1.5rem 0; }
 .game-row-desc { font-size: .82rem; color: var(--muted); }
 .game-row-go { font-size: 1.5rem; color: var(--muted); flex-shrink: 0; }
 .game-row--surprise { border-style: dashed; }
+.game-row-pb { margin-left: .5rem; font-size: .72rem; font-weight: 700; color: var(--warning); white-space: nowrap; }
+
+/* Personal-best lines on game result screens */
+.pb-new { margin-top: .5rem; font-weight: 800; color: var(--warning); font-size: 1rem; }
+.pb-line { margin-top: .5rem; font-size: .85rem; color: var(--muted); }
+
+/* Redo my mistakes */
+.redo-tag { font-size: .72rem; font-weight: 700; color: var(--muted); white-space: nowrap; padding: .15rem .5rem; border-radius: 999px; background: color-mix(in srgb, var(--primary) 10%, var(--surface)); }
+.redo-reveal { text-align: center; margin-top: 1.5rem; }
+.redo-answer { background: color-mix(in srgb, var(--success) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--success) 40%, var(--border)); border-radius: var(--radius); padding: 1rem; }
+.redo-answer-label { display: block; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--success); margin-bottom: .35rem; }
+.redo-answer p { font-size: 1.05rem; font-weight: 600; }
+.redo-explanation { font-size: .875rem; color: var(--muted); margin-top: .75rem; text-align: left; }
 
 /* Boss Battle — picker */
 .boss-list { display: flex; flex-direction: column; gap: .6rem; }

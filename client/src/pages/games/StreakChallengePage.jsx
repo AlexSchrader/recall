@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { api } from '../../api.js';
+import { recordBest } from '../../bests.js';
 
 const BATCH = 20; // fetch more than needed; served one at a time
 
@@ -18,6 +19,7 @@ export default function StreakChallengePage() {
   const [selected, setSelected] = useState(null);
   const [transitioning, setTransitioning] = useState(false);
   const [gameResults, setGameResults] = useState([]); // {questionId, correct}[]
+  const [bestInfo, setBestInfo] = useState(null);
 
   const load = useCallback(() => {
     const params = new URLSearchParams({ limit: BATCH });
@@ -42,8 +44,10 @@ export default function StreakChallengePage() {
   useEffect(() => { load(); }, [load]);
 
   useEffect(() => {
-    if (phase !== 'done' || !gameResults.length) return;
-    api.post('/games/results', { results: gameResults, source: 'streak' }).catch(() => {});
+    if (phase !== 'done') return;
+    if (gameResults.length) api.post('/games/results', { results: gameResults, source: 'streak' }).catch(() => {});
+    recordBest('streak', best).then(setBestInfo);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase]);
 
   const answer = useCallback((opt) => {
@@ -119,6 +123,8 @@ export default function StreakChallengePage() {
           <h1 className="streak-result-num">{best}</h1>
           <p className="streak-result-label">longest streak</p>
           <p className="streak-result-msg">{msg}</p>
+          {bestInfo?.isNewBest ? <p className="pb-new">🏆 New personal best!</p>
+            : bestInfo && <p className="pb-line">Personal best: {bestInfo.best}</p>}
           <p className="streak-result-total">{total} answered total</p>
           <div style={{ display: 'flex', gap: '.75rem', justifyContent: 'center', marginTop: '1.5rem' }}>
             <Link to={unitId ? `/units/${unitId}` : '/'} className="btn btn-ghost btn-sm">← Back</Link>

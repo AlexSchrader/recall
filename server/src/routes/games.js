@@ -3,8 +3,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { requireAuth } from '../middleware/auth.js';
 import { listGameQuestions, getQuestionCourseAndTopic } from '../db/questionsDb.js';
 import { getMastery, updateMastery } from '../db/topicMasteryDb.js';
+import { getPreferences, upsertPreferences } from '../db/preferencesDb.js';
 
 const GAME_SOURCES = new Set(['speed_round', 'streak', 'match_it', 'boss', 'time_attack', 'survival', 'daily_mix']);
+// Games whose score is "higher is better" and worth tracking a personal best for.
+const BEST_GAMES = new Set(['speed_round', 'time_attack', 'streak', 'survival']);
 import { sm2Next } from '../services/sm2.js';
 
 const router = Router();
@@ -59,6 +62,28 @@ router.post('/games/results', requireAuth, (req, res) => {
   }
 
   res.json({ ok: true });
+});
+
+// POST /api/games/best — record a personal best for a game (stored in preferences
+// JSON under `bests`, no schema). Returns the (possibly updated) best and whether
+// this run set a new one, so the client can celebrate.
+// body: { game, score }
+router.post('/games/best', requireAuth, (req, res) => {
+  const uid = req.session.userId;
+  const { game, score } = req.body ?? {};
+  if (!BEST_GAMES.has(game)) return res.status(400).json({ error: 'Unknown game.' });
+  const n = Number(score);
+  if (!Number.isFinite(n) || n < 0) return res.status(400).json({ error: 'Invalid score.' });
+
+  const prefs = getPreferences(uid)?.prefs ?? {};
+  const bests = { ...(prefs.bests ?? {}) };
+  const prev = bests[game] ?? 0;
+  const isNewBest = n > prev;
+  if (isNewBest) {
+    bests[game] = n;
+    upsertPreferences(uid, { ...prefs, bests });
+  }
+  res.json({ best: Math.max(prev, n), isNewBest });
 });
 
 export default router;
