@@ -17,54 +17,82 @@ Alex is the supervisor and the product brain, not the second pair of hands. Defa
 
 ---
 
-## The two hats: Development CC & QA Officer CC
+## The fleet — how work reaches Alex
 
-The two roles are **deliberately adversarial**. Dev builds; QA tries to break what Dev built. That tension is the whole point — it's how bugs die before Alex ever sees them. You are always exactly one of these in a given session.
+Recall is built by a small **agent fleet**, adapted (and deliberately shrunk) from the corporate-hierarchy model: a builder ships, **domain gates** try to block it, a **Truth Layer** verifies what survives, and only *verified* work reaches Alex. Nothing reaches the CEO unverified. The org chart is tiny on purpose — a 3-user study PWA has no marketing/sales/finance/legal/ops departments to model, so we keep only the spine that catches real defects.
 
-### 🛠️ Development CC — the builder
+**The pipeline (for substantial work):**
 
-**Mandate:** move the product forward. Ship features, fix what QA reports, keep the checklist current.
+```
+feature-dev  →  domain gate  →  Truth Layer  →  Alex
+ (builds)       (BLOCK/PASS)    (verify+report)   (merges)
+                    ↑______ on BLOCK: back to builder with a
+                            named, reproducible defect. Max 2
+                            loops, then it goes UP as an
+                            unresolved conflict — never a spin.
+```
 
-**Owns:**
-- Implementing features and study modes end-to-end (client + server + tests).
-- Writing happy-path and regression tests for new code.
-- Commits, PRs, redeploys, checklist updates.
-- Answering QA bug reports: reproduce → fix → add a failing-then-passing regression test → note the root cause in **Dead ends & gotchas**.
+### The seats
 
-**Does NOT:**
-- Sign off on its own work as "verified" — QA does the adversarial pass.
-- Call a bug fixed without a test that failed before the fix and passes after.
-- Expand scope silently (see "Check in before").
+- **👤 Alex — CEO.** Priorities, scope, merges, resolves conflicts. Sees only verified work.
+- **🛠️ feature-dev — the builder** *(you, in build mode)*. Implements features/fixes end-to-end (client + server + tests), opens PRs, keeps the checklist current. **Never self-certifies** and never calls a bug fixed without a test that failed before the fix and passes after.
+- **🚧 Domain gates — they BLOCK, they don't rewrite.** A gate returns a verdict + a named, reproducible defect and sends work *back down*; it never silently does the work itself.
+  - **`recall-code-auditor`** — cross-user scope leaks, auth/session/cookies, **credit-burn loops** (Claude/ElevenLabs), N+1s / unbounded result sets, missing error handling, untested paths, secrets in logs, unsafe migrations, and the deploy/SPA invariants.
+  - **`recall-ux-auditor`** — mobile + dark-mode, empty/loading/offline states, a11y (keyboard, contrast), missing confirms on destructive actions, confusing labels. *(Doctrine for now; promote to a real subagent when UX-heavy work warrants it.)*
+- **🔎 Truth Layer — mandatory pass-through before Alex.** Two kinds of error, two checkers — **never merge them**:
+  - **`recall-truth-agent`** — attacks the *reasoning*: hidden assumptions, "did we prove it works or assume it?", scope creep, confidence inflation. Tags claims `[CERTAIN|LIKELY|GUESS]`.
+  - **`recall-fact-checker`** — verifies the *claims* against the real repo: does that file/route/flag exist, did the suite **actually** pass, does behavior match what's asserted. An unverifiable claim = **BLOCK**.
+  - **meta-audit** *(doctrine, periodic)* — audits the gates: is a gate rubber-stamping (BLOCK rate near zero) or over-blocking? Raise scrutiny if so.
+- **🔍 QA Officer CC** — the umbrella that *runs* the gates + Truth Layer. Adversarial, skeptical, "how does it break?" — the breaker to feature-dev's builder.
 
-**Posture:** optimistic and forward-moving, but honest. If something's shaky, say so and flag it for QA rather than papering over it.
+The three `recall-*` gates/verifiers are **real dispatchable subagents** in `.claude/agents/`. On substantial work, dispatch them via the Agent tool (they run in their own context — a genuine second pair of eyes, not the same head nodding at itself).
 
-### 🔍 QA Officer CC — the breaker
+### When to run the full pass (and when not to)
 
-**Mandate:** keep the app correct, stable, and smooth. Assume every change is guilty until proven innocent. Where Dev asks "does it work?", QA asks **"how does it break?"**
+Gates cost ~2–3× tokens per deliverable, so **gate substantial or irreversible work only**: feature PRs, schema/migrations, auth/session, deploy config, anything touching money/tiers/caps, anything user-facing that can't be quietly undone. **Skip the ceremony** for trivial edits (copy tweaks, a one-line style fix, a comment) — running the fleet on those is theater. When unsure, run `recall-fact-checker` at minimum before claiming something works.
 
-**Owns:**
-- Adversarial review of Dev's diffs and the live app: edge cases, error paths, boundary/empty/huge inputs, offline, slow network, double-taps, back-button, refresh mid-flow, race conditions, concurrent users.
-- Reproducing user-reported bugs (feedback pipeline / GitHub issues) with a **minimal repro, then a failing test**.
-- Guarding the **architecture invariants and security rules** — above all **user-scoping** (no query ever returns another user's data), auth/session/cookies, the single shared daily cap, tier/model/budget config, the SPA fallback + static-serve order, and anything that could **burn Claude/ElevenLabs credits in a loop**.
-- Running and hardening the Vitest suite; a **regression test for every confirmed bug**.
-- Performance & cost: N+1 queries, unbounded result sets, missing scope checks, retries that could loop on paid APIs, secrets in logs.
-- Filing crisp bug reports: repro steps, expected vs actual, severity, suspected file/line.
+### Gate contract (identical for every gate)
 
-**Does NOT:**
-- Add features or expand product scope. If a "fix" is really a feature, hand it to Dev.
-- Refactor for taste — QA changes are bug fixes, tests, and guards, not rewrites.
-- Rubber-stamp. "Looks fine" is not a verdict; either QA **exercised the real flow and observed it**, or it's an open question.
+| Verdict | Meaning |
+|---|---|
+| **PASS** | Sound. Ship it upward. |
+| **PASS-WITH-FLAGS** | Ship, but these N items are unverified — each listed explicitly. |
+| **BLOCK** | Specific, named, reproducible defect. Returned to the builder. |
 
-**Posture:** skeptical, adversarial, detail-obsessed. A green suite is the floor, not the ceiling — QA also drives the actual flow and watches what really happens (use the `verify` / `run` skills).
+Never: rewriting the work, softening the verdict, or a gate approving its own change.
 
-**When QA finds a real bug** (crash path, data loss, cross-user leak, auth bypass, credit loop): if it's small and safe, fix it directly **with a regression test** and note it; if it's larger or collides with Dev's in-flight work, file the report and hand off. **Never leave a confirmed data-loss or security bug un-flagged.**
+### Truth-Layer report (what Alex receives on substantial work)
 
-### How the two coordinate (one repo, two chats)
+```
+VERDICT:    <the recommendation>
+CONFIDENCE: CERTAIN / LIKELY / GUESSING  (with the ratio)
+VERIFIED:   <claims traced to the repo / a green run>
+UNVERIFIED: <untraceable claims — always listed>
+STEELMAN:   <the strongest case AGAINST shipping this>
+BLIND SPOT: <what nobody in the chain checked>
+DISSENT:    <any gate BLOCK that was overridden, and why>
+```
 
-- **Branches keep you off each other's toes.** Dev works on `main` / short-lived feature branches as today. QA works on `qa/*` branches — or reviews Dev's open PR directly — and lands fixes/tests via its own PR. Alex merges both. Before starting, `git pull` and check what the other hat has in flight.
-- **Commit scopes signal the author.** Dev: normal `feat/fix/refactor(scope):`. QA: `test(scope):` for added coverage, `fix(scope):` for bug fixes, and **start the commit body with `QA:`** so history shows who caught it.
-- **Handoffs live in the checklist** under a **"QA findings"** list — `[ ]` open with repro + severity, `[x]` fixed with the commit hash. Confirmed root causes also go in **Dead ends & gotchas**.
-- **No silent overrides.** If Dev and QA disagree (e.g. QA says a feature isn't safe to ship), surface it to Alex — neither hat quietly wins.
+### Standing rules
+
+- **Nothing reaches Alex unverified.** Substantial work passes a gate, then the Truth Layer, then Alex.
+- **Fact errors → fact-checker. Reasoning errors → truth-agent. Never merge the roles.**
+- **Escalation is capped at 2 revision loops.** A third failure goes up to Alex as an *unresolved conflict* — never an infinite fix-loop. If I catch myself re-trying the same fix a third time, stop and escalate.
+- **Gates BLOCK, they don't rewrite.** Return the defect; the builder fixes it.
+- **No self-certification, no silent overrides.** "Looks fine" is not a verdict — either a flow was exercised and observed, or it's listed UNVERIFIED. If the builder and a gate disagree, surface it to Alex.
+- **Naming:** the `recall-*` prefix is deliberate — don't reuse built-in agent names (`architect`, `debugger`, `code-reviewer`) or they collide.
+
+### Coordination (one repo)
+
+- **Branches:** builder works on short-lived `feat/*` branches off `main`; QA/gate fixes land via their own PR. `git pull` before starting; check what's in flight.
+- **Commit scopes signal the author:** builder uses `feat/fix/refactor(scope):`; a QA/gate-driven fix uses `fix(scope):` / `test(scope):` and starts the body with `QA:`.
+- **Handoffs live in the checklist** under **"QA findings"** — `[ ]` open with repro + severity, `[x]` fixed with the commit hash. Confirmed root causes graduate to **Dead ends & gotchas**.
+
+### Known weaknesses (stated out loud, not discovered in prod)
+
+- One model plays every seat, so the adversarial separation is a **discipline** amplified by real subagents (separate contexts) — but it is not truly independent adversaries. Treat a clean pass as "no defect *found*," not "no defect *exists*."
+- The Truth Layer is a throughput bottleneck *by construction* — slower, much harder to fool. That's the trade; don't "optimize" it away for substantial work.
+- Meta-audit is doctrine, not automated — if a gate stops ever BLOCKing, that's the signal to look harder, not to relax.
 
 ---
 
