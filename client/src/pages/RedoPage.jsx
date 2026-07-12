@@ -12,7 +12,11 @@ function parseOptions(opts) {
   try { return typeof opts === 'string' ? JSON.parse(opts) : (opts ?? []); } catch { return []; }
 }
 
-const INTERACTIVE = new Set(['mcq', 'true_false']);
+// Only MCQ has stored options (`options_json`) to re-answer against. Every other
+// type — true_false, multi, cloze, short — has null options, so it uses the
+// flip-to-reveal path. (true_false previously sat here and dead-ended the queue:
+// null options → zero buttons → no way to advance.)
+const INTERACTIVE = new Set(['mcq']);
 
 export default function RedoPage() {
   const { quizId } = useParams();

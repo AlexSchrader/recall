@@ -19,9 +19,13 @@ const router = Router();
 // none    → all of the user's MCQ questions
 router.get('/games/questions', requireAuth, (req, res) => {
   const uid = req.session.userId;
-  const { unitId, courseId, topic, limit = 10 } = req.query;
+  const { unitId, courseId, topic, limit = 10, weak } = req.query;
 
-  const rows = listGameQuestions(uid, { unitId: unitId ?? null, courseId: courseId ?? null, topic: topic ?? null, limit });
+  // weak=1 → order by weakest topic first (Daily Mix), instead of pure random.
+  const rows = listGameQuestions(uid, {
+    unitId: unitId ?? null, courseId: courseId ?? null, topic: topic ?? null, limit,
+    weak: weak === '1' || weak === 'true',
+  });
 
   res.json(rows.map(r => ({
     ...r,
