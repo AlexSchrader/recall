@@ -36,6 +36,30 @@ const stmts = {
      ORDER BY RANDOM()
      LIMIT ?`
   ),
+  // Weak-first variant for Daily Mix: same pool, but ordered by the topic's
+  // current mastery (weakest first) instead of pure RANDOM. This keeps SM-2
+  // honest — Daily Mix drills topics that actually need work rather than
+  // grinding already-mastered ones off-schedule and inflating the mastery that
+  // Exam Readiness / trend arrows read back. GROUP BY q.id dedupes the
+  // json_each unit fan-out so the mastery ORDER BY is well-defined.
+  listGameWeak: db.prepare(
+    `SELECT q.id, q.prompt, q.options_json, q.correct_answer, q.topic, q.explanation, q.difficulty
+     FROM questions q
+     JOIN quizzes qz ON qz.id = q.quiz_id
+     JOIN json_each(qz.source_unit_ids) AS unit_ref ON 1=1
+     JOIN units u ON u.id = unit_ref.value
+     LEFT JOIN topic_mastery tm
+       ON tm.user_id = qz.user_id AND tm.course_id = u.course_id AND tm.topic = q.topic
+     WHERE qz.user_id = ?
+       AND qz.status = 'completed'
+       AND q.type = 'mcq'
+       AND (? IS NULL OR unit_ref.value = ?)
+       AND (? IS NULL OR u.course_id = ?)
+       AND (? IS NULL OR q.topic = ?)
+     GROUP BY q.id
+     ORDER BY MIN(COALESCE(tm.mastery, 0)) ASC, RANDOM()
+     LIMIT ?`
+  ),
   getCourseTopic: db.prepare(
     `SELECT q.topic, u.course_id
      FROM questions q
@@ -55,8 +79,9 @@ export function listQuestionsByQuiz(quizId) {
   return stmts.listByQuiz.all(quizId);
 }
 
-export function listGameQuestions(userId, { unitId = null, courseId = null, topic = null, limit = 10 } = {}) {
-  return stmts.listGame.all(userId, unitId, unitId, courseId, courseId, topic, topic, Number(limit));
+export function listGameQuestions(userId, { unitId = null, courseId = null, topic = null, limit = 10, weak = false } = {}) {
+  const stmt = weak ? stmts.listGameWeak : stmts.listGame;
+  return stmt.all(userId, unitId, unitId, courseId, courseId, topic, topic, Number(limit));
 }
 
 export function getQuestionCourseAndTopic(questionId, userId) {

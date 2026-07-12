@@ -1,6 +1,16 @@
 // Mini-game question sourcing is scoped to the caller's own completed quizzes.
 import { describe, it, expect } from 'vitest';
+import { v4 as uuidv4 } from 'uuid';
 import { createTestUser, seedCourseUnitDoc, createQuizFor, anonAgent } from '../helpers/seed.js';
+import { bulkCreateQuestions } from '../../server/src/db/questionsDb.js';
+import { updateMastery } from '../../server/src/db/topicMasteryDb.js';
+
+const mcqRow = (quizId, position, topic) => ({
+  id: uuidv4(), quiz_id: quizId, position, type: 'mcq', topic,
+  prompt: `${topic}?`, options_json: JSON.stringify(['A) x', 'B) y']),
+  correct_answer: 'A', rubric: '', explanation: `${topic} explanation`, source_ref: '',
+  difficulty: 'easy', is_review: 0,
+});
 
 // A completed quiz is the prerequisite for game questions.
 async function seedCompletedQuiz(agent) {
@@ -26,6 +36,39 @@ describe('games — happy path (owner)', () => {
     expect(res.status).toBe(200);
     expect(res.body.length).toBeGreaterThan(0);
     expect(res.body[0]).toHaveProperty('options');
+  });
+});
+
+describe('games — Daily Mix weak-first ordering', () => {
+  it('weak=1 surfaces low-mastery topics before mastered ones', async () => {
+    const { user, agent } = await createTestUser({ tier: 'pro' });
+    const { course, quizId } = await seedCompletedQuiz(agent);
+
+    // Two extra MCQ topics in the same completed quiz.
+    bulkCreateQuestions([mcqRow(quizId, 10, 'WeakTopic'), mcqRow(quizId, 11, 'StrongTopic')]);
+    // StrongTopic is mastered; WeakTopic has no mastery row (→ treated as 0).
+    updateMastery({
+      id: uuidv4(), user_id: user.id, course_id: course.id, topic: 'StrongTopic',
+      ease: 2.6, interval_days: 30, repetitions: 5, mastery: 0.95,
+      due_at: new Date().toISOString(), last_seen_at: new Date().toISOString(),
+    }, 'quiz');
+
+    const res = await agent.get('/api/games/questions?weak=1&limit=10');
+    expect(res.status).toBe(200);
+    const topics = res.body.map(q => q.topic);
+    // The mastered topic must sort after the weak one.
+    expect(topics).toContain('WeakTopic');
+    expect(topics).toContain('StrongTopic');
+    expect(topics.indexOf('WeakTopic')).toBeLessThan(topics.indexOf('StrongTopic'));
+  });
+
+  it('weak mode still scopes to the caller (no cross-user leak)', async () => {
+    const { agent: a } = await createTestUser({ displayName: 'Weak Alice', tier: 'pro' });
+    const { agent: b } = await createTestUser({ displayName: 'Weak Bob', tier: 'pro' });
+    await seedCompletedQuiz(a);
+    const res = await b.get('/api/games/questions?weak=1&limit=10');
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual([]);
   });
 });
 

@@ -43,7 +43,7 @@ export default function DailyMixPage() {
   useEffect(() => {
     Promise.all([
       api.get(`/flashcards/due?limit=${CARD_LIMIT}`).catch(() => []),
-      api.get(`/games/questions?limit=${MCQ_LIMIT}`).catch(() => []),
+      api.get(`/games/questions?limit=${MCQ_LIMIT}&weak=1`).catch(() => []),
     ]).then(([cards, mcqs]) => {
       const q = interleave(cards ?? [], mcqs ?? []);
       if (!q.length) { setPhase('empty'); return; }
